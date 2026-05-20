@@ -27,6 +27,7 @@ struct ContentView: View {
     @State private var isAppeared = false
     @State private var isOnboardingComplete = UserDefaults.standard.bool(forKey: "holodesk_onboarding_complete")
     @State private var isSplashComplete = false
+    @State private var showGuidedDemo = false
     
     var body: some View {
         ZStack {
@@ -80,7 +81,7 @@ struct ContentView: View {
                 // Bottom Dock
                 DockView(
                     onAddWindow: { showWindowPicker = true },
-                    onDemo: { runDemo() },
+                    onDemo: { showGuidedDemo = true },
                     onToggleImmersive: { toggleImmersive() },
                     onSave: { showSaveDialog = true },
                     onVoice: { toggleVoice() }
@@ -135,6 +136,11 @@ struct ContentView: View {
             Button("Cancel", role: .cancel) { }
         } message: {
             Text("Enter a name for this workspace layout.")
+        }
+        .sheet(isPresented: $showGuidedDemo) {
+            GuidedDemoView(isPresented: $showGuidedDemo)
+                .environment(store)
+                .environment(windowManager)
         }
     }
     

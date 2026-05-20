@@ -5,10 +5,11 @@
 import SwiftUI
 import Observation
 
-// MARK: - AI Workspace Assistant (Gemini-Powered)
+// MARK: - AI Workspace Assistant (Offline-First + Gemini)
 
-/// The AI brain of HoloDesk. Uses Google Gemini for free-form conversation
-/// while maintaining instant local intent matching for workspace actions.
+/// The AI brain of HoloDesk. Works 100% offline with rich local NLP.
+/// Optionally connects to Gemini for free-form conversation when available.
+/// WWDC-compliant: all core features work without network.
 @Observable
 final class AIAssistantManager {
     
@@ -20,8 +21,8 @@ final class AIAssistantManager {
     var aiMode: AIMode = .balanced
     var conversationCount = 0
     
-    /// Whether to use Gemini API or local-only fallback
-    var useGeminiAPI = true
+    /// Whether to attempt Gemini API (disabled for WWDC submission)
+    var useGeminiAPI = false  // Default OFF for offline-first
     
     struct AssistantMessage: Identifiable {
         let id = UUID()
@@ -57,8 +58,8 @@ final class AIAssistantManager {
     // MARK: - Greetings
     
     private let greetings = [
-        "Hey! I'm your Gemini-powered spatial assistant. What can I build for you today?",
-        "Welcome back to HoloDesk! I'm running on Gemini AI — ask me anything.",
+        "Hey! I'm your spatial assistant. What can I build for you today?",
+        "Welcome back to HoloDesk! Ask me anything about your workspace.",
         "Your spatial workspace is ready. What would you like to set up?",
     ]
     
@@ -74,7 +75,7 @@ final class AIAssistantManager {
         isActive = false
     }
     
-    // MARK: - Process User Input (Gemini + Local Hybrid)
+    // MARK: - Process User Input
     
     @MainActor
     func processInput(_ input: String, store: WorkspaceStore, windowManager: WindowManager) {
@@ -86,7 +87,7 @@ final class AIAssistantManager {
         conversationCount += 1
         
         Task {
-            // Step 1: Try local intent matching first (instant, no API call)
+            // Step 1: Local intent matching (instant, no API)
             if let localResponse = matchLocalIntent(text.lowercased(), store: store) {
                 addAssistantMessage(localResponse.message)
                 if let action = localResponse.action {
@@ -97,7 +98,16 @@ final class AIAssistantManager {
                 return
             }
             
-            // Step 2: Use Gemini API for free-form queries
+            // Step 2: Smart local NLP for conversational queries (offline)
+            if let smartResponse = smartLocalResponse(text.lowercased(), store: store) {
+                // Simulate natural typing delay
+                try? await Task.sleep(for: .milliseconds(400))
+                addAssistantMessage(smartResponse)
+                isThinking = false
+                return
+            }
+            
+            // Step 3: Optional Gemini API for complex queries
             if useGeminiAPI {
                 do {
                     let context = GeminiService.buildContext(from: store)
@@ -105,21 +115,17 @@ final class AIAssistantManager {
                         message: text,
                         workspaceContext: context
                     )
-                    
-                    // Parse action tags from Gemini response
                     let (cleanMessage, action) = parseActionTags(from: response)
                     addAssistantMessage(cleanMessage)
-                    
                     if let action = action {
                         suggestedAction = action
                         executeAction(action, store: store, windowManager: windowManager)
                     }
                 } catch {
-                    // Fallback to local response on API failure
-                    addAssistantMessage("I couldn't reach Gemini right now, but I can still help! Try asking me to switch modes or open apps. 🛡️")
+                    addAssistantMessage(smartFallback(text.lowercased(), store: store))
                 }
             } else {
-                addAssistantMessage("I can help with workspace actions! Try: \"open work mode\", \"add notes\", or \"save workspace\".")
+                addAssistantMessage(smartFallback(text.lowercased(), store: store))
             }
             
             isThinking = false
@@ -135,16 +141,16 @@ final class AIAssistantManager {
     
     private func matchLocalIntent(_ input: String, store: WorkspaceStore) -> LocalResponse? {
         // Mode switching
-        if input.contains("work") && (input.contains("mode") || input.contains("setup") || input.contains("coding")) {
+        if input.contains("work") && (input.contains("mode") || input.contains("setup") || input.contains("coding") || input.contains("productivity")) {
             return LocalResponse(message: "Setting up Work mode — productivity tools incoming. 🧑‍💻", action: .switchMode(.work))
         }
-        if input.contains("study") || input.contains("learn") {
+        if input.contains("study") || input.contains("learn") || input.contains("read") {
             return LocalResponse(message: "Study mode — notes front and center, distractions minimized. 📚", action: .switchMode(.study))
         }
-        if input.contains("cinema") || input.contains("movie") || input.contains("watch") {
+        if input.contains("cinema") || input.contains("movie") || input.contains("watch") || input.contains("film") {
             return LocalResponse(message: "Cinema mode — dimming lights, big screen coming up. 🎬", action: .switchMode(.cinema))
         }
-        if input.contains("game") || input.contains("gaming") {
+        if input.contains("game") || input.contains("gaming") || input.contains("play") {
             return LocalResponse(message: "Gaming mode activated! Ultra-wide, minimal UI. 🎮", action: .switchMode(.gaming))
         }
         
@@ -153,31 +159,57 @@ final class AIAssistantManager {
             return LocalResponse(message: "Workspace saved! 💾", action: .saveWorkspace)
         }
         
-        // Clear
-        if input.contains("clear") || input.contains("reset") {
+        // Clear / Reset
+        if input.contains("clear") || (input.contains("reset") && !input.contains("data")) {
             return LocalResponse(message: "Clearing all windows. Fresh canvas! ✨", action: .clearWindows)
         }
         
+        // Rearrange
+        if input.contains("rearrange") || input.contains("organize") || input.contains("tidy") || input.contains("arc") {
+            return LocalResponse(message: "Rearranging windows in a comfortable arc. 🌀", action: .rearrangeWindows)
+        }
+        
         // Add windows — match specific types
-        if input.contains("add") || input.contains("open") {
+        if input.contains("add") || input.contains("open") || input.contains("show") || input.contains("launch") {
             let windowMap: [(String, WindowType, String)] = [
-                ("note",      .notes,       "Notes window ready. ✏️"),
-                ("music",     .music,       "Music player added. 🎵"),
-                ("calendar",  .calendar,    "Calendar's up. 📅"),
-                ("message",   .messages,    "Messages opened. 💬"),
-                ("file",      .files,       "Files browser ready. 📂"),
-                ("weather",   .weather,     "Weather panel added. ⛅"),
-                ("todo",      .todo,        "To-Do list ready. ✅"),
-                ("spotify",   .spotify,     "Spotify loaded. 🎧"),
-                ("code",      .codeEditor,  "Code editor ready. 💻"),
-                ("terminal",  .terminal,    "Terminal spawned. >_"),
-                ("browser",   .browser,     "Browser opened. 🌐"),
-                ("chess",     .chess,       "Chess board placed. ♟️"),
-                ("mail",      .mail,        "Mail inbox opened. 📧"),
-                ("stock",     .stocks,      "Stocks dashboard ready. 📈"),
-                ("video",     .video,       "Video player added. 🎥"),
-                ("meditat",   .meditation,  "Meditation space created. 🧘"),
-                ("whiteboard",.whiteboard,  "Whiteboard ready. 🎨"),
+                ("note",       .notes,        "Notes window ready. ✏️"),
+                ("music",      .music,        "Music player added. 🎵"),
+                ("calendar",   .calendar,     "Calendar's up. 📅"),
+                ("message",    .messages,     "Messages opened. 💬"),
+                ("file",       .files,        "Files browser ready. 📂"),
+                ("weather",    .weather,      "Weather panel added. ⛅"),
+                ("todo",       .todo,         "To-Do list ready. ✅"),
+                ("task",       .todo,         "Task list ready. ✅"),
+                ("spotify",    .spotify,      "Spotify loaded. 🎧"),
+                ("code",       .codeEditor,   "Code editor ready. 💻"),
+                ("terminal",   .terminal,     "Terminal spawned. >_"),
+                ("browser",    .browser,      "Browser opened. 🌐"),
+                ("chess",      .chess,        "Chess board placed. ♟️"),
+                ("mail",       .mail,         "Mail inbox opened. 📧"),
+                ("email",      .mail,         "Email inbox opened. 📧"),
+                ("stock",      .stocks,       "Stocks dashboard ready. 📈"),
+                ("video",      .video,        "Video player added. 🎥"),
+                ("meditat",    .meditation,   "Meditation space created. 🧘"),
+                ("whiteboard", .whiteboard,   "Whiteboard ready. 🎨"),
+                ("draw",       .whiteboard,   "Drawing board ready. 🎨"),
+                ("kanban",     .kanban,       "Kanban board opened. 📋"),
+                ("board",      .kanban,       "Project board ready. 📋"),
+                ("mind",       .mindMap,      "Mind map created. 🧠"),
+                ("podcast",    .podcast,      "Podcast player added. 🎙️"),
+                ("photo",      .photos,       "Photos gallery opened. 📸"),
+                ("translate",  .translator,   "Translator ready. 🌍"),
+                ("clipboard",  .clipboard,    "Clipboard manager opened. 📎"),
+                ("voice",      .voiceMemos,   "Voice Memos recording. 🎤"),
+                ("facetime",   .facetime,     "FaceTime ready. 📹"),
+                ("call",       .facetime,     "Video call ready. 📹"),
+                ("spread",     .spreadsheet,  "Spreadsheet opened. 📊"),
+                ("monitor",    .systemMonitor,"System monitor ready. 📡"),
+                ("social",     .socialFeed,   "Social feed opened. 📱"),
+                ("color",      .colorPicker,  "Color picker ready. 🎨"),
+                ("habit",      .habits,       "Habit tracker opened. 📈"),
+                ("model",      .modelViewer,  "3D model viewer ready. 🧊"),
+                ("ambien",     .ambienceMixer,"Ambience mixer opened. 🔊"),
+                ("visual",     .visualizer,   "Music visualizer ready. 🌈"),
             ]
             for (keyword, type, msg) in windowMap {
                 if input.contains(keyword) {
@@ -187,22 +219,116 @@ final class AIAssistantManager {
         }
         
         // Immersive
-        if input.contains("immersive") || input.contains("3d space") {
+        if input.contains("immersive") || input.contains("3d space") || input.contains("spatial") {
             return LocalResponse(message: "Opening immersive space — your room becomes your workspace! 🌌", action: .openImmersive)
         }
         
-        // Not a local intent — let Gemini handle it
         return nil
+    }
+    
+    // MARK: - Smart Local NLP (Offline Intelligence)
+    
+    /// Handles conversational queries without any API — WWDC compliant.
+    private func smartLocalResponse(_ input: String, store: WorkspaceStore) -> String? {
+        let windowCount = store.activeWindows.count
+        let mode = store.currentMode
+        let hour = Calendar.current.component(.hour, from: Date())
+        
+        // Greetings
+        if input.contains("hello") || input.contains("hi") || input.contains("hey") || input.starts(with: "yo") {
+            let timeGreeting = hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening"
+            return "\(timeGreeting)! You're in \(mode.displayName) mode with \(windowCount) windows. What would you like to set up? 🧊"
+        }
+        
+        // What can you do?
+        if input.contains("what can you") || input.contains("help") || input.contains("what do you") {
+            return """
+            I can help with:
+            • Switch modes: "work mode", "cinema mode", "study mode"
+            • Open apps: "open notes", "add spotify", "show weather"
+            • Manage: "save workspace", "clear all", "rearrange"
+            • Immersive: "open 3d space"
+            Ask me anything about your workspace! 🧊
+            """
+        }
+        
+        // Status / How's my workspace
+        if input.contains("status") || input.contains("how") || input.contains("what's open") || input.contains("workspace") {
+            if windowCount == 0 {
+                return "Your workspace is empty. Try \"work mode\" to load a preset, or \"open notes\" to add a window. 🧊"
+            }
+            let windowNames = store.activeWindows.prefix(5).map { $0.type.displayName }.joined(separator: ", ")
+            let extra = windowCount > 5 ? " and \(windowCount - 5) more" : ""
+            return "You're in \(mode.displayName) mode with \(windowCount) windows: \(windowNames)\(extra). 🧊"
+        }
+        
+        // Time-based advice
+        if input.contains("suggest") || input.contains("advice") || input.contains("recommend") || input.contains("what should") {
+            switch hour {
+            case 5..<9:
+                return "Morning routine! I'd suggest: Calendar → Weather → Todo → Music. Start with \"work mode\" for a clean setup. ☀️"
+            case 9..<12:
+                return "Peak focus hours! Go deep with Code Editor + Terminal + Notes. Try \"work mode\" for optimal productivity. 🧠"
+            case 12..<14:
+                return "Lunch break — maybe switch to a lighter setup? Try \"open spotify\" or \"cinema mode\" to relax. 🍕"
+            case 14..<17:
+                return "Afternoon push! Kanban board + Calendar for planning. Or \"study mode\" for focused reading. 📋"
+            case 17..<21:
+                return "Evening wind-down. How about \"cinema mode\" for a movie, or \"open meditation\" for some calm? 🌅"
+            default:
+                return "Night owl mode! Keep it minimal — Notes + Music + Ambient mixer. The dark theme is easier on your eyes. 🌙"
+            }
+        }
+        
+        // Thank you
+        if input.contains("thank") || input.contains("awesome") || input.contains("great") || input.contains("nice") {
+            return ["You're welcome! 🧊", "Happy to help! Need anything else?", "Anytime! Your workspace is looking great. ✨"].randomElement()!
+        }
+        
+        // About
+        if input.contains("who are you") || input.contains("about") || input.contains("what are you") {
+            return "I'm HoloDesk AI — your spatial computing assistant. Built by Notminelap Industries for Apple Vision Pro. I run entirely on-device! 🧊"
+        }
+        
+        // How many windows / apps
+        if input.contains("how many") {
+            if input.contains("window") || input.contains("app") {
+                return "You have \(windowCount) windows open right now in \(mode.displayName) mode. I support 32 different app types! 🧊"
+            }
+        }
+        
+        // Close / remove
+        if input.contains("close") || input.contains("remove") {
+            return "To close a window, tap the red traffic light button on its title bar. Or say \"clear all\" to remove everything. 🧊"
+        }
+        
+        // Focus / concentration
+        if input.contains("focus") || input.contains("concentrate") || input.contains("distract") {
+            return "For maximum focus, try \"study mode\" — it minimizes distractions and puts notes front and center. You can also try the Pomodoro timer in the dock! 🧠"
+        }
+        
+        return nil
+    }
+    
+    // MARK: - Smart Fallback
+    
+    /// When nothing else matches, give a helpful contextual response
+    private func smartFallback(_ input: String, store: WorkspaceStore) -> String {
+        let suggestions = [
+            "I can help you set up your workspace! Try: \"work mode\", \"open notes\", or \"cinema mode\". 🧊",
+            "Ask me to switch modes, open apps, or manage your workspace. For example: \"add spotify\" or \"study mode\". 🧊",
+            "Some things I can do: switch to \"gaming mode\", \"save workspace\", \"open chess\", or \"rearrange\" your windows. 🧊",
+            "Try asking me to \"open weather\", \"add calendar\", or \"switch to cinema mode\". I'm here to help! 🧊",
+        ]
+        return suggestions[conversationCount % suggestions.count]
     }
     
     // MARK: - Parse Gemini Action Tags
     
-    /// Extracts [ACTION:...] tags from Gemini's response
     private func parseActionTags(from response: String) -> (String, SuggestedAction?) {
         var cleanMessage = response
         var action: SuggestedAction? = nil
         
-        // Match [ACTION:type:param] pattern
         let pattern = #"\[ACTION:([a-z_]+)(?::([a-zA-Z]+))?\]"#
         if let regex = try? NSRegularExpression(pattern: pattern),
            let match = regex.firstMatch(in: response, range: NSRange(response.startIndex..., in: response)) {
@@ -212,33 +338,22 @@ final class AIAssistantManager {
                 ? String(response[Range(match.range(at: 2), in: response)!])
                 : nil
             
-            // Remove action tag from visible message
             cleanMessage = regex.stringByReplacingMatches(
                 in: response,
                 range: NSRange(response.startIndex..., in: response),
                 withTemplate: ""
             ).trimmingCharacters(in: .whitespacesAndNewlines)
             
-            // Map to action
             switch actionType {
             case "switch_mode":
-                if let mode = WorkspaceMode(rawValue: param ?? "") {
-                    action = .switchMode(mode)
-                }
+                if let mode = WorkspaceMode(rawValue: param ?? "") { action = .switchMode(mode) }
             case "add_window":
-                if let type = WindowType(rawValue: param ?? "") {
-                    action = .addWindow(type)
-                }
-            case "save":
-                action = .saveWorkspace
-            case "rearrange":
-                action = .rearrangeWindows
-            case "immersive":
-                action = .openImmersive
-            case "clear":
-                action = .clearWindows
-            default:
-                break
+                if let type = WindowType(rawValue: param ?? "") { action = .addWindow(type) }
+            case "save":      action = .saveWorkspace
+            case "rearrange": action = .rearrangeWindows
+            case "immersive": action = .openImmersive
+            case "clear":     action = .clearWindows
+            default: break
             }
         }
         
@@ -267,28 +382,6 @@ final class AIAssistantManager {
         }
     }
     
-    // MARK: - Special Queries
-    
-    /// Ask Gemini for productivity advice
-    @MainActor
-    func askForAdvice(store: WorkspaceStore) {
-        processInput(
-            "Based on the current time of day and my workspace, what should I focus on?",
-            store: store,
-            windowManager: WindowManager()
-        )
-    }
-    
-    /// Ask Gemini to suggest a layout
-    @MainActor
-    func suggestLayout(store: WorkspaceStore) {
-        processInput(
-            "Suggest the ideal window arrangement for my current workflow.",
-            store: store,
-            windowManager: WindowManager()
-        )
-    }
-    
     // MARK: - Helpers
     
     private func addUserMessage(_ text: String) {
@@ -300,10 +393,11 @@ final class AIAssistantManager {
         messageHistory.append(AssistantMessage(text: text, isUser: false, timestamp: Date()))
     }
     
-    /// Reset conversation
     func clearHistory() {
         messageHistory.removeAll()
         conversationCount = 0
-        Task { await GeminiService.shared.resetConversation() }
+        if useGeminiAPI {
+            Task { await GeminiService.shared.resetConversation() }
+        }
     }
 }
