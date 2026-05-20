@@ -268,9 +268,13 @@ struct AIBuddyView: View {
                     quickChip("🧑‍💻 Work", action: "set up work mode")
                     quickChip("📚 Study", action: "switch to study mode")
                     quickChip("🎬 Cinema", action: "cinema mode")
+                    quickChip("🎮 Gaming", action: "gaming mode")
                     quickChip("💡 Advice", action: "give me productivity advice")
                     quickChip("🧹 Clear", action: "clear all windows")
                     quickChip("💾 Save", action: "save workspace")
+                    quickChip("📝 Notes", action: "open notes")
+                    quickChip("📊 Status", action: "what's open")
+                    quickChip("❓ Help", action: "what can you do")
                 }
                 .padding(.horizontal, 10)
                 .padding(.vertical, 5)
@@ -283,7 +287,7 @@ struct AIBuddyView: View {
                     .fill(assistant.useGeminiAPI ? .green : .orange)
                     .frame(width: 6, height: 6)
                 
-                TextField("Ask Gemini...", text: $userInput)
+                TextField("Ask me anything...", text: $userInput)
                     .textFieldStyle(.plain)
                     .font(.system(size: 12))
                     .foregroundStyle(.white)
@@ -349,7 +353,7 @@ struct AIBuddyView: View {
                         )
                 }
                 
-                Text("Thinking with Gemini...")
+                Text(assistant.useGeminiAPI ? "Thinking with Gemini..." : "Thinking...")
                     .font(.system(size: 10))
                     .foregroundStyle(.white.opacity(0.4))
             }

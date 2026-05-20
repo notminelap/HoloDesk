@@ -243,6 +243,8 @@ struct DockView: View {
         }
         .buttonStyle(.plain)
         .hoverGlow()
+        .accessibilityLabel(label)
+        .accessibilityHint(isActive ? "Currently active. Double tap to toggle." : "Double tap to activate.")
     }
     
     // MARK: - Mini Dock Button
@@ -280,5 +282,7 @@ struct DockView: View {
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
+        .accessibilityLabel(label)
+        .accessibilityHint(badge > 0 ? "\(badge) notifications. Double tap to open." : "Double tap to open.")
     }
 }

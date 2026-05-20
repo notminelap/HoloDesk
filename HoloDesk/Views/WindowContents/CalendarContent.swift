@@ -4,38 +4,49 @@
 
 import SwiftUI
 
-// MARK: - Calendar Window Content
+// MARK: - Calendar Window Content (Interactive)
 
-/// Monthly calendar with event sidebar — matches visionOS calendar aesthetic.
+/// Monthly calendar with event sidebar — real date computation, event colors, today highlight.
 struct CalendarContent: View {
     
-    private let currentMonth = "April 2025"
-    private let days = ["S", "M", "T", "W", "T", "F", "S"]
-    private let today = 8  // Highlighted day
+    @State private var selectedDate: Int?
+    @State private var displayMonth: Date = Date()
     
-    // Calendar grid (April 2025 starting on Tuesday)
-    private let dates: [Int?] = [
-        nil, nil, 1, 2, 3, 4, 5,
-        6, 7, 8, 9, 10, 11, 12,
-        13, 14, 15, 16, 17, 18, 19,
-        20, 21, 22, 23, 24, 25, 26,
-        27, 28, 29, 30, nil, nil, nil
+    private let calendar = Calendar.current
+    private let dayHeaders = ["S", "M", "T", "W", "T", "F", "S"]
+    
+    private let events: [Int: [(time: String, title: String, color: Color)]] = [
+        8:  [("10:00 AM", "Team Sync", .blue), ("2:00 PM", "Code Review", .purple)],
+        12: [("9:00 AM", "Sprint Planning", .orange)],
+        15: [("1:00 PM", "Client Call", .green), ("3:30 PM", "Design Review", .pink)],
+        20: [("11:00 AM", "1:1 with Manager", .cyan)],
+        22: [("4:00 PM", "Release Prep", .red)],
+        25: [("10:00 AM", "All Hands", .blue), ("2:00 PM", "Tech Talk", .purple), ("4:30 PM", "Happy Hour", .orange)],
     ]
     
-    private let events: [(time: String, title: String, color: Color)] = [
-        ("10:00 - 11:00 AM", "Team Sync", .blue),
-        ("1:00 - 2:30 PM", "Project Review", .purple),
-        ("3:30 - 4:30 PM", "Client Call", .orange),
-    ]
+    private var today: Int { calendar.component(.day, from: Date()) }
+    private var monthString: String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "MMMM yyyy"
+        return formatter.string(from: displayMonth)
+    }
+    
+    private var datesGrid: [Int?] {
+        let components = calendar.dateComponents([.year, .month], from: displayMonth)
+        guard let firstOfMonth = calendar.date(from: components),
+              let range = calendar.range(of: .day, in: .month, for: firstOfMonth) else { return [] }
+        
+        let firstWeekday = calendar.component(.weekday, from: firstOfMonth) - 1
+        var grid: [Int?] = Array(repeating: nil, count: firstWeekday)
+        for day in range { grid.append(day) }
+        while grid.count % 7 != 0 { grid.append(nil) }
+        return grid
+    }
     
     var body: some View {
         HStack(spacing: 0) {
-            // Calendar grid
             calendarGrid
-            
-            Divider().overlay(Color.white.opacity(0.08))
-            
-            // Events sidebar
+            Divider().overlay(Color.white.opacity(0.06))
             eventsSidebar
         }
     }
@@ -43,94 +54,184 @@ struct CalendarContent: View {
     // MARK: - Calendar Grid
     
     private var calendarGrid: some View {
-        VStack(spacing: 8) {
-            // Month header
+        VStack(spacing: 6) {
+            // Month header with nav
             HStack {
-                Text("Calendar")
-                    .font(.system(size: 16, weight: .bold))
-                    .foregroundStyle(.white)
+                Button { changeMonth(-1) } label: {
+                    Image(systemName: "chevron.left")
+                        .font(.system(size: 10, weight: .bold))
+                        .foregroundStyle(.white.opacity(0.4))
+                }
+                .buttonStyle(.plain)
+                
                 Spacer()
                 
-                // Notification badge
-                ZStack {
-                    Circle()
-                        .fill(.red)
-                        .frame(width: 20, height: 20)
-                    Text("3")
+                Text(monthString)
+                    .font(.system(size: 13, weight: .bold))
+                    .foregroundStyle(.white)
+                
+                Spacer()
+                
+                Button { changeMonth(1) } label: {
+                    Image(systemName: "chevron.right")
                         .font(.system(size: 10, weight: .bold))
-                        .foregroundStyle(.white)
+                        .foregroundStyle(.white.opacity(0.4))
                 }
+                .buttonStyle(.plain)
             }
             
-            Text(currentMonth)
-                .font(.system(size: 13, weight: .semibold))
-                .foregroundStyle(.white.opacity(0.7))
-                .frame(maxWidth: .infinity, alignment: .leading)
-            
             // Day headers
-            LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 7), spacing: 4) {
-                ForEach(days, id: \.self) { day in
+            LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 2), count: 7), spacing: 3) {
+                ForEach(dayHeaders, id: \.self) { day in
                     Text(day)
-                        .font(.system(size: 10, weight: .semibold))
-                        .foregroundStyle(.white.opacity(0.4))
-                        .frame(height: 18)
+                        .font(.system(size: 9, weight: .semibold))
+                        .foregroundStyle(.white.opacity(0.35))
+                        .frame(height: 16)
                 }
                 
-                // Date cells
-                ForEach(Array(dates.enumerated()), id: \.offset) { _, date in
+                ForEach(Array(datesGrid.enumerated()), id: \.offset) { _, date in
                     if let date {
                         dateCell(date)
                     } else {
                         Text("")
-                            .frame(height: 26)
+                            .frame(height: 28)
                     }
                 }
             }
+            
+            Spacer()
+            
+            // Today button
+            Button {
+                displayMonth = Date()
+                selectedDate = today
+            } label: {
+                Text("Today")
+                    .font(.system(size: 10, weight: .medium))
+                    .foregroundStyle(.holoPrimary)
+            }
+            .buttonStyle(.plain)
         }
-        .padding(14)
+        .padding(12)
         .frame(maxWidth: .infinity)
     }
     
     private func dateCell(_ date: Int) -> some View {
         let isToday = date == today
+        let isSelected = date == selectedDate
+        let hasEvents = events[date] != nil
         
-        return Text("\(date)")
-            .font(.system(size: 12, weight: isToday ? .bold : .regular))
-            .foregroundStyle(isToday ? .white : .white.opacity(0.7))
-            .frame(width: 26, height: 26)
+        return Button {
+            withAnimation(.spring(response: 0.2)) { selectedDate = date }
+        } label: {
+            VStack(spacing: 1) {
+                Text("\(date)")
+                    .font(.system(size: 11, weight: isToday ? .bold : .regular))
+                    .foregroundStyle(isToday ? .white : isSelected ? .holoPrimary : .white.opacity(0.7))
+                
+                // Event dot
+                if hasEvents {
+                    Circle()
+                        .fill(events[date]!.first!.color)
+                        .frame(width: 3, height: 3)
+                } else {
+                    Color.clear.frame(width: 3, height: 3)
+                }
+            }
+            .frame(width: 28, height: 28)
             .background(
-                Circle()
-                    .fill(isToday ? Color.calendarHighlight : .clear)
+                ZStack {
+                    if isToday {
+                        Circle().fill(Color.holoPrimary.opacity(0.3))
+                    }
+                    if isSelected && !isToday {
+                        Circle().strokeBorder(Color.holoPrimary.opacity(0.4), lineWidth: 1)
+                    }
+                }
             )
+        }
+        .buttonStyle(.plain)
     }
     
     // MARK: - Events Sidebar
     
     private var eventsSidebar: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            ForEach(Array(events.enumerated()), id: \.offset) { _, event in
-                eventRow(event)
+        VStack(alignment: .leading, spacing: 0) {
+            // Header
+            HStack {
+                Text(selectedDate != nil ? "Events — \(selectedDate!)" : "Events")
+                    .font(.system(size: 12, weight: .bold))
+                    .foregroundStyle(.white)
+                Spacer()
+                
+                // Event count badge
+                if let sel = selectedDate, let evts = events[sel] {
+                    Text("\(evts.count)")
+                        .font(.system(size: 9, weight: .bold))
+                        .foregroundStyle(.white)
+                        .frame(width: 16, height: 16)
+                        .background(.holoPrimary.opacity(0.4), in: Circle())
+                }
             }
-            Spacer()
+            .padding(.horizontal, 10)
+            .padding(.vertical, 8)
+            
+            Divider().overlay(Color.white.opacity(0.05))
+            
+            // Events list
+            ScrollView {
+                if let sel = selectedDate, let dayEvents = events[sel] {
+                    VStack(spacing: 6) {
+                        ForEach(Array(dayEvents.enumerated()), id: \.offset) { _, event in
+                            eventRow(event)
+                        }
+                    }
+                    .padding(10)
+                } else {
+                    VStack(spacing: 8) {
+                        Spacer()
+                        Image(systemName: "calendar")
+                            .font(.system(size: 20))
+                            .foregroundStyle(.white.opacity(0.15))
+                        Text("Select a date")
+                            .font(.system(size: 10))
+                            .foregroundStyle(.white.opacity(0.2))
+                        Spacer()
+                    }
+                    .frame(maxWidth: .infinity)
+                }
+            }
         }
-        .padding(12)
-        .frame(width: 180)
-        .background(.black.opacity(0.1))
+        .frame(width: 170)
+        .background(.black.opacity(0.06))
     }
     
     private func eventRow(_ event: (time: String, title: String, color: Color)) -> some View {
         HStack(spacing: 8) {
             RoundedRectangle(cornerRadius: 2)
                 .fill(event.color)
-                .frame(width: 3, height: 32)
+                .frame(width: 3, height: 36)
             
-            VStack(alignment: .leading, spacing: 2) {
+            VStack(alignment: .leading, spacing: 3) {
                 Text(event.title)
                     .font(.system(size: 12, weight: .semibold))
                     .foregroundStyle(.white)
                 Text(event.time)
                     .font(.system(size: 9))
-                    .foregroundStyle(.white.opacity(0.5))
+                    .foregroundStyle(.white.opacity(0.4))
+            }
+            
+            Spacer()
+        }
+        .padding(8)
+        .innerGlass(cornerRadius: 8)
+    }
+    
+    private func changeMonth(_ delta: Int) {
+        if let newDate = calendar.date(byAdding: .month, value: delta, to: displayMonth) {
+            withAnimation(.spring(response: 0.3)) {
+                displayMonth = newDate
+                selectedDate = nil
             }
         }
     }
