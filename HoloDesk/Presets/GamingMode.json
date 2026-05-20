@@ -1,0 +1,41 @@
+{
+  "id": "00000000-0000-0000-0000-000000000004",
+  "name": "Gaming Mode",
+  "mode": "gaming",
+  "createdDate": "2025-01-01T00:00:00Z",
+  "windows": [
+    {
+      "id": "44444444-4444-4444-4444-444444444001",
+      "type": "video",
+      "position": [0.0, 1.5, -2.5],
+      "rotation": [0, 0, 0, 1],
+      "size": [1000, 450],
+      "isVisible": true,
+      "zIndex": 0
+    },
+    {
+      "id": "44444444-4444-4444-4444-444444444002",
+      "type": "spotify",
+      "position": [-1.8, 1.0, -1.5],
+      "rotation": [0, 0, 0, 1],
+      "size": [280, 340],
+      "isVisible": true,
+      "zIndex": 1
+    },
+    {
+      "id": "44444444-4444-4444-4444-444444444003",
+      "type": "messages",
+      "position": [1.8, 1.2, -1.5],
+      "rotation": [0, 0, 0, 1],
+      "size": [280, 350],
+      "isVisible": true,
+      "zIndex": 2
+    }
+  ],
+  "environmentSettings": {
+    "ambientIntensity": 0.25,
+    "colorTint": [0.1, 0.8, 0.95],
+    "immersionLevel": 0.4,
+    "particleDensity": 0.7
+  }
+}

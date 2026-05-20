@@ -1,0 +1,50 @@
+{
+  "id": "00000000-0000-0000-0000-000000000002",
+  "name": "Study Mode",
+  "mode": "study",
+  "createdDate": "2025-01-01T00:00:00Z",
+  "windows": [
+    {
+      "id": "22222222-2222-2222-2222-222222222001",
+      "type": "notes",
+      "position": [0.0, 1.6, -2.0],
+      "rotation": [0, 0, 0, 1],
+      "size": [500, 550],
+      "isVisible": true,
+      "zIndex": 0
+    },
+    {
+      "id": "22222222-2222-2222-2222-222222222002",
+      "type": "calendar",
+      "position": [-1.0, 1.4, -1.8],
+      "rotation": [0, 0, 0, 1],
+      "size": [400, 350],
+      "isVisible": true,
+      "zIndex": 1
+    },
+    {
+      "id": "22222222-2222-2222-2222-222222222003",
+      "type": "todo",
+      "position": [1.0, 1.4, -1.8],
+      "rotation": [0, 0, 0, 1],
+      "size": [350, 350],
+      "isVisible": true,
+      "zIndex": 2
+    },
+    {
+      "id": "22222222-2222-2222-2222-222222222004",
+      "type": "music",
+      "position": [0.0, 0.9, -1.4],
+      "rotation": [0, 0, 0, 1],
+      "size": [300, 280],
+      "isVisible": true,
+      "zIndex": 3
+    }
+  ],
+  "environmentSettings": {
+    "ambientIntensity": 0.7,
+    "colorTint": [0.35, 0.7, 0.8],
+    "immersionLevel": 0.1,
+    "particleDensity": 0.2
+  }
+}

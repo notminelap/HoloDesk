@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <!-- App Identity -->
+    <key>CFBundleDevelopmentRegion</key>
+    <string>en</string>
+    <key>CFBundleDisplayName</key>
+    <string>HoloDesk</string>
+    <key>CFBundleExecutable</key>
+    <string>$(EXECUTABLE_NAME)</string>
+    <key>CFBundleIdentifier</key>
+    <string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
+    <key>CFBundleInfoDictionaryVersion</key>
+    <string>6.0</string>
+    <key>CFBundleName</key>
+    <string>$(PRODUCT_NAME)</string>
+    <key>CFBundlePackageType</key>
+    <string>$(PRODUCT_BUNDLE_PACKAGE_TYPE)</string>
+    <key>CFBundleShortVersionString</key>
+    <string>2.0</string>
+    <key>CFBundleVersion</key>
+    <string>1</string>
+
+    <!-- visionOS 2 Deployment -->
+    <key>MinimumOSVersion</key>
+    <string>2.0</string>
+    <key>LSRequiresIPhoneOS</key>
+    <false/>
+
+    <!-- Scene Configuration -->
+    <key>UIApplicationSceneManifest</key>
+    <dict>
+        <key>UIApplicationSupportsMultipleScenes</key>
+        <true/>
+        <key>UISceneConfigurations</key>
+        <dict/>
+    </dict>
+
+    <!-- ARKit / Vision Permissions -->
+    <key>NSHandsTrackingUsageDescription</key>
+    <string>HoloDesk uses hand tracking to let you grab, move, and resize spatial windows with natural hand gestures.</string>
+
+    <key>NSSpeechRecognitionUsageDescription</key>
+    <string>HoloDesk uses speech recognition for voice commands like "Open work mode" and "Save workspace".</string>
+
+    <key>NSMicrophoneUsageDescription</key>
+    <string>HoloDesk needs microphone access for voice commands, voice memos, and FaceTime calls.</string>
+
+    <key>NSWorldSensingUsageDescription</key>
+    <string>HoloDesk uses world sensing to detect your desk surface, place windows in your room, and persist spatial anchors across sessions.</string>
+
+    <key>NSPhotoLibraryUsageDescription</key>
+    <string>HoloDesk accesses your photos for the spatial photo gallery and mood boards.</string>
+
+    <key>NSCameraUsageDescription</key>
+    <string>HoloDesk uses the camera for document scanning and FaceTime video calls.</string>
+
+    <key>NSLocalNetworkUsageDescription</key>
+    <string>HoloDesk uses local network for smart home device control and SharePlay collaboration.</string>
+
+    <key>NSBonjourServices</key>
+    <array>
+        <string>_holodesk._tcp</string>
+    </array>
+
+    <!-- Capabilities -->
+    <key>UIRequiredDeviceCapabilities</key>
+    <array>
+        <string>arm64</string>
+        <string>arkit</string>
+        <string>iphone-ipad-minimum-performance-a12</string>
+    </array>
+
+    <!-- Immersive Space -->
+    <key>UIApplicationPreferredDefaultSceneSessionRole</key>
+    <string>UIWindowSceneSessionRoleApplication</string>
+
+    <!-- Background Modes -->
+    <key>UIBackgroundModes</key>
+    <array>
+        <string>audio</string>
+        <string>spatial-audio</string>
+    </array>
+
+    <!-- App Transport Security -->
+    <key>NSAppTransportSecurity</key>
+    <dict>
+        <key>NSAllowsArbitraryLoads</key>
+        <false/>
+    </dict>
+
+    <!-- Supported Interface Orientations -->
+    <key>UISupportedInterfaceOrientations</key>
+    <array>
+        <string>UIInterfaceOrientationPortrait</string>
+    </array>
+
+    <!-- Launch Storyboard -->
+    <key>UILaunchScreen</key>
+    <dict>
+        <key>UIColorName</key>
+        <string>AccentColor</string>
+    </dict>
+</dict>
+</plist>

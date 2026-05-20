@@ -1,0 +1,32 @@
+{
+  "id": "00000000-0000-0000-0000-000000000003",
+  "name": "Cinema Mode",
+  "mode": "cinema",
+  "createdDate": "2025-01-01T00:00:00Z",
+  "windows": [
+    {
+      "id": "33333333-3333-3333-3333-333333333001",
+      "type": "video",
+      "position": [0.0, 1.6, -3.0],
+      "rotation": [0, 0, 0, 1],
+      "size": [900, 520],
+      "isVisible": true,
+      "zIndex": 0
+    },
+    {
+      "id": "33333333-3333-3333-3333-333333333002",
+      "type": "spotify",
+      "position": [-1.5, 1.0, -1.5],
+      "rotation": [0, 0, 0, 1],
+      "size": [320, 380],
+      "isVisible": true,
+      "zIndex": 1
+    }
+  ],
+  "environmentSettings": {
+    "ambientIntensity": 0.15,
+    "colorTint": [0.75, 0.55, 0.85],
+    "immersionLevel": 0.6,
+    "particleDensity": 0.5
+  }
+}

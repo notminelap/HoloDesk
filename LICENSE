@@ -1,0 +1,82 @@
+Copyright (c) 2026 Notminelap Industries. All Rights Reserved.
+
+HOLODESK SOURCE-AVAILABLE LICENSE
+Version 1.0, May 2026
+
+1. DEFINITIONS
+
+   "Software" means the HoloDesk source code, documentation, assets, and all
+   associated files contained in this repository.
+
+   "Owner" means Notminelap Industries and its affiliates.
+
+   "You" means any individual or legal entity exercising permissions granted
+   by this License.
+
+2. GRANT OF RIGHTS
+
+   Subject to the terms and conditions of this License, the Owner hereby
+   grants You a limited, non-exclusive, non-transferable, revocable license
+   to:
+
+   a) VIEW the source code for personal educational and reference purposes.
+   b) FORK this repository on GitHub for the sole purpose of submitting
+      pull requests back to the original repository.
+
+3. RESTRICTIONS
+
+   You may NOT, under any circumstances:
+
+   a) COPY, reproduce, or redistribute the Software or any substantial
+      portion thereof, in any form, for any purpose.
+   b) USE the Software, or any derivative work based upon it, in any
+      commercial or non-commercial product, service, or application
+      without explicit written permission from the Owner.
+   c) MODIFY and distribute modified versions of the Software.
+   d) SUBLICENSE, sell, lease, or otherwise transfer rights to the Software.
+   e) REMOVE or alter any copyright notices, license headers, or
+      attribution statements contained in the Software.
+   f) CLAIM authorship or ownership of the Software or any part thereof.
+   g) USE the name "HoloDesk", "Notminelap Industries", or any associated
+      trademarks without prior written consent.
+
+4. ATTRIBUTION
+
+   Any permitted reference to this Software MUST include:
+   - The name "HoloDesk" and "Notminelap Industries"
+   - A link to the original repository
+   - This copyright notice in its entirety
+
+5. INTELLECTUAL PROPERTY
+
+   All intellectual property rights in and to the Software, including but
+   not limited to patents, copyrights, trademarks, and trade secrets,
+   are and shall remain the exclusive property of Notminelap Industries.
+
+6. NO WARRANTY
+
+   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+   OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+   MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+
+7. LIMITATION OF LIABILITY
+
+   IN NO EVENT SHALL THE OWNER BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+   LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+   FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+   DEALINGS IN THE SOFTWARE.
+
+8. TERMINATION
+
+   This License is automatically terminated if You violate any of its terms.
+   Upon termination, You must destroy all copies of the Software in Your
+   possession.
+
+9. GOVERNING LAW
+
+   This License shall be governed by and construed in accordance with the
+   laws of India.
+
+---
+
+For licensing inquiries or permission requests, contact Notminelap Industries.

@@ -1,0 +1,22 @@
+HOLODESK
+Copyright (c) 2026 Notminelap Industries. All Rights Reserved.
+
+This product includes software developed by Notminelap Industries.
+
+The source code is made available for viewing purposes only under the
+HoloDesk Source-Available License. Unauthorized copying, modification,
+or distribution of this software is strictly prohibited.
+
+For the full license text, see the LICENSE file in the root directory.
+
+---
+
+THIRD-PARTY NOTICES
+
+This project uses the following Apple frameworks:
+- SwiftUI (Apple Inc.)
+- RealityKit (Apple Inc.)
+- ARKit (Apple Inc.)
+- UIKit (Apple Inc.)
+
+All Apple frameworks are used under the Apple Developer Program License Agreement.
