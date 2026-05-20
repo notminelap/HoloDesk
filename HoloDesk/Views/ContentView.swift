@@ -83,12 +83,12 @@ struct ContentView: View {
             }
             .padding(16)
             
-            // AI Assistant overlay (bottom-right)
+            // AI Buddy overlay (bottom-right)
             VStack {
                 Spacer()
                 HStack {
                     Spacer()
-                    AIAssistantView(assistant: aiAssistant)
+                    AIBuddyView(assistant: aiAssistant)
                         .environment(store)
                         .environment(windowManager)
                 }
