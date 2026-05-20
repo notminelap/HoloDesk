@@ -26,10 +26,14 @@ struct ContentView: View {
     @State private var customWorkspaceName = ""
     @State private var isAppeared = false
     @State private var isOnboardingComplete = UserDefaults.standard.bool(forKey: "holodesk_onboarding_complete")
+    @State private var isSplashComplete = false
     
     var body: some View {
         ZStack {
-            if !isOnboardingComplete {
+            if !isSplashComplete {
+                SplashView(isComplete: $isSplashComplete)
+                    .transition(.opacity)
+            } else if !isOnboardingComplete {
                 OnboardingView(isOnboardingComplete: $isOnboardingComplete)
                     .transition(.spatialAppear)
             } else {
@@ -38,6 +42,7 @@ struct ContentView: View {
             }
         }
         .animation(.spatialTransition, value: isOnboardingComplete)
+        .animation(.easeInOut(duration: 0.6), value: isSplashComplete)
     }
     
     // MARK: - Main Content
