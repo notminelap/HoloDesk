@@ -21,6 +21,11 @@ final class FocusTimerManager {
     
     private var timer: Timer?
     
+    deinit {
+        timer?.invalidate()
+        timer = nil
+    }
+    
     enum FocusPhase: String {
         case work = "Focus"
         case shortBreak = "Short Break"

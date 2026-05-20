@@ -88,18 +88,46 @@ struct HoloDeskApp: App {
         // ── Main Control Window ──────────────
         WindowGroup("HoloDesk", id: "main") {
             ContentView()
-                .environmentInjection()
+                .environment(store)
+                .environment(windowManager)
+                .environment(voiceManager)
+                .environment(roomManager)
+                .environment(accessibilityEngine)
+                .environment(deskEngine)
+                .environment(postureEngine)
+                .environment(privacyShield)
+                .environment(eyeTracking)
+                .environment(screenTime)
+                .environment(aiIntelligence)
+                .environment(collaboration)
+                .environment(appleEcosystem)
+                .environment(creativeToolkit)
+                .environment(stickyNotes)
+                .environment(quickCapture)
+                .environment(smartTags)
+                .environment(achievements)
+                .environment(delight)
+                .environment(deskPlants)
+                .environment(spatialMagic)
+                .environment(wellness)
+                .environment(smartHome)
+                .onAppear {
+                    initializeApp()
+                }
         }
         .windowStyle(.plain)
         .defaultSize(width: 1200, height: 800)
         
         // ── Individual Spatial Windows ───────
-        // Each window type opens as its own visionOS window
         WindowGroup("Spatial Window", id: "spatial-window", for: UUID.self) { $windowId in
             if let id = windowId,
                let window = store.window(for: id) {
                 SpatialWindowView(window: window)
-                    .environmentInjection()
+                    .environment(store)
+                    .environment(windowManager)
+                    .environment(voiceManager)
+                    .environment(roomManager)
+                    .environment(accessibilityEngine)
             }
         }
         .windowStyle(.plain)
@@ -123,59 +151,27 @@ struct HoloDeskApp: App {
     }
     
     // ═══════════════════════════════════════
-    // MARK: - Environment Injection Helper
+    // MARK: - App Initialization
     // ═══════════════════════════════════════
     
-    /// Injects ALL managers into the SwiftUI environment.
-    /// Using an extension so every window group gets the same injection.
-}
-
-extension View {
-    func environmentInjection() -> some View {
-        // NOTE: This accesses @State from HoloDeskApp via a shared reference pattern.
-        // In the real Xcode project, these would be injected from the parent scope.
-        self
-    }
-}
-
-// MARK: - App Lifecycle
-
-extension HoloDeskApp {
-    
-    /// Shared environment injection for views that need all managers.
-    private func injectEnvironment<V: View>(into view: V) -> some View {
-        view
-            .environment(store)
-            .environment(windowManager)
-            .environment(voiceManager)
-            .environment(roomManager)
-            .environment(deskEngine)
-            .environment(postureEngine)
-            .environment(privacyShield)
-            .environment(accessibilityEngine)
-            .environment(wellness)
-            .environment(aiIntelligence)
-            .environment(eyeTracking)
-            .environment(screenTime)
-            .environment(collaboration)
-            .environment(appleEcosystem)
-            .environment(creativeToolkit)
-            .environment(stickyNotes)
-            .environment(quickCapture)
-            .environment(smartTags)
-            .environment(achievements)
-            .environment(delight)
-            .environment(deskPlants)
-            .environment(spatialMagic)
-            .onAppear {
-                // First-launch initialization
-                performance.autoSave(store: store)
-                aiIntelligence.generateBriefing()
-                aiIntelligence.generateWeeklyInsights()
-                deskEngine.startScanning()
-                delight.generateGreeting()
-                versionHistory.saveVersion(from: store, label: "Launch")
-                wellness.checkBreak()
-            }
+    private func initializeApp() {
+        // Generate daily briefing
+        aiIntelligence.generateBriefing()
+        aiIntelligence.generateWeeklyInsights()
+        
+        // Start spatial systems
+        deskEngine.startScanning()
+        
+        // Delight system
+        delight.generateGreeting()
+        
+        // Save launch version
+        versionHistory.saveVersion(from: store, label: "Launch")
+        
+        // Wellness check
+        wellness.checkBreak()
+        
+        // Auto-save setup
+        performance.autoSave(store: store)
     }
 }

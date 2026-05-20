@@ -16,6 +16,7 @@ struct FaceTimeContent: View {
     @State private var selectedContact: Int = 0
     @State private var isSpatialAudio = true
     @State private var showParticipants = false
+    @State private var callTimer: Timer?
     
     private let contacts: [(name: String, initials: String, status: String, color: Color)] = [
         ("Alex Chen", "AC", "Available", .green),
@@ -38,6 +39,10 @@ struct FaceTimeContent: View {
             } else {
                 contactsView
             }
+        }
+        .onDisappear {
+            callTimer?.invalidate()
+            callTimer = nil
         }
     }
     
@@ -261,6 +266,8 @@ struct FaceTimeContent: View {
                     
                     // End call
                     Button {
+                        callTimer?.invalidate()
+                        callTimer = nil
                         isCallActive = false
                     } label: {
                         Image(systemName: "phone.down.fill")
@@ -295,9 +302,13 @@ struct FaceTimeContent: View {
     private func startCall() {
         isCallActive = true
         callDuration = 0
-        Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { timer in
+        callTimer?.invalidate()
+        callTimer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { timer in
             if isCallActive { callDuration += 1 }
-            else { timer.invalidate() }
+            else {
+                timer.invalidate()
+                callTimer = nil
+            }
         }
         HapticManager.shared.mediumTap()
     }

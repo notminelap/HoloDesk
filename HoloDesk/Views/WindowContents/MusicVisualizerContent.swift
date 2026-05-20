@@ -20,6 +20,7 @@ struct MusicVisualizerContent: View {
         case circle = "Circle"
         case particles = "Particles"
     }
+    @State private var animationTimer: Timer?
     
     var body: some View {
         VStack(spacing: 0) {
@@ -63,9 +64,21 @@ struct MusicVisualizerContent: View {
         }
         .onAppear {
             isAnimating = true
-            animate()
+            animationTimer = Timer.scheduledTimer(withTimeInterval: 0.12, repeats: true) { _ in
+                guard isAnimating else { return }
+                withAnimation(.easeInOut(duration: 0.15)) {
+                    for i in 0..<32 {
+                        barHeights[i] = CGFloat.random(in: 0.05...0.95)
+                    }
+                    hueOffset += 0.005
+                }
+            }
         }
-        .onDisappear { isAnimating = false }
+        .onDisappear {
+            isAnimating = false
+            animationTimer?.invalidate()
+            animationTimer = nil
+        }
     }
     
     // MARK: - Bars
@@ -187,23 +200,6 @@ struct MusicVisualizerContent: View {
                     }
                 }
             }
-        }
-    }
-    
-    // MARK: - Animation
-    
-    private func animate() {
-        guard isAnimating else { return }
-        
-        withAnimation(.easeInOut(duration: 0.15)) {
-            for i in 0..<32 {
-                barHeights[i] = CGFloat.random(in: 0.05...0.95)
-            }
-            hueOffset += 0.005
-        }
-        
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.12) {
-            animate()
         }
     }
 }

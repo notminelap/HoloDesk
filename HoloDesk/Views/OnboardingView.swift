@@ -4,164 +4,333 @@
 
 import SwiftUI
 
-// MARK: - Onboarding View
+// MARK: - Onboarding View (WWDC Quality)
 
-/// First-launch onboarding — introduces HoloDesk's key concepts with stunning visuals.
+/// First-launch onboarding — cinematic introduction to HoloDesk.
+/// Each page has animated icon reveal, parallax background, and smooth transitions.
 struct OnboardingView: View {
     
     @Binding var isOnboardingComplete: Bool
     @State private var currentPage = 0
+    @State private var pageAppeared = false
+    @State private var iconPhase: Double = 0
     
-    private let pages: [(emoji: String, title: String, subtitle: String, description: String, icon: String)] = [
-        (
-            "🧊",
-            "Welcome to HoloDesk",
-            "Your Room Is Your Computer",
-            "Place windows, files, and tools anywhere in your physical space. Return to the same workspace every day.",
-            "cube.transparent"
+    private let pages: [OnboardingPage] = [
+        OnboardingPage(
+            emoji: "🧊",
+            title: "Welcome to HoloDesk",
+            subtitle: "Your Room Is Your Computer",
+            description: "Place windows, files, and tools anywhere in your physical space. Your workspace persists across sessions — come back to exactly where you left off.",
+            icon: "cube.transparent",
+            gradient: [
+                Color(hue: 0.6, saturation: 0.7, brightness: 0.7),
+                Color(hue: 0.65, saturation: 0.5, brightness: 0.4)
+            ]
         ),
-        (
-            "🪟",
-            "Spatial Windows",
-            "Apps Float in Your Space",
-            "Messages, Calendar, Notes, Music — each lives as a floating glass panel you can grab and place anywhere.",
-            "macwindow.on.rectangle"
+        OnboardingPage(
+            emoji: "🪟",
+            title: "Spatial Windows",
+            subtitle: "Apps Float in Your Space",
+            description: "Messages, Calendar, Notes, Spotify, Code Editor — 32 built-in apps, each a floating glass panel you can grab and arrange with your hands.",
+            icon: "macwindow.on.rectangle",
+            gradient: [
+                Color(hue: 0.8, saturation: 0.6, brightness: 0.65),
+                Color(hue: 0.85, saturation: 0.4, brightness: 0.35)
+            ]
         ),
-        (
-            "🖐️",
-            "Hand Tracking",
-            "Reach Out and Grab",
-            "Use natural hand gestures to grab files, move windows, and interact with your workspace. No controllers needed.",
-            "hand.raised.fill"
+        OnboardingPage(
+            emoji: "🖐️",
+            title: "Hand Tracking",
+            subtitle: "Reach Out and Grab",
+            description: "Use natural hand gestures to move windows, pinch to interact, and shape your workspace. Zero controllers, zero tutorials — it just works.",
+            icon: "hand.raised.fill",
+            gradient: [
+                Color(hue: 0.15, saturation: 0.6, brightness: 0.7),
+                Color(hue: 0.1, saturation: 0.4, brightness: 0.35)
+            ]
         ),
-        (
-            "🎯",
-            "Workspace Modes",
-            "One Tap, Total Transformation",
-            "Switch between Work, Study, Cinema, and Gaming modes. Your room transforms instantly with beautiful animations.",
-            "square.stack.3d.up"
+        OnboardingPage(
+            emoji: "🎯",
+            title: "Workspace Modes",
+            subtitle: "One Tap, Total Transformation",
+            description: "Work, Study, Cinema, Gaming — switch modes and your entire room transforms. Windows rearrange, lighting adapts, ambience changes.",
+            icon: "square.stack.3d.up",
+            gradient: [
+                Color(hue: 0.35, saturation: 0.6, brightness: 0.6),
+                Color(hue: 0.4, saturation: 0.4, brightness: 0.3)
+            ]
         ),
-        (
-            "🤖",
-            "AI Assistant",
-            "Your Spatial Helper",
-            "Just say what you need. \"Open work mode\" or \"Add notes\" — your AI assistant handles the rest.",
-            "sparkles"
+        OnboardingPage(
+            emoji: "🤖",
+            title: "Gemini AI",
+            subtitle: "Your Spatial Intelligence",
+            description: "Powered by Google Gemini — ask anything, control your workspace with natural language, and let AI suggest optimal layouts for your workflow.",
+            icon: "sparkles",
+            gradient: [
+                Color(hue: 0.55, saturation: 0.7, brightness: 0.8),
+                Color(hue: 0.7, saturation: 0.5, brightness: 0.4)
+            ]
         ),
     ]
     
+    struct OnboardingPage {
+        let emoji: String
+        let title: String
+        let subtitle: String
+        let description: String
+        let icon: String
+        let gradient: [Color]
+    }
+    
     var body: some View {
-        VStack(spacing: 0) {
-            // Page content
-            TabView(selection: $currentPage) {
-                ForEach(Array(pages.enumerated()), id: \.offset) { index, page in
-                    onboardingPage(page)
-                        .tag(index)
-                }
-            }
-            .tabViewStyle(.page(indexDisplayMode: .never))
-            .frame(height: 300)
+        ZStack {
+            // Animated background
+            backgroundGradient
             
-            // Page dots
-            HStack(spacing: 8) {
-                ForEach(0..<pages.count, id: \.self) { index in
-                    Circle()
-                        .fill(index == currentPage ? Color.holoPrimary : .white.opacity(0.2))
-                        .frame(width: 7, height: 7)
-                        .scaleEffect(index == currentPage ? 1.2 : 1)
-                        .animation(.spatialInteract, value: currentPage)
-                }
-            }
-            .padding(.vertical, 16)
-            
-            // Navigation buttons
-            HStack(spacing: 16) {
-                if currentPage > 0 {
-                    Button {
-                        withAnimation(.spatialMove) {
-                            currentPage -= 1
-                        }
-                    } label: {
-                        HStack(spacing: 4) {
-                            Image(systemName: "chevron.left")
-                            Text("Back")
-                        }
-                        .font(.system(size: 13, weight: .medium))
-                        .foregroundStyle(.white.opacity(0.6))
-                        .padding(.horizontal, 20)
-                        .padding(.vertical, 10)
-                        .innerGlass(cornerRadius: 14)
+            VStack(spacing: 0) {
+                // Page content
+                TabView(selection: $currentPage) {
+                    ForEach(Array(pages.enumerated()), id: \.offset) { index, page in
+                        onboardingPage(page, index: index)
+                            .tag(index)
                     }
-                    .buttonStyle(.plain)
                 }
+                .tabViewStyle(.page(indexDisplayMode: .never))
+                .frame(height: 340)
                 
-                Spacer()
+                // Progress indicators
+                progressDots
+                    .padding(.vertical, 14)
                 
+                // Navigation
+                navigationBar
+                    .padding(.horizontal, 24)
+                    .padding(.bottom, 20)
+            }
+        }
+        .frame(width: 520, height: 480)
+        .clipShape(RoundedRectangle(cornerRadius: 36))
+        .glassBackground(cornerRadius: 36, shadowRadius: 30)
+        .onAppear {
+            withAnimation(.easeOut(duration: 0.6)) { pageAppeared = true }
+            withAnimation(.linear(duration: 12).repeatForever(autoreverses: false)) {
+                iconPhase = .pi * 2
+            }
+        }
+        .scaleEffect(pageAppeared ? 1 : 0.9)
+        .opacity(pageAppeared ? 1 : 0)
+    }
+    
+    // MARK: - Background Gradient
+    
+    private var backgroundGradient: some View {
+        ZStack {
+            // Base gradient that shifts per page
+            LinearGradient(
+                colors: pages[currentPage].gradient.map { $0.opacity(0.15) },
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+            .animation(.easeInOut(duration: 0.6), value: currentPage)
+            
+            // Radial glow
+            RadialGradient(
+                colors: [
+                    pages[currentPage].gradient[0].opacity(0.1),
+                    .clear
+                ],
+                center: .init(x: 0.5, y: 0.3),
+                startRadius: 20,
+                endRadius: 300
+            )
+            .animation(.easeInOut(duration: 0.6), value: currentPage)
+        }
+    }
+    
+    // MARK: - Onboarding Page
+    
+    private func onboardingPage(_ page: OnboardingPage, index: Int) -> some View {
+        VStack(spacing: 18) {
+            Spacer()
+            
+            // Animated icon orb
+            ZStack {
+                // Rotating halo
+                Circle()
+                    .stroke(
+                        LinearGradient(
+                            colors: page.gradient.map { $0.opacity(0.3) },
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        ),
+                        lineWidth: 1
+                    )
+                    .frame(width: 100, height: 100)
+                    .rotationEffect(.degrees(currentPage == index ? iconPhase * 180 / .pi : 0))
+                
+                // Glow backing
+                Circle()
+                    .fill(
+                        RadialGradient(
+                            colors: [page.gradient[0].opacity(0.3), .clear],
+                            center: .center,
+                            startRadius: 10,
+                            endRadius: 50
+                        )
+                    )
+                    .frame(width: 90, height: 90)
+                
+                // Glass circle
+                Circle()
+                    .fill(.ultraThinMaterial)
+                    .frame(width: 72, height: 72)
+                
+                Circle()
+                    .fill(page.gradient[0].opacity(0.2))
+                    .frame(width: 72, height: 72)
+                
+                // Icon
+                Image(systemName: page.icon)
+                    .font(.system(size: 30, weight: .medium))
+                    .foregroundStyle(
+                        LinearGradient(
+                            colors: [.white, page.gradient[0].opacity(0.8)],
+                            startPoint: .top,
+                            endPoint: .bottom
+                        )
+                    )
+                
+                // Specular
+                Ellipse()
+                    .fill(
+                        LinearGradient(colors: [.white.opacity(0.4), .clear], startPoint: .top, endPoint: .center)
+                    )
+                    .frame(width: 40, height: 16)
+                    .offset(y: -22)
+                    .blur(radius: 1)
+            }
+            
+            // Emoji
+            Text(page.emoji)
+                .font(.system(size: 24))
+            
+            // Title
+            Text(page.title)
+                .font(.system(size: 24, weight: .bold, design: .rounded))
+                .foregroundStyle(.white)
+            
+            // Subtitle
+            Text(page.subtitle)
+                .font(.system(size: 14, weight: .semibold))
+                .foregroundStyle(
+                    LinearGradient(
+                        colors: page.gradient,
+                        startPoint: .leading,
+                        endPoint: .trailing
+                    )
+                )
+            
+            // Description
+            Text(page.description)
+                .font(.system(size: 13))
+                .foregroundStyle(.white.opacity(0.55))
+                .multilineTextAlignment(.center)
+                .lineSpacing(3)
+                .padding(.horizontal, 36)
+            
+            Spacer()
+        }
+    }
+    
+    // MARK: - Progress Dots
+    
+    private var progressDots: some View {
+        HStack(spacing: 6) {
+            ForEach(0..<pages.count, id: \.self) { index in
+                Capsule()
+                    .fill(index == currentPage
+                          ? LinearGradient(colors: pages[index].gradient, startPoint: .leading, endPoint: .trailing)
+                          : LinearGradient(colors: [.white.opacity(0.2), .white.opacity(0.15)], startPoint: .leading, endPoint: .trailing)
+                    )
+                    .frame(width: index == currentPage ? 20 : 7, height: 7)
+                    .animation(.spring(response: 0.3, dampingFraction: 0.7), value: currentPage)
+            }
+        }
+    }
+    
+    // MARK: - Navigation Bar
+    
+    private var navigationBar: some View {
+        HStack(spacing: 16) {
+            // Skip button
+            if currentPage < pages.count - 1 {
                 Button {
-                    if currentPage < pages.count - 1 {
-                        withAnimation(.spatialMove) {
-                            currentPage += 1
-                        }
-                    } else {
-                        withAnimation(.spatialTransition) {
-                            isOnboardingComplete = true
-                            UserDefaults.standard.set(true, forKey: "holodesk_onboarding_complete")
-                        }
+                    withAnimation(.spatialTransition) {
+                        isOnboardingComplete = true
+                        UserDefaults.standard.set(true, forKey: "holodesk_onboarding_complete")
                     }
                 } label: {
-                    HStack(spacing: 4) {
-                        Text(currentPage < pages.count - 1 ? "Next" : "Get Started")
-                        Image(systemName: currentPage < pages.count - 1 ? "chevron.right" : "arrow.right")
-                    }
-                    .font(.system(size: 13, weight: .semibold))
-                    .foregroundStyle(.white)
-                    .padding(.horizontal, 24)
-                    .padding(.vertical, 10)
-                    .background(LinearGradient.accentGradient, in: RoundedRectangle(cornerRadius: 14))
+                    Text("Skip")
+                        .font(.system(size: 12, weight: .medium))
+                        .foregroundStyle(.white.opacity(0.35))
                 }
                 .buttonStyle(.plain)
             }
-            .padding(.horizontal, 24)
-            .padding(.bottom, 20)
-        }
-        .frame(width: 480, height: 420)
-        .glassBackground(cornerRadius: 32)
-    }
-    
-    private func onboardingPage(_ page: (emoji: String, title: String, subtitle: String, description: String, icon: String)) -> some View {
-        VStack(spacing: 16) {
+            
             Spacer()
             
-            // Icon with glow
-            ZStack {
-                Circle()
-                    .fill(LinearGradient.accentGradient.opacity(0.15))
-                    .frame(width: 80, height: 80)
-                    .blur(radius: 10)
-                
-                Image(systemName: page.icon)
-                    .font(.system(size: 36, weight: .medium))
-                    .foregroundStyle(LinearGradient.accentGradient)
+            // Back
+            if currentPage > 0 {
+                Button {
+                    withAnimation(.spatialMove) { currentPage -= 1 }
+                } label: {
+                    HStack(spacing: 4) {
+                        Image(systemName: "chevron.left")
+                            .font(.system(size: 10, weight: .bold))
+                        Text("Back")
+                    }
+                    .font(.system(size: 13, weight: .medium))
+                    .foregroundStyle(.white.opacity(0.6))
+                    .padding(.horizontal, 18)
+                    .padding(.vertical, 10)
+                    .innerGlass(cornerRadius: 14)
+                }
+                .buttonStyle(.plain)
             }
             
-            Text(page.emoji)
-                .font(.system(size: 28))
-            
-            Text(page.title)
-                .font(.system(size: 22, weight: .bold, design: .rounded))
+            // Next / Get Started
+            Button {
+                if currentPage < pages.count - 1 {
+                    withAnimation(.spatialMove) { currentPage += 1 }
+                    HapticManager.shared.selectionChanged()
+                } else {
+                    withAnimation(.spatialTransition) {
+                        isOnboardingComplete = true
+                        UserDefaults.standard.set(true, forKey: "holodesk_onboarding_complete")
+                    }
+                    HapticManager.shared.success()
+                }
+            } label: {
+                HStack(spacing: 6) {
+                    Text(currentPage < pages.count - 1 ? "Next" : "Enter HoloDesk")
+                    Image(systemName: currentPage < pages.count - 1 ? "chevron.right" : "arrow.right")
+                        .font(.system(size: 10, weight: .bold))
+                }
+                .font(.system(size: 13, weight: .semibold))
                 .foregroundStyle(.white)
-            
-            Text(page.subtitle)
-                .font(.system(size: 15, weight: .medium))
-                .foregroundStyle(.holoSecondary)
-            
-            Text(page.description)
-                .font(.system(size: 13))
-                .foregroundStyle(.white.opacity(0.6))
-                .multilineTextAlignment(.center)
-                .padding(.horizontal, 40)
-            
-            Spacer()
+                .padding(.horizontal, 22)
+                .padding(.vertical, 10)
+                .background(
+                    LinearGradient(
+                        colors: pages[currentPage].gradient,
+                        startPoint: .leading,
+                        endPoint: .trailing
+                    ),
+                    in: RoundedRectangle(cornerRadius: 14)
+                )
+                .shadow(color: pages[currentPage].gradient[0].opacity(0.3), radius: 8, y: 3)
+            }
+            .buttonStyle(.plain)
         }
     }
 }

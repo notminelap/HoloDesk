@@ -15,6 +15,7 @@ struct MeditationContent: View {
     @State private var sessionMinutes = 5
     @State private var remainingSeconds = 300
     @State private var completedBreaths = 0
+    @State private var sessionTimer: Timer?
     
     enum BreathPhase: String {
         case inhale = "Breathe In"
@@ -67,6 +68,11 @@ struct MeditationContent: View {
             } else {
                 startScreen
             }
+        }
+        .onDisappear {
+            sessionTimer?.invalidate()
+            sessionTimer = nil
+            isActive = false
         }
     }
     
@@ -191,6 +197,8 @@ struct MeditationContent: View {
             
             // Stop
             Button {
+                sessionTimer?.invalidate()
+                sessionTimer = nil
                 isActive = false
             } label: {
                 Text("End Session")
@@ -235,11 +243,13 @@ struct MeditationContent: View {
     }
     
     private func startTimer() {
-        Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { timer in
+        sessionTimer?.invalidate()
+        sessionTimer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { timer in
             if remainingSeconds > 0 && isActive {
                 remainingSeconds -= 1
             } else {
                 timer.invalidate()
+                sessionTimer = nil
                 isActive = false
                 HapticManager.shared.success()
             }

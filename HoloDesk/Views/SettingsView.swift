@@ -65,13 +65,23 @@ struct SettingsView: View {
                         }
                     }
                     
+                    // AI & Gemini
+                    settingsSection("AI & Gemini") {
+                        infoRow("AI Engine", value: "Gemini 2.0 Flash")
+                        infoRow("AI Mode", value: "Hybrid (Local + Cloud)")
+                        toggleRow("Particle effects", icon: "sparkle", isOn: $particleEffects)
+                    }
+                    
                     // About
                     settingsSection("About") {
-                        infoRow("Version", value: "2.0.0")
+                        infoRow("Version", value: "2.1.0")
                         infoRow("Build", value: "2026.05.20")
                         infoRow("Platform", value: "visionOS 2.0+")
+                        infoRow("Runtime", value: "SwiftUI + RealityKit")
+                        infoRow("AI", value: "Google Gemini")
                         infoRow("Developer", value: "Notminelap Industries")
                         infoRow("License", value: "Source Available")
+                        infoRow("Swift Files", value: "101")
                     }
                     
                     // Reset
