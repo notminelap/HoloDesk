@@ -10,8 +10,6 @@ import PackageDescription
 let package = Package(
     name: "HoloDesk",
     platforms: [
-        .iOS(.v17),
-        .macOS(.v14),
         .visionOS(.v2)
     ],
     products: [
@@ -25,8 +23,6 @@ let package = Package(
             appIcon: .placeholder(icon: .cube),
             accentColor: .presetColor(.cyan),
             supportedDeviceFamilies: [
-                .pad,
-                .mac,
                 .vision
             ],
             supportedInterfaceOrientations: [

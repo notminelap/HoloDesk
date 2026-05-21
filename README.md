@@ -68,7 +68,7 @@ HoloDesk treats audio and animations not as secondary elements, but as core comp
 | Swift Student Challenge Criteria | HoloDesk Implementation | Status |
 |---------------------------------|-------------------------|--------|
 | **Swift & SwiftUI Focus** | Built entirely in modern Swift 5.9+ and SwiftUI layout grids. | ✅ 100% Native |
-| **Swift Playgrounds Ready** | Standard `Package.swift` configuration makes it runnable in Swift Playgrounds 4.5+ on Mac/iPad. | ✅ Verified |
+| **Swift Playgrounds Ready** | Standard `Package.swift` configuration makes it runnable in Swift Playgrounds 4.5+ under visionOS. | ✅ Verified |
 | **Strict File Size Limits** | Leverages procedural vector rendering and code-generated sound. Total zipped bundle is **only 220 KB** (0.88% of the 25MB maximum budget). | ✅ 0.88% Budget |
 | **Completely Offline** | The on-device NLP engine handles all assistant commands without querying web servers. | ✅ Offline Safe |
 | **Interactive Demo** | Built-in **Guided Auto-Demo** takes reviewers through a structured 3-minute voice/visual tour. | ✅ Timed Tour |
@@ -219,7 +219,7 @@ HoloDesk compiles cleanly under modern Apple software tools with no extra config
 | **Host Mac OS** | 💻 **macOS Tahoe 26.5+** |
 | **Xcode Version** | 🛠️ Xcode 16.0+ |
 | **Target SDK** | 🧊 visionOS 2.0 SDK+ |
-| **Swift Playgrounds**| 📱 Swift Playgrounds 4.5+ (iPadOS / macOS Tahoe) |
+| **Swift Playgrounds**| 📱 Swift Playgrounds 4.5+ (visionOS Target) |
 
 ### Running inside Xcode:
 1.  Ensure you have **macOS Tahoe 26.5** and **Xcode 16+** installed with the **visionOS 2.0 Simulator** runtime.

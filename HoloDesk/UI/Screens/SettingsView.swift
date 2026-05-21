@@ -78,7 +78,7 @@ struct SettingsView: View {
                         infoRow("Version", value: "2.1.0")
                         infoRow("Build", value: "2026.05.21")
                         infoRow("Submission", value: "SSC 2027")
-                        infoRow("Platform", value: "visionOS / iPad / Mac")
+                        infoRow("Platform", value: "visionOS 2.0+ (Apple Vision Pro)")
                         infoRow("Runtime", value: "SwiftUI + RealityKit")
                         infoRow("AI", value: "On-Device (38 intents)")
                         infoRow("Developer", value: "Notminelap Industries")
