@@ -16,6 +16,7 @@ struct MeditationContent: View {
     @State private var remainingSeconds = 300
     @State private var completedBreaths = 0
     @State private var sessionTimer: Timer?
+    @State private var breathTimer: Timer?
     
     enum BreathPhase: String {
         case inhale = "Breathe In"
@@ -72,6 +73,8 @@ struct MeditationContent: View {
         .onDisappear {
             sessionTimer?.invalidate()
             sessionTimer = nil
+            breathTimer?.invalidate()
+            breathTimer = nil
             isActive = false
         }
     }
@@ -226,6 +229,20 @@ struct MeditationContent: View {
     private func animateBreath() {
         guard isActive else { return }
         
+        // Apply the current phase animation
+        applyBreathAnimation()
+        
+        // Schedule phase transitions via Timer
+        breathTimer?.invalidate()
+        breathTimer = Timer.scheduledTimer(withTimeInterval: breathPhase.duration, repeats: false) { _ in
+            guard isActive else { return }
+            if breathPhase == .rest { completedBreaths += 1 }
+            breathPhase = breathPhase.next
+            animateBreath()
+        }
+    }
+    
+    private func applyBreathAnimation() {
         withAnimation(.easeInOut(duration: breathPhase.duration)) {
             switch breathPhase {
             case .inhale: breathScale = 1.0
@@ -233,12 +250,6 @@ struct MeditationContent: View {
             case .exhale: breathScale = 0.6
             case .rest:   breathScale = 0.6
             }
-        }
-        
-        DispatchQueue.main.asyncAfter(deadline: .now() + breathPhase.duration) {
-            if breathPhase == .rest { completedBreaths += 1 }
-            breathPhase = breathPhase.next
-            animateBreath()
         }
     }
     

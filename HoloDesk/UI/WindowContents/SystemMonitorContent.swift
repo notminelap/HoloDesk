@@ -15,6 +15,7 @@ struct SystemMonitorContent: View {
     @State private var thermalState = "Nominal"
     @State private var cpuHistory: [Double] = (0..<30).map { _ in Double.random(in: 0.15...0.6) }
     @State private var isAnimating = false
+    @State private var usageTimer: Timer?
     
     private let processes: [(name: String, cpu: String, mem: String)] = [
         ("HoloDesk", "12.3%", "245 MB"),
@@ -177,7 +178,11 @@ struct SystemMonitorContent: View {
             isAnimating = true
             animateUsage()
         }
-        .onDisappear { isAnimating = false }
+        .onDisappear {
+            isAnimating = false
+            usageTimer?.invalidate()
+            usageTimer = nil
+        }
     }
     
     private func gaugeView(_ label: String, value: Double, color: Color, detail: String) -> some View {
@@ -202,13 +207,15 @@ struct SystemMonitorContent: View {
     }
     
     private func animateUsage() {
-        guard isAnimating else { return }
-        withAnimation(.easeInOut(duration: 1)) {
-            cpuUsage = Double.random(in: 0.15...0.65)
-            memoryUsage = Double.random(in: 0.55...0.75)
-            cpuHistory.removeFirst()
-            cpuHistory.append(cpuUsage)
+        usageTimer?.invalidate()
+        usageTimer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { _ in
+            guard isAnimating else { return }
+            withAnimation(.easeInOut(duration: 1)) {
+                cpuUsage = Double.random(in: 0.15...0.65)
+                memoryUsage = Double.random(in: 0.55...0.75)
+                cpuHistory.removeFirst()
+                cpuHistory.append(cpuUsage)
+            }
         }
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1) { animateUsage() }
     }
 }

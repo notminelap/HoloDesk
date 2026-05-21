@@ -165,6 +165,7 @@ struct VoiceMemosContent: View {
     }
     
     @State private var recordingTimer: Timer?
+    @State private var waveformTimer: Timer?
     
     private func startRecording() {
         isRecording = true
@@ -180,6 +181,8 @@ struct VoiceMemosContent: View {
         isRecording = false
         recordingTimer?.invalidate()
         recordingTimer = nil
+        waveformTimer?.invalidate()
+        waveformTimer = nil
         let memo = VoiceMemo(
             title: "Recording \(memos.count + 1)",
             duration: formatTime(recordingDuration),
@@ -191,13 +194,19 @@ struct VoiceMemosContent: View {
     }
     
     private func animateWaveform() {
-        guard isRecording else { return }
-        withAnimation(.easeInOut(duration: 0.1)) {
-            for i in 0..<40 {
-                waveformValues[i] = CGFloat.random(in: 0.05...0.95)
+        waveformTimer?.invalidate()
+        waveformTimer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { _ in
+            guard isRecording else {
+                waveformTimer?.invalidate()
+                waveformTimer = nil
+                return
+            }
+            withAnimation(.easeInOut(duration: 0.1)) {
+                for i in 0..<40 {
+                    waveformValues[i] = CGFloat.random(in: 0.05...0.95)
+                }
             }
         }
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) { animateWaveform() }
     }
     
     private func formatTime(_ seconds: Int) -> String {

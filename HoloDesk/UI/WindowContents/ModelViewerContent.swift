@@ -13,6 +13,7 @@ struct ModelViewerContent: View {
     @State private var selectedModel: Model3D = .globe
     @State private var isRotating = true
     @State private var zoom: CGFloat = 1.0
+    @State private var rotationTimer: Timer?
     
     enum Model3D: String, CaseIterable, Identifiable {
         case globe = "Globe"
@@ -111,6 +112,10 @@ struct ModelViewerContent: View {
             .background(.black.opacity(0.15))
         }
         .onAppear { autoRotate() }
+        .onDisappear {
+            rotationTimer?.invalidate()
+            rotationTimer = nil
+        }
     }
     
     @ViewBuilder
@@ -195,14 +200,13 @@ struct ModelViewerContent: View {
     }
     
     private func autoRotate() {
-        guard isRotating else {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { autoRotate() }
-            return
+        rotationTimer?.invalidate()
+        rotationTimer = Timer.scheduledTimer(withTimeInterval: 0.05, repeats: true) { _ in
+            guard isRotating else { return }
+            withAnimation(.linear(duration: 0.05)) {
+                rotation += 0.5
+            }
         }
-        withAnimation(.linear(duration: 0.05)) {
-            rotation += 0.5
-        }
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) { autoRotate() }
     }
 }
 

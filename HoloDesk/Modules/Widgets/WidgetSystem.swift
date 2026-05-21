@@ -358,6 +358,11 @@ struct StopwatchWidgetView: View {
             }
         }
         .padding(12)
+        .onDisappear {
+            timer?.invalidate()
+            timer = nil
+            isRunning = false
+        }
     }
     
     private func formatTime(_ t: TimeInterval) -> String {

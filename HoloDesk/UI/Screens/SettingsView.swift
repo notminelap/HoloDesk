@@ -67,15 +67,16 @@ struct SettingsView: View {
                     
                     // AI & Gemini
                     settingsSection("AI & Gemini") {
-                        infoRow("AI Engine", value: "Gemini 2.0 Flash")
-                        infoRow("AI Mode", value: "Hybrid (Local + Cloud)")
-                        toggleRow("Particle effects", icon: "sparkle", isOn: $particleEffects)
+                        infoRow("AI Engine", value: "Offline NLP (38 intents)")
+                        infoRow("Cloud Fallback", value: "Gemini 2.0 Flash")
+                        infoRow("Default Mode", value: "Offline-First")
+                        infoRow("Intents", value: "38 commands")
                     }
                     
                     // About
                     settingsSection("About") {
                         infoRow("Version", value: "2.1.0")
-                        infoRow("Build", value: "2026.05.20")
+                        infoRow("Build", value: "2026.05.21")
                         infoRow("Platform", value: "visionOS 2.0+")
                         infoRow("Runtime", value: "SwiftUI + RealityKit")
                         infoRow("AI", value: "Google Gemini")

@@ -303,12 +303,8 @@ struct FaceTimeContent: View {
         isCallActive = true
         callDuration = 0
         callTimer?.invalidate()
-        callTimer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { timer in
-            if isCallActive { callDuration += 1 }
-            else {
-                timer.invalidate()
-                callTimer = nil
-            }
+        callTimer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { [self] timer in
+            callDuration += 1
         }
         HapticManager.shared.mediumTap()
     }
