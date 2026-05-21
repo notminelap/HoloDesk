@@ -12,6 +12,7 @@ struct MindMapContent: View {
     @State private var nodes: [MindNode] = MindNode.defaults
     @State private var selectedNodeId: UUID?
     @State private var newNodeText = ""
+    @State private var audio = SpatialAudioManager.shared
     
     struct MindNode: Identifiable {
         let id = UUID()
@@ -35,22 +36,48 @@ struct MindMapContent: View {
     
     var body: some View {
         ZStack {
-            // Connection lines
-            Canvas { context, size in
-                for node in nodes {
-                    for connId in node.connections {
-                        if let target = nodes.first(where: { $0.id == connId }) {
-                            var path = Path()
-                            path.move(to: node.position)
-                            
-                            // Bezier curve
-                            let mid = CGPoint(
-                                x: (node.position.x + target.position.x) / 2,
-                                y: (node.position.y + target.position.y) / 2
-                            )
-                            path.addQuadCurve(to: target.position, control: CGPoint(x: mid.x, y: mid.y - 20))
-                            
-                            context.stroke(path, with: .color(.white.opacity(0.15)), style: StrokeStyle(lineWidth: 1.5, dash: [4, 3]))
+            // Neural connection lines with travelling energy pulses
+            TimelineView(.animation) { timeline in
+                let time = timeline.date.timeIntervalSinceReferenceDate
+                
+                Canvas { context, size in
+                    for node in nodes {
+                        for connId in node.connections {
+                            if let target = nodes.first(where: { $0.id == connId }) {
+                                var path = Path()
+                                path.move(to: node.position)
+                                
+                                // Bezier curve
+                                let mid = CGPoint(
+                                    x: (node.position.x + target.position.x) / 2,
+                                    y: (node.position.y + target.position.y) / 2
+                                )
+                                path.addQuadCurve(to: target.position, control: CGPoint(x: mid.x, y: mid.y - 20))
+                                
+                                // Draw base connections track
+                                context.stroke(
+                                    path,
+                                    with: .color(.white.opacity(0.08)),
+                                    style: StrokeStyle(lineWidth: 1.5)
+                                )
+                                
+                                // Draw traveling neon light pulse dash along the Bezier links
+                                let dashPhase = -time * 36.0
+                                context.stroke(
+                                    path,
+                                    with: .linearGradient(
+                                        Gradient(colors: [node.color.opacity(0.8), target.color.opacity(0.8)]),
+                                        startPoint: node.position,
+                                        endPoint: target.position
+                                    ),
+                                    style: StrokeStyle(
+                                        lineWidth: 2.2,
+                                        lineCap: .round,
+                                        dash: [8, 14],
+                                        dashPhase: CGFloat(dashPhase)
+                                    )
+                                )
+                            }
                         }
                     }
                 }
@@ -75,20 +102,22 @@ struct MindMapContent: View {
                     Button {
                         let newNode = MindNode(
                             text: "New Idea",
-                            position: CGPoint(x: CGFloat.random(in: 50...350), y: CGFloat.random(in: 50...250)),
-                            color: [Color.pink, .cyan, .orange, .green, .purple].randomElement()!,
+                            position: CGPoint(x: CGFloat.random(in: 60...340), y: CGFloat.random(in: 60...240)),
+                            color: [Color.pink, .cyan, .orange, .green, .purple, Color.holoPrimary].randomElement()!,
                             connections: selectedNodeId != nil ? [selectedNodeId!] : [],
-                            emoji: ["💡", "🔑", "🎯", "📌", "🧩"].randomElement()!
+                            emoji: ["💡", "🔑", "🎯", "📌", "🧩", "🌪️"].randomElement()!
                         )
                         nodes.append(newNode)
-                        HapticManager.shared.lightTap()
+                        audio.playSFX(.success)
+                        HapticManager.shared.mediumTap()
                     } label: {
                         Image(systemName: "plus.circle.fill")
-                            .font(.system(size: 22))
-                            .foregroundStyle(.holoPrimary)
+                            .font(.system(size: 24))
+                            .foregroundStyle(Color.holoPrimary)
+                            .shadow(color: Color.holoPrimary.opacity(0.4), radius: 6)
                     }
                     .buttonStyle(.plain)
-                    .padding(8)
+                    .padding(10)
                 }
                 Spacer()
             }
@@ -101,26 +130,31 @@ struct MindMapContent: View {
         
         return Button {
             selectedNodeId = selectedNodeId == node.id ? nil : node.id
+            audio.playSFX(.softTick)
+            HapticManager.shared.lightTap()
         } label: {
-            HStack(spacing: 4) {
+            HStack(spacing: 5) {
                 Text(node.emoji)
-                    .font(.system(size: 11))
+                    .font(.system(size: 12))
                 Text(node.text)
-                    .font(.system(size: 10, weight: isSelected ? .bold : .medium))
+                    .font(.system(size: 10, weight: isSelected ? .bold : .semibold))
                     .foregroundStyle(.white)
                     .lineLimit(1)
             }
-            .padding(.horizontal, 10)
-            .padding(.vertical, 6)
+            .padding(.horizontal, 12)
+            .padding(.vertical, 7)
             .background(
                 Capsule()
-                    .fill(node.color.opacity(isSelected ? 0.35 : 0.2))
+                    .fill(node.color.opacity(isSelected ? 0.38 : 0.16))
+                    .shadow(color: isSelected ? node.color.opacity(0.5) : .clear, radius: 10)
                     .overlay(
                         Capsule()
-                            .strokeBorder(isSelected ? node.color : .clear, lineWidth: 1.5)
+                            .strokeBorder(isSelected ? node.color : .white.opacity(0.12), lineWidth: isSelected ? 1.5 : 0.8)
                     )
             )
         }
         .buttonStyle(.plain)
+        .scaleEffect(isSelected ? 1.08 : 1.0)
+        .animation(.spring(response: 0.32, dampingFraction: 0.72), value: isSelected)
     }
 }

@@ -55,45 +55,93 @@ struct SystemMonitorContent: View {
             .padding(.horizontal, 14)
             .padding(.vertical, 8)
             
-            // CPU History chart
+            // CPU Cores 8-Thread Grid
             VStack(alignment: .leading, spacing: 4) {
-                Text("CPU Usage (30s)")
-                    .font(.system(size: 9, weight: .medium))
-                    .foregroundStyle(.white.opacity(0.3))
+                HStack {
+                    Text("CPU Cores (8-Thread Activity)")
+                        .font(.system(size: 9, weight: .medium))
+                        .foregroundStyle(.white.opacity(0.3))
+                    Spacer()
+                    Text("Real-time DSP")
+                        .font(.system(size: 7, weight: .semibold))
+                        .foregroundStyle(Color.holoPrimary.opacity(0.5))
+                }
                 
-                GeometryReader { geo in
+                TimelineView(.animation) { timeline in
+                    let time = timeline.date.timeIntervalSinceReferenceDate
+                    
                     Canvas { context, size in
-                        // Grid lines
-                        for i in 1...3 {
-                            let y = size.height * CGFloat(i) / 4
-                            context.stroke(Path { p in
-                                p.move(to: CGPoint(x: 0, y: y))
-                                p.addLine(to: CGPoint(x: size.width, y: y))
-                            }, with: .color(.white.opacity(0.04)), lineWidth: 0.5)
-                        }
+                        let coreCount = 8
+                        let spacing: CGFloat = 4
+                        let padding: CGFloat = 6
+                        let totalSpacing = spacing * CGFloat(coreCount - 1)
+                        let colWidth = (size.width - padding * 2 - totalSpacing) / CGFloat(coreCount)
                         
-                        // Line
-                        var path = Path()
-                        for (i, val) in cpuHistory.enumerated() {
-                            let x = size.width * CGFloat(i) / CGFloat(cpuHistory.count - 1)
-                            let y = size.height * (1 - val)
-                            if i == 0 { path.move(to: CGPoint(x: x, y: y)) }
-                            else { path.addLine(to: CGPoint(x: x, y: y)) }
+                        for core in 0..<coreCount {
+                            let x = padding + CGFloat(core) * (colWidth + spacing)
+                            
+                            // Detuned frequencies for dynamic independent core simulation
+                            let freq = 1.6 + Double(core) * 0.32
+                            let offset = Double(core) * 1.8
+                            
+                            let s1 = sin(time * freq + offset)
+                            let s2 = sin(time * freq * 2.3 + offset * 0.5) * 0.35
+                            let s3 = cos(time * freq * 4.9) * 0.12
+                            let jitter = Double.random(in: -0.05...0.05)
+                            
+                            var activity = 0.45 + 0.4 * s1 + 0.12 * s2 + 0.08 * s3 + jitter
+                            activity = activity * (0.55 + cpuUsage * 0.9)
+                            activity = max(0.06, min(0.96, activity))
+                            
+                            // Background track for core
+                            let colRect = CGRect(x: x, y: 0, width: colWidth, height: size.height)
+                            context.fill(
+                                Path(roundedRect: colRect, cornerRadius: 2.5),
+                                with: .color(.white.opacity(0.04))
+                            )
+                            
+                            // Active thread fill
+                            let activeHeight = size.height * CGFloat(activity)
+                            let activeRect = CGRect(
+                                x: x,
+                                y: size.height - activeHeight,
+                                width: colWidth,
+                                height: activeHeight
+                            )
+                            
+                            // Gradient color: Cyan to Purple to mimic Liquid Glass
+                            let gradient = Gradient(colors: [
+                                Color.holoTertiary,
+                                Color.holoSecondary,
+                                Color.holoPrimary
+                            ])
+                            
+                            context.fill(
+                                Path(roundedRect: activeRect, cornerRadius: 2.5),
+                                with: .linearGradient(
+                                    gradient,
+                                    startPoint: CGPoint(x: x, y: size.height),
+                                    endPoint: CGPoint(x: x, y: size.height - activeHeight)
+                                )
+                            )
+                            
+                            // Segmented meter grid incisions
+                            let segmentCount = 8
+                            for seg in 1..<segmentCount {
+                                let y = size.height * CGFloat(seg) / CGFloat(segmentCount)
+                                context.stroke(
+                                    Path { p in
+                                        p.move(to: CGPoint(x: x - 0.5, y: y))
+                                        p.addLine(to: CGPoint(x: x + colWidth + 0.5, y: y))
+                                    },
+                                    with: .color(.black.opacity(0.45)),
+                                    lineWidth: 1.0
+                                )
+                            }
                         }
-                        context.stroke(path, with: .color(.cyan), style: StrokeStyle(lineWidth: 1.5, lineCap: .round))
-                        
-                        // Fill
-                        var fill = path
-                        fill.addLine(to: CGPoint(x: size.width, y: size.height))
-                        fill.addLine(to: CGPoint(x: 0, y: size.height))
-                        fill.closeSubpath()
-                        context.fill(fill, with: .linearGradient(
-                            Gradient(colors: [.cyan.opacity(0.15), .cyan.opacity(0)]),
-                            startPoint: .init(x: 0, y: 0), endPoint: .init(x: 0, y: size.height)
-                        ))
                     }
                 }
-                .frame(height: 50)
+                .frame(height: 54)
             }
             .padding(.horizontal, 14)
             .padding(8)
@@ -129,19 +177,16 @@ struct SystemMonitorContent: View {
             .padding(10)
             .padding(.horizontal, 4)
             
-            // Storage
-            HStack(spacing: 10) {
+            // Storage & Network
+            HStack(spacing: 12) {
                 VStack(alignment: .leading, spacing: 3) {
                     Text("Storage")
                         .font(.system(size: 9, weight: .bold))
                         .foregroundStyle(.white.opacity(0.4))
-                    GeometryReader { geo in
-                        ZStack(alignment: .leading) {
-                            Capsule().fill(.white.opacity(0.08)).frame(height: 6)
-                            Capsule().fill(.blue).frame(width: geo.size.width * 0.67, height: 6)
-                        }
-                    }
-                    .frame(height: 6)
+                    
+                    ShimmerProgressBar(value: 0.67, color: Color.holoSecondary)
+                        .frame(height: 6)
+                    
                     Text("172 GB / 256 GB")
                         .font(.system(size: 7, design: .monospaced))
                         .foregroundStyle(.white.opacity(0.3))
@@ -169,10 +214,12 @@ struct SystemMonitorContent: View {
                                 .foregroundStyle(.white.opacity(0.5))
                         }
                     }
+                    .frame(height: 6)
+                    Spacer(minLength: 4)
                 }
             }
             .padding(.horizontal, 14)
-            .padding(.bottom, 10)
+            .padding(.bottom, 12)
         }
         .onAppear {
             isAnimating = true
@@ -196,6 +243,22 @@ struct SystemMonitorContent: View {
                     .stroke(color, style: StrokeStyle(lineWidth: 5, lineCap: .round))
                     .frame(width: 48, height: 48)
                     .rotationEffect(.degrees(-90))
+                
+                // Sweep caustics glint overlay inside circular gauge
+                Circle()
+                    .trim(from: 0, to: value)
+                    .stroke(
+                        LinearGradient(
+                            colors: [.clear, .white.opacity(0.45), .clear],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        ),
+                        style: StrokeStyle(lineWidth: 5, lineCap: .round)
+                    )
+                    .frame(width: 48, height: 48)
+                    .rotationEffect(.degrees(-90))
+                    .blendMode(.screen)
+                
                 Text(detail)
                     .font(.system(size: 10, weight: .bold, design: .monospaced))
                     .foregroundStyle(.white)
@@ -215,6 +278,46 @@ struct SystemMonitorContent: View {
                 memoryUsage = Double.random(in: 0.55...0.75)
                 cpuHistory.removeFirst()
                 cpuHistory.append(cpuUsage)
+            }
+        }
+    }
+}
+
+// MARK: - Shimmer Progress Bar
+struct ShimmerProgressBar: View {
+    var value: Double
+    var color: Color
+    
+    @State private var sweepOffset: CGFloat = -1.5
+    
+    var body: some View {
+        GeometryReader { geo in
+            ZStack(alignment: .leading) {
+                Capsule()
+                    .fill(.white.opacity(0.08))
+                    .frame(height: 6)
+                
+                Capsule()
+                    .fill(color)
+                    .frame(width: geo.size.width * CGFloat(value), height: 6)
+                    .overlay(
+                        // Moving screen-blended caustics sweep layer
+                        Capsule()
+                            .fill(
+                                LinearGradient(
+                                    colors: [.clear, .white.opacity(0.6), .clear],
+                                    startPoint: UnitPoint(x: sweepOffset, y: 0),
+                                    endPoint: UnitPoint(x: sweepOffset + 0.35, y: 0)
+                                )
+                            )
+                            .blendMode(.screen)
+                    )
+                    .clipShape(Capsule())
+            }
+        }
+        .onAppear {
+            withAnimation(.linear(duration: 4.0).repeatForever(autoreverses: false)) {
+                sweepOffset = 1.5
             }
         }
     }

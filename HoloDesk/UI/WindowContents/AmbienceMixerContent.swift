@@ -13,6 +13,7 @@ struct AmbienceMixerContent: View {
     @State private var masterVolume: Double = 0.7
     @State private var isPlaying = true
     @State private var selectedPreset = "Custom"
+    @State private var audio = SpatialAudioManager.shared
     
     struct AmbienceChannel: Identifiable {
         let id = UUID()
@@ -26,9 +27,9 @@ struct AmbienceMixerContent: View {
     private let presets = ["Custom", "Rainy Cafe", "Forest", "Ocean Night", "Cozy Cabin", "Space Station"]
     
     var body: some View {
-        VStack(spacing: 10) {
+        VStack(spacing: 8) {
             // Header
-            HStack {
+            HStack(spacing: 12) {
                 Image(systemName: "waveform")
                     .font(.system(size: 14))
                     .foregroundStyle(.green)
@@ -38,13 +39,24 @@ struct AmbienceMixerContent: View {
                 
                 Spacer()
                 
-                Button { isPlaying.toggle() } label: {
+                // Generative Soundscape Focus Orb
+                GenerativeSoundscapeOrb(channels: channels, isPlaying: isPlaying)
+                    .frame(width: 44, height: 44)
+                
+                Spacer()
+                
+                Button {
+                    isPlaying.toggle()
+                    audio.playSFX(.tap)
+                    HapticManager.shared.mediumTap()
+                } label: {
                     Image(systemName: isPlaying ? "pause.circle.fill" : "play.circle.fill")
                         .font(.system(size: 20))
                         .foregroundStyle(.white)
                 }
                 .buttonStyle(.plain)
             }
+            .padding(.bottom, 2)
             
             // Presets
             ScrollView(.horizontal, showsIndicators: false) {
@@ -53,6 +65,8 @@ struct AmbienceMixerContent: View {
                         Button {
                             selectedPreset = preset
                             applyPreset(preset)
+                            audio.playSFX(.softTick)
+                            HapticManager.shared.lightTap()
                         } label: {
                             Text(preset)
                                 .font(.system(size: 9, weight: selectedPreset == preset ? .bold : .regular))
@@ -68,6 +82,7 @@ struct AmbienceMixerContent: View {
                     }
                 }
             }
+            .padding(.bottom, 2)
             
             // Channel sliders
             ScrollView {
@@ -96,6 +111,7 @@ struct AmbienceMixerContent: View {
                     .foregroundStyle(.white.opacity(0.4))
                     .frame(width: 30)
             }
+            .padding(.top, 4)
         }
         .padding(14)
     }
@@ -104,6 +120,8 @@ struct AmbienceMixerContent: View {
         HStack(spacing: 8) {
             Button {
                 channels[index].isActive.toggle()
+                audio.playSFX(.softTick)
+                HapticManager.shared.lightTap()
             } label: {
                 Text(channel.emoji)
                     .font(.system(size: 16))
@@ -151,6 +169,111 @@ struct AmbienceMixerContent: View {
         for i in 0..<min(volumes.count, channels.count) {
             channels[i].volume = volumes[i]
             channels[i].isActive = volumes[i] > 0
+        }
+    }
+}
+
+// MARK: - Generative Soundscape Focus Orb
+struct GenerativeSoundscapeOrb: View {
+    var channels: [AmbienceMixerContent.AmbienceChannel]
+    var isPlaying: Bool
+    
+    var body: some View {
+        TimelineView(.animation) { timeline in
+            let time = timeline.date.timeIntervalSinceReferenceDate
+            
+            Canvas { context, size in
+                let center = CGPoint(x: size.width / 2, y: size.height / 2)
+                let baseRadius = min(size.width, size.height) * 0.36
+                
+                // If not playing, draw a calm, breathing circular core
+                if !isPlaying {
+                    let breathe = baseRadius + sin(time * 2.0) * 1.5
+                    context.stroke(
+                        Path(arcCenter: center, radius: breathe, startAngle: .zero, endAngle: .degrees(360), clockwise: true),
+                        with: .color(.white.opacity(0.15)),
+                        lineWidth: 1.5
+                    )
+                    context.fill(
+                        Path(arcCenter: center, radius: breathe - 1, startAngle: .zero, endAngle: .degrees(360), clockwise: true),
+                        with: .radialGradient(
+                            Gradient(colors: [.white.opacity(0.08), .clear]),
+                            center: center, startRadius: 0, endRadius: breathe
+                        )
+                    )
+                    return
+                }
+                
+                // Get active channels with non-zero volumes
+                let activeChannels = channels.filter { $0.isActive && $0.volume > 0 }
+                
+                if activeChannels.isEmpty {
+                    // Peaceful idle circle
+                    let breathe = baseRadius + sin(time * 1.5) * 1.0
+                    context.stroke(
+                        Path(arcCenter: center, radius: breathe, startAngle: .zero, endAngle: .degrees(360), clockwise: true),
+                        with: .color(.white.opacity(0.2)),
+                        lineWidth: 1.0
+                    )
+                    return
+                }
+                
+                // Overlay multiple dynamic deformed wave rings (one per active channel layer, up to 4)
+                for (layerIdx, channel) in activeChannels.prefix(4).enumerated() {
+                    let volume = channel.volume
+                    let color = channel.color
+                    
+                    var path = Path()
+                    let pointCount = 90
+                    let angleStep = 360.0 / Double(pointCount)
+                    
+                    // Specific frequencies and offsets for each channel type
+                    let waveFreq: Double
+                    switch channel.name {
+                    case "Rain": waveFreq = 4.0
+                    case "Fire": waveFreq = 9.0 // high flicker frequency
+                    case "Birds": waveFreq = 6.0
+                    case "Waves": waveFreq = 2.5 // slow swelling waves
+                    case "Wind": waveFreq = 3.0
+                    default: waveFreq = Double(layerIdx + 3)
+                    }
+                    
+                    let phaseSpeed = 3.0 + Double(layerIdx) * 1.2
+                    
+                    for i in 0...pointCount {
+                        let angle = Double(i) * angleStep
+                        let rad = angle * .pi / 180.0
+                        
+                        // Deform radius sinusoidally based on time, angle and volume
+                        let s1 = sin(angle * waveFreq * .pi / 180.0 + time * phaseSpeed)
+                        let s2 = cos(angle * waveFreq * 2.1 * .pi / 180.0 - time * phaseSpeed * 1.4) * 0.3
+                        let displacement = (s1 + s2) * 5.0 * CGFloat(volume)
+                        
+                        let currentRadius = baseRadius + displacement
+                        let x = center.x + CGFloat(cos(rad)) * currentRadius
+                        let y = center.y + CGFloat(sin(rad)) * currentRadius
+                        
+                        if i == 0 {
+                            path.move(to: CGPoint(x: x, y: y))
+                        } else {
+                            path.addLine(to: CGPoint(x: x, y: y))
+                        }
+                    }
+                    path.closeSubpath()
+                    
+                    // Draw blending screen outlines and soft transparent fills
+                    context.stroke(
+                        path,
+                        with: .color(color.opacity(0.55)),
+                        style: StrokeStyle(lineWidth: 1.5)
+                    )
+                    context.fill(
+                        path,
+                        with: .color(color.opacity(0.04))
+                    )
+                }
+            }
+            .blendMode(.screen)
         }
     }
 }

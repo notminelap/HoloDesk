@@ -12,13 +12,18 @@ struct ChessContent: View {
     @State private var board: [[ChessPiece?]] = ChessPiece.startingBoard
     @State private var selectedSquare: (row: Int, col: Int)?
     @State private var isWhiteTurn = true
-    @State private var moveHistory: [String] = ["1. e4 e5", "2. Nf3 Nc6", "3. Bb5"]
+    @State private var moveHistory: [String] = []
     @State private var whiteTime = 600
     @State private var blackTime = 600
     
+    // Captured pieces arrays
+    @State private var capturedWhite: [ChessPiece] = []
+    @State private var capturedBlack: [ChessPiece] = []
+    
     @Environment(SpatialAudioManager.self) private var audio
     
-    struct ChessPiece {
+    struct ChessPiece: Identifiable {
+        let id = UUID()
         var type: PieceType
         var isWhite: Bool
         
@@ -57,22 +62,73 @@ struct ChessContent: View {
     }
     
     var body: some View {
-        HStack(spacing: 8) {
-            // Board
-            VStack(spacing: 0) {
-                ForEach(0..<8, id: \.self) { row in
-                    HStack(spacing: 0) {
-                        ForEach(0..<8, id: \.self) { col in
-                            squareView(row: row, col: col)
+        HStack(spacing: 12) {
+            // Board with surrounding coordinates
+            VStack(spacing: 4) {
+                // Top files coordinate labels
+                HStack(spacing: 0) {
+                    Spacer().frame(width: 14)
+                    ForEach(["a", "b", "c", "d", "e", "f", "g", "h"], id: \.self) { letter in
+                        Text(letter)
+                            .font(.system(size: 8, weight: .bold))
+                            .foregroundStyle(.white.opacity(0.3))
+                            .frame(width: 30, alignment: .center)
+                    }
+                    Spacer().frame(width: 14)
+                }
+                
+                HStack(spacing: 4) {
+                    // Left ranks coordinate labels
+                    VStack(spacing: 0) {
+                        ForEach(["8", "7", "6", "5", "4", "3", "2", "1"], id: \.self) { num in
+                            Text(num)
+                                .font(.system(size: 8, weight: .bold))
+                                .foregroundStyle(.white.opacity(0.3))
+                                .frame(height: 30)
                         }
                     }
+                    .frame(width: 10)
+                    
+                    // Main chessboard grid
+                    VStack(spacing: 0) {
+                        ForEach(0..<8, id: \.self) { row in
+                            HStack(spacing: 0) {
+                                ForEach(0..<8, id: \.self) { col in
+                                    squareView(row: row, col: col)
+                                }
+                            }
+                        }
+                    }
+                    .clipShape(RoundedRectangle(cornerRadius: 4))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 4)
+                            .strokeBorder(.white.opacity(0.12), lineWidth: 0.5)
+                    )
+                    
+                    // Right ranks coordinate labels
+                    VStack(spacing: 0) {
+                        ForEach(["8", "7", "6", "5", "4", "3", "2", "1"], id: \.self) { num in
+                            Text(num)
+                                .font(.system(size: 8, weight: .bold))
+                                .foregroundStyle(.white.opacity(0.3))
+                                .frame(height: 30)
+                        }
+                    }
+                    .frame(width: 10)
+                }
+                
+                // Bottom files coordinate labels
+                HStack(spacing: 0) {
+                    Spacer().frame(width: 14)
+                    ForEach(["a", "b", "c", "d", "e", "f", "g", "h"], id: \.self) { letter in
+                        Text(letter)
+                            .font(.system(size: 8, weight: .bold))
+                            .foregroundStyle(.white.opacity(0.3))
+                            .frame(width: 30, alignment: .center)
+                    }
+                    Spacer().frame(width: 14)
                 }
             }
-            .clipShape(RoundedRectangle(cornerRadius: 4))
-            .overlay(
-                RoundedRectangle(cornerRadius: 4)
-                    .strokeBorder(.white.opacity(0.1), lineWidth: 0.5)
-            )
             
             // Side panel
             VStack(alignment: .leading, spacing: 8) {
@@ -86,6 +142,36 @@ struct ChessContent: View {
                         .font(.system(size: 10, weight: .bold))
                         .foregroundStyle(.white)
                 }
+                
+                // Captured Pieces Tray (shows captured white & black pieces)
+                VStack(alignment: .leading, spacing: 4) {
+                    if !capturedBlack.isEmpty {
+                        HStack(spacing: 2) {
+                            ForEach(capturedBlack) { piece in
+                                Text(piece.symbol)
+                                    .font(.system(size: 11))
+                                    .foregroundStyle(.white)
+                            }
+                        }
+                        .padding(.horizontal, 5)
+                        .padding(.vertical, 2)
+                        .background(.white.opacity(0.08), in: Capsule())
+                    }
+                    
+                    if !capturedWhite.isEmpty {
+                        HStack(spacing: 2) {
+                            ForEach(capturedWhite) { piece in
+                                Text(piece.symbol)
+                                    .font(.system(size: 11))
+                                    .foregroundStyle(.white)
+                            }
+                        }
+                        .padding(.horizontal, 5)
+                        .padding(.vertical, 2)
+                        .background(.black.opacity(0.25), in: Capsule())
+                    }
+                }
+                .frame(height: 28, alignment: .leading)
                 
                 // Timers
                 VStack(spacing: 4) {
@@ -109,27 +195,39 @@ struct ChessContent: View {
                         }
                     }
                 }
-                .frame(maxHeight: 80)
+                .frame(maxHeight: 70)
                 
                 // Controls
-                HStack(spacing: 6) {
+                HStack(spacing: 8) {
                     Button {
                         board = ChessPiece.startingBoard
                         isWhiteTurn = true
                         moveHistory = []
+                        capturedWhite = []
+                        capturedBlack = []
+                        whiteTime = 600
+                        blackTime = 600
                         audio.playSFX(.success)
                         HapticManager.shared.mediumTap()
                     } label: {
                         Image(systemName: "arrow.counterclockwise")
                             .font(.system(size: 10))
                             .foregroundStyle(.white.opacity(0.4))
+                            .padding(4)
+                            .background(.white.opacity(0.05), in: Circle())
                     }
                     .buttonStyle(.plain)
                     
-                    Button { } label: {
+                    Button {
+                        // Flag resign
+                        audio.playSFX(.windowClose)
+                        HapticManager.shared.mediumTap()
+                    } label: {
                         Image(systemName: "flag.fill")
                             .font(.system(size: 10))
                             .foregroundStyle(.red.opacity(0.4))
+                            .padding(4)
+                            .background(.white.opacity(0.05), in: Circle())
                     }
                     .buttonStyle(.plain)
                 }
@@ -137,11 +235,22 @@ struct ChessContent: View {
             .frame(width: 80)
         }
         .padding(10)
+        // Autoconnected 1Hz clock timer publisher
+        .onReceive(Timer.publish(every: 1, on: .main, in: .common).autoconnect()) { _ in
+            if whiteTime > 0 && blackTime > 0 {
+                if isWhiteTurn {
+                    whiteTime -= 1
+                } else {
+                    blackTime -= 1
+                }
+            }
+        }
     }
     
     private func squareView(row: Int, col: Int) -> some View {
         let isLight = (row + col) % 2 == 0
         let isSelected = selectedSquare?.row == row && selectedSquare?.col == col
+        let isTargetHighlight = selectedSquare != nil && (selectedSquare?.row != row || selectedSquare?.col != col)
         
         return Button {
             handleTap(row: row, col: col)
@@ -149,13 +258,35 @@ struct ChessContent: View {
             ZStack {
                 Rectangle()
                     .fill(
-                        isSelected ? Color.yellow.opacity(0.4) :
-                        isLight ? Color(white: 0.7).opacity(0.25) : Color(white: 0.3).opacity(0.25)
+                        isSelected ? Color.yellow.opacity(0.3) :
+                        isLight ? Color(white: 0.75).opacity(0.18) : Color(white: 0.25).opacity(0.18)
                     )
+                
+                // Glowing selected cyan stroke outline
+                if isSelected {
+                    RoundedRectangle(cornerRadius: 1)
+                        .strokeBorder(Color.holoPrimary, lineWidth: 1.5)
+                        .shadow(color: Color.holoPrimary.opacity(0.5), radius: 3)
+                }
+                
+                // Soft move trace visual suggestions
+                if isTargetHighlight {
+                    if board[row][col] != nil {
+                        // Opponent capture indicator
+                        Circle()
+                            .strokeBorder(Color.red.opacity(0.4), lineWidth: 1)
+                            .frame(width: 24, height: 24)
+                    } else {
+                        // Standard movement indicator
+                        Circle()
+                            .fill(Color.green.opacity(0.15))
+                            .frame(width: 8, height: 8)
+                    }
+                }
                 
                 if let piece = board[row][col] {
                     Text(piece.symbol)
-                        .font(.system(size: 20))
+                        .font(.system(size: 22))
                         .shadow(color: .black.opacity(0.3), radius: 1)
                 }
             }
@@ -181,20 +312,86 @@ struct ChessContent: View {
     
     private func handleTap(row: Int, col: Int) {
         if let sel = selectedSquare {
-            // Move piece
-            if board[sel.row][sel.col] != nil {
-                board[row][col] = board[sel.row][sel.col]
+            if sel.row == row && sel.col == col {
+                // Tapped same square, deselect
+                selectedSquare = nil
+                audio.playSFX(.softTick)
+            } else if let movingPiece = board[sel.row][sel.col] {
+                let targetPiece = board[row][col]
+                
+                // Record captured piece
+                if let captured = targetPiece {
+                    if captured.isWhite {
+                        capturedWhite.append(captured)
+                    } else {
+                        capturedBlack.append(captured)
+                    }
+                }
+                
+                // Perform move
+                board[row][col] = movingPiece
                 board[sel.row][sel.col] = nil
+                
+                // Generate Algebraic Notation string
+                let moveString = makeAlgebraicMove(
+                    from: (sel.row, sel.col),
+                    to: (row, col),
+                    piece: movingPiece,
+                    isCapture: targetPiece != nil
+                )
+                
+                // Log the move in history array
+                if isWhiteTurn {
+                    let turnNumber = moveHistory.count + 1
+                    moveHistory.append("\(turnNumber). \(moveString)")
+                } else {
+                    if !moveHistory.isEmpty {
+                        let idx = moveHistory.count - 1
+                        moveHistory[idx] = "\(moveHistory[idx]) \(moveString)"
+                    } else {
+                        moveHistory.append("1. ... \(moveString)")
+                    }
+                }
+                
                 isWhiteTurn.toggle()
                 audio.playSFX(.tap)
                 HapticManager.shared.lightTap()
+                selectedSquare = nil
             } else {
-                audio.playSFX(.softTick)
+                selectedSquare = nil
             }
-            selectedSquare = nil
         } else if board[row][col] != nil {
             selectedSquare = (row, col)
             audio.playSFX(.softTick)
+        }
+    }
+    
+    private func makeAlgebraicMove(from: (row: Int, col: Int), to: (row: Int, col: Int), piece: ChessPiece, isCapture: Bool) -> String {
+        let files = ["a", "b", "c", "d", "e", "f", "g", "h"]
+        let ranks = ["8", "7", "6", "5", "4", "3", "2", "1"]
+        
+        let pChar: String
+        switch piece.type {
+        case .pawn: pChar = ""
+        case .knight: pChar = "N"
+        case .bishop: pChar = "B"
+        case .rook: pChar = "R"
+        case .queen: pChar = "Q"
+        case .king: pChar = "K"
+        }
+        
+        let startFile = files[from.col]
+        let endFile = files[to.col]
+        let endRank = ranks[to.row]
+        
+        if isCapture {
+            if piece.type == .pawn {
+                return "\(startFile)x\(endFile)\(endRank)"
+            } else {
+                return "\(pChar)x\(endFile)\(endRank)"
+            }
+        } else {
+            return "\(pChar)\(endFile)\(endRank)"
         }
     }
 }
