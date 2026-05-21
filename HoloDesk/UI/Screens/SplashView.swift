@@ -148,17 +148,87 @@ struct SplashView: View {
     // MARK: - Starfield
     
     private var starfield: some View {
-        Canvas { context, size in
-            for i in 0..<60 {
-                let x = Double(i * 17 + 13).truncatingRemainder(dividingBy: size.width)
-                let y = Double(i * 31 + 7).truncatingRemainder(dividingBy: size.height)
-                let brightness = Double(i * 7 % 10) / 10.0 * 0.3
-                let dotSize = Double(i % 3 + 1)
+        TimelineView(.animation) { timeline in
+            let time = timeline.date.timeIntervalSinceReferenceDate
+            Canvas { context, size in
+                let center = CGPoint(x: size.width / 2, y: size.height / 2)
                 
-                context.fill(
-                    Circle().path(in: CGRect(x: x, y: y, width: dotSize, height: dotSize)),
-                    with: .color(.white.opacity(brightness))
+                // 1. Draw central Cyan/Blue dynamic spatial nebula cloud
+                let cyanOffset = CGPoint(
+                    x: sin(time * 0.25) * 40.0,
+                    y: cos(time * 0.30) * 30.0
                 )
+                let cyanCenter = CGPoint(x: center.x + cyanOffset.x, y: center.y + cyanOffset.y)
+                let cyanRadius = max(size.width, size.height) * 0.65
+                let cyanGradient = Gradient(colors: [
+                    Color(red: 0.0, green: 0.75, blue: 0.95).opacity(0.14),
+                    Color.holoPrimary.opacity(0.06),
+                    .clear
+                ])
+                context.fill(
+                    Path(CGRect(origin: .zero, size: size)),
+                    with: .shading(.radialGradient(cyanGradient, center: cyanCenter, startRadius: 0, endRadius: cyanRadius))
+                )
+                
+                // 2. Draw secondary Purple/Magenta cosmic dust cloud
+                let purpleOffset = CGPoint(
+                    x: cos(time * 0.22) * 55.0,
+                    y: sin(time * 0.33) * 35.0
+                )
+                let purpleCenter = CGPoint(x: center.x + purpleOffset.x, y: center.y + purpleOffset.y)
+                let purpleRadius = max(size.width, size.height) * 0.55
+                let purpleGradient = Gradient(colors: [
+                    Color(red: 0.65, green: 0.15, blue: 0.85).opacity(0.11),
+                    Color(red: 0.95, green: 0.20, blue: 0.55).opacity(0.04),
+                    .clear
+                ])
+                context.fill(
+                    Path(CGRect(origin: .zero, size: size)),
+                    with: .shading(.radialGradient(purpleGradient, center: purpleCenter, startRadius: 0, endRadius: purpleRadius))
+                )
+                
+                // 3. Draw 80 dynamically twinkling and organically drifting stars
+                for i in 0..<80 {
+                    // Seeded base positioning utilizing modular arithmetic
+                    let seedX = Double((i * 47 + 19) % 1000) / 1000.0
+                    let seedY = Double((i * 31 + 13) % 1000) / 1000.0
+                    let baseSpeed = 0.4 + Double((i * 7) % 6) * 0.18
+                    let twinkle = 0.15 + 0.65 * sin(time * baseSpeed + Double(i))
+                    let sizeSeed = Double((i * 13) % 4) * 0.7 + 0.8 // Size range from 0.8 to 2.9
+                    
+                    // Subtle organic gravitational drift
+                    let driftX = sin(time * 0.05 + Double(i)) * 6.0
+                    let driftY = cos(time * 0.04 + Double(i)) * 6.0
+                    
+                    let x = seedX * size.width + driftX
+                    let y = seedY * size.height + driftY
+                    
+                    // Keep stars wrapped inside screen boundaries
+                    let boundedX = x.truncatingRemainder(dividingBy: size.width)
+                    let boundedY = y.truncatingRemainder(dividingBy: size.height)
+                    
+                    let starRect = CGRect(
+                        x: boundedX - sizeSeed / 2,
+                        y: boundedY - sizeSeed / 2,
+                        width: sizeSeed,
+                        height: sizeSeed
+                    )
+                    
+                    // Add high-end radial light halos to larger stars
+                    if sizeSeed > 2.0 {
+                        let glowRect = starRect.insetBy(dx: -sizeSeed * 1.5, dy: -sizeSeed * 1.5)
+                        let glowGradient = Gradient(colors: [Color.white.opacity(twinkle * 0.25), .clear])
+                        context.fill(
+                            Path(ellipseIn: glowRect),
+                            with: .shading(.radialGradient(glowGradient, center: CGPoint(x: boundedX, y: boundedY), startRadius: 0, endRadius: sizeSeed * 2.0))
+                        )
+                    }
+                    
+                    context.fill(
+                        Path(ellipseIn: starRect),
+                        with: .color(.white.opacity(max(0.0, twinkle)))
+                    )
+                }
             }
         }
         .opacity(backgroundOpacity)
