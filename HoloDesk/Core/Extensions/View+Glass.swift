@@ -8,30 +8,41 @@ import SwiftUI
 
 extension View {
     
-    /// Applies a premium visionOS-native glass background with adaptive properties.
-    /// Multi-layered: ultraThinMaterial + 3-stop gradient border + dual shadow + noise grain.
+    /// Applies a premium visionOS 2.0 / OS 26.5 native "Liquid Glass" background.
+    /// Multi-layered: ultraThinMaterial + dynamic fluid cores + shifting caustics + double border refraction.
     func glassBackground(
         cornerRadius: CGFloat = 20,
         opacity: Double = 0.85,
         shadowRadius: CGFloat = 10
     ) -> some View {
         self
-            .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: cornerRadius))
+            .background(
+                ZStack {
+                    Color.clear.background(.ultraThinMaterial)
+                    LiquidGlassFluidCore(cornerRadius: cornerRadius)
+                },
+                in: RoundedRectangle(cornerRadius: cornerRadius)
+            )
             // Subtle noise grain for realism
             .overlay(
                 RoundedRectangle(cornerRadius: cornerRadius)
-                    .fill(.white.opacity(0.015))
+                    .fill(.white.opacity(0.012))
                     .blendMode(.overlay)
             )
-            // 3-stop refraction border
+            // Sweeping Liquid Glass caustics and highlights
+            .overlay(
+                LiquidGlassCaustics(cornerRadius: cornerRadius)
+            )
+            // Primary High-Refraction Crisp Border
             .overlay(
                 RoundedRectangle(cornerRadius: cornerRadius)
                     .strokeBorder(
                         LinearGradient(
                             colors: [
-                                .white.opacity(0.4),
-                                .white.opacity(0.1),
-                                .white.opacity(0.02)
+                                .white.opacity(0.55),
+                                .white.opacity(0.12),
+                                .clear,
+                                .white.opacity(0.06)
                             ],
                             startPoint: .topLeading,
                             endPoint: .bottomTrailing
@@ -39,23 +50,26 @@ extension View {
                         lineWidth: 0.5
                     )
             )
-            // Inner edge highlight (top-left caustic)
-            .overlay(alignment: .topLeading) {
+            // Secondary Ambient Glow Border
+            .overlay(
                 RoundedRectangle(cornerRadius: cornerRadius)
-                    .fill(
+                    .strokeBorder(
                         LinearGradient(
-                            colors: [.white.opacity(0.12), .clear],
+                            colors: [
+                                Color.holoSecondary.opacity(0.18),
+                                .clear,
+                                Color.holoTertiary.opacity(0.15)
+                            ],
                             startPoint: .topLeading,
-                            endPoint: .center
-                        )
+                            endPoint: .bottomTrailing
+                        ),
+                        lineWidth: 1.5
                     )
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .allowsHitTesting(false)
-            }
+            )
             // Primary shadow
-            .shadow(color: .black.opacity(0.22), radius: shadowRadius, x: 0, y: 4)
-            // Ambient occlusion shadow
-            .shadow(color: .black.opacity(0.06), radius: shadowRadius * 2.5, x: 0, y: 10)
+            .shadow(color: .black.opacity(0.24), radius: shadowRadius, x: 0, y: 5)
+            // Ambient occlusion holographic glow projection shadow
+            .shadow(color: Color.holoPrimary.opacity(0.04), radius: shadowRadius * 1.5, x: 0, y: 0)
     }
     
     /// Inner glass — lighter variant for nested elements.
@@ -219,5 +233,91 @@ struct SpatialWindowStyle: ViewModifier {
 extension View {
     func spatialWindow(width: CGFloat = 400, height: CGFloat = 350) -> some View {
         modifier(SpatialWindowStyle(width: width, height: height))
+    }
+}
+
+// MARK: - Liquid Glass Helpers (OS 26.5 Specification)
+
+/// Programmatic shifting liquid iridescence layer under the frosted material.
+struct LiquidGlassFluidCore: View {
+    var cornerRadius: CGFloat
+    @State private var phase: Double = 0.0
+    
+    var body: some View {
+        ZStack {
+            // Chromatic aberration fluid flowing gradient
+            LinearGradient(
+                colors: [
+                    Color.holoPrimary.opacity(0.03),
+                    Color.holoSecondary.opacity(0.01),
+                    Color.holoTertiary.opacity(0.02),
+                    Color(red: 1.0, green: 0.45, blue: 0.72).opacity(0.02)
+                ],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+            .rotationEffect(.degrees(phase))
+            
+            // Soft centering ambient lens glow
+            RadialGradient(
+                colors: [
+                    Color.holoSecondary.opacity(0.02),
+                    .clear
+                ],
+                center: .center,
+                startRadius: 0,
+                endRadius: 180
+            )
+        }
+        .clipShape(RoundedRectangle(cornerRadius: cornerRadius))
+        .onAppear {
+            // Calm slow rotation simulating a viscous liquid glass physical medium
+            withAnimation(.linear(duration: 28).repeatForever(autoreverses: true)) {
+                phase = 35.0
+            }
+        }
+    }
+}
+
+/// Dynamic sweeping lighting caustics and bezel reflection highlights.
+struct LiquidGlassCaustics: View {
+    var cornerRadius: CGFloat
+    @State private var sweepOffset: CGFloat = -1.2
+    
+    var body: some View {
+        ZStack {
+            // Periodic sweeping refractive caustics light glint
+            RoundedRectangle(cornerRadius: cornerRadius)
+                .fill(
+                    LinearGradient(
+                        colors: [.clear, .white.opacity(0.05), .clear],
+                        startPoint: UnitPoint(x: sweepOffset, y: sweepOffset),
+                        endPoint: UnitPoint(x: sweepOffset + 0.35, y: sweepOffset + 0.35)
+                    )
+                )
+                .blendMode(.screen)
+                .allowsHitTesting(false)
+            
+            // Fixed top-left bezel internal reflection glint
+            RoundedRectangle(cornerRadius: cornerRadius)
+                .fill(
+                    LinearGradient(
+                        colors: [.white.opacity(0.14), .clear],
+                        startPoint: .topLeading,
+                        endPoint: .center
+                    )
+                )
+                .mask(
+                    RoundedRectangle(cornerRadius: cornerRadius)
+                        .strokeBorder(.black, lineWidth: 1.5)
+                )
+                .allowsHitTesting(false)
+        }
+        .onAppear {
+            // Shimmer caustics sweep period
+            withAnimation(.linear(duration: 9.0).repeatForever(autoreverses: false)) {
+                sweepOffset = 1.4
+            }
+        }
     }
 }
