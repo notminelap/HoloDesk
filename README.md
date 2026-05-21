@@ -1,7 +1,7 @@
 <p align="center">
   <img src="https://img.shields.io/badge/Swift_Student_Challenge-2027-orange?style=for-the-badge&logo=swift&logoColor=white" alt="Swift Student Challenge 2027" />
   <img src="https://img.shields.io/badge/Platform-visionOS_2.0+-blue?style=for-the-badge&logo=apple&logoColor=white" alt="visionOS 2.0+" />
-  <img src="https://img.shields.io/badge/Swift-5.9+-FA7343?style=for-the-badge&logo=swift&logoColor=white" alt="Swift 5.9+" />
+  <img src="https://img.shields.io/badge/Host_Mac-macOS_Tahoe_26.5-brightgreen?style=for-the-badge&logo=apple&logoColor=white" alt="macOS Tahoe 26.5" />
   <img src="https://img.shields.io/badge/Audio-Spatial_DSP-brightgreen?style=for-the-badge" alt="Spatial Audio" />
   <img src="https://img.shields.io/badge/100%25-Offline_AI-blueviolet?style=for-the-badge" alt="100% Offline AI" />
 </p>
@@ -44,7 +44,7 @@ Replaces basic icons with a custom, mathematically drawn 3D isometric prism:
 *   **Orbital Satellite Orbs:** Four procedural particles float in complex circular orbits around the spinning outer neon stroke.
 *   **Breathing Core:** An active center lens flare that pulses in scale, synchronized with breathing rhythms in the meditation manager.
 
-### 2. 🌊 Liquid Glass Material Modifier (`View+Glass.swift`)
+### 🌊 Liquid Glass Material Modifier (`View+Glass.swift`)
 *   **Viscous Fluid Core:** Underneath the frosted glass blur, a programmatic chromatic aberration gradient moves in a slow, continuous rotation to simulate physical glass depth.
 *   **Shifting Caustics:** Real-time diagonal sweep highlights run periodically across the window, blending smoothly using `.blendMode(.screen)`.
 *   **Double-Border Refraction:** Features a 0.5px ultra-crisp white gradient stroke at the top-leading corner representing light entry refraction, paired with a 1.5px soft glow border reflecting the primary theme accent.
@@ -76,29 +76,79 @@ HoloDesk treats audio and animations not as secondary elements, but as core comp
 
 ---
 
-## ✨ Workspace Applications (32 Spatial Windows)
+## ✨ Workspace Applications Gallery & deep-dive
 
 HoloDesk contains **32 unique application windows** grouped into distinct productivity, platform, creative, and lifestyle categories, allowing a fully configured infinite workspace:
 
 ### 💼 Productivity & Organization
-*   **Spreadsheet:** A functional tabular grid computing interface with formulas, CSV exports, and dynamic charts.
-*   **Kanban Board:** Multi-column agile sprint board with card dragging and status updates.
-*   **To-Do Tracker:** Interactive checklist with a glowing progress tracker, task prioritization, and spatial sound rewards.
-*   **Mind Map:** Nodes placed on an infinite spatial coordinate grid to map out logical thoughts.
-*   **Notes:** Sleek sidebar folder system supporting note pins, body edits, and customizable category tags.
-*   **Files / Calendar:** Finder-style system explorer with simulated directories and a fully computed calendar with scheduling events.
 
-### 🎨 Creative Suite
-*   **Code Editor:** Syntax-highlighted text console for spatial programming mocks.
-*   **Interactive Terminal:** Complete command emulator parsing neofetch, git logs, history, and workspace directories.
+#### 📊 Spreadsheet Widget
+A functional tabular grid computing interface with formulas, calculated columns, CSV exports, and dynamic colored data bars.
+<p align="center">
+  <img src="Docs/Images/visionos_spreadsheet.png" width="90%" alt="HoloDesk Spreadsheet Spatial Application View" />
+</p>
+
+#### 📋 Agile Kanban Board
+Multi-column agile sprint board with card dragging, status column updates, and clear depth shadowing against physical rooms.
+<p align="center">
+  <img src="Docs/Images/visionos_kanban.png" width="90%" alt="HoloDesk Kanban Board Spatial Application View" />
+</p>
+
+#### 🧠 Coordinate Mind Map
+Logical thought-mapping interface placing interactive text nodes on an infinite spatial grid connected with glowing neon lines.
+<p align="center">
+  <img src="Docs/Images/visionos_mind_map.png" width="90%" alt="HoloDesk Mind Map Spatial Application View" />
+</p>
+
+*   **Notes & Folder Systems:** Sidebar folder navigator supporting note pins, body edits, and customizable category tags.
+*   **Calendar & Files:** Finder-style system explorer with simulated directories and a fully computed calendar with scheduling events.
+
+---
+
+### 🎨 Creative Suite & Development
+
+#### 🐚 Interactive Terminal v2.0
+A robust terminal console mimicking command inputs, neofetch system specs, git log trees, history tracking, and workspace directories.
+<p align="center">
+  <img src="Docs/Images/visionos_terminal.png" width="90%" alt="HoloDesk Terminal Spatial Application View" />
+</p>
+
+#### 🤖 Floating AI Buddy Companion
+An active animated partner represented as a morphing cyan and purple particle orb hovering in space next to window panes, shifting colors to reflect its active cognitive mood.
+<p align="center">
+  <img src="Docs/Images/visionos_ai_buddy.png" width="90%" alt="HoloDesk AI Buddy Spatial Application View" />
+</p>
+
 *   **3D Model Viewer:** Procedural RealityKit engine loading isometric geometric shapes rotating in coordinate space.
 *   **Color Picker & Whiteboard:** Precision design tools to extract hex codes and sketch visual notes.
 
-### 🎮 Lifestyle & Media
-*   **Chess AI:** Fully playable spatial board featuring three levels of difficulty and dynamic game state trackers.
-*   **Meditation Portal:** Shimmering HSL breathing rings that pulse dynamically in scale to guide deep breathing exercises.
-*   **Music Player:** Tactile control soundboard with custom spinning vinyl art and real-time audio visualizers.
-*   **Ambience Mixer:** Multi-slider sound generator to blend rain, ocean waves, cafe murmur, and white noise.
+---
+
+### 🎮 Lifestyle, Play & Media
+
+#### ♟️ Playable Chess AI
+A fully interactive spatial chessboard allowing users to play against a three-difficulty AI with semi-transparent board structures and neon-stroked glass pieces.
+<p align="center">
+  <img src="Docs/Images/visionos_chess_game.png" width="90%" alt="HoloDesk Chess AI Spatial Application View" />
+</p>
+
+#### 🧘 Serene Meditation Portal
+Concentric, pulsing HSL gradient breathing rings guiding deep breaths with slow scales, synchronized with procedural audio swells.
+<p align="center">
+  <img src="Docs/Images/visionos_meditation.png" width="90%" alt="HoloDesk Meditation Portal Spatial Application View" />
+</p>
+
+#### 🎵 tactile Music Player
+Dynamic records spinning in mathematically driven coordinate rotations paired with tactile album arts, control panels, and glowing vinyl buttons.
+<p align="center">
+  <img src="Docs/Images/visionos_music_player.png" width="90%" alt="HoloDesk Music Player Spatial Application View" />
+</p>
+
+#### 🔊 Ambience Soundboard Mixer
+Multi-slider spatial audio control console to blend environmental sound layers like rain chimes, cafe noise, white noise, and ocean murmurs.
+<p align="center">
+  <img src="Docs/Images/visionos_ambience_mixer.png" width="90%" alt="HoloDesk Ambience Mixer Spatial Application View" />
+</p>
 
 ---
 
@@ -108,7 +158,6 @@ HoloDesk ships with an offline **Natural Language Processing (NLP)** engine that
 
 *   **38 Context Intents:** Parses sentences to manage workspaces (e.g., *"Open Notes and terminal"*, *"Switch to Work mode"*, *"Tell me my system status"*).
 *   **Time-Aware Intelligence:** Adapts its advice, mood, and greeting formulas based on whether you launch the app in the morning, afternoon, or evening.
-*   **Spatial Buddy Avatar (`AIBuddyView.swift`):** An elegant, animated floating particle orb representing your companion. It shifts colors and morphs shapes depending on its cognitive mood state (thinking, idle, happy, or explaining).
 *   **Opt-in Cloud Fallback:** Seamlessly includes a Toggle switch to connect to a cloud LLM (e.g., Gemini API) if the user is connected to a network and desires general-purpose complex discussions.
 
 ---
@@ -116,6 +165,12 @@ HoloDesk ships with an offline **Natural Language Processing (NLP)** engine that
 ## ♿ Full Accessibility Integration
 
 HoloDesk was engineered for everyone, ensuring that physical or cognitive limitations do not restrict spatial creativity:
+
+#### 🧑‍🦽 Custom Accessibility Panel
+A dedicated system control window featuring layout stabilizers, dwell timers, colorblind simulation matrices, and scaling multipliers.
+<p align="center">
+  <img src="Docs/Images/visionos_accessibility.png" width="90%" alt="HoloDesk Accessibility Settings Spatial Application View" />
+</p>
 
 1.  **Eye-Only Navigation:** Built-in dwell selecting mechanism allowing users to interact with any window without using hands or controller triggers.
 2.  **Hand Tremor Stabilization:** Low-pass filter algorithm dampening high-frequency spatial tracking noise to assist users with fine motor control.
@@ -154,14 +209,20 @@ HoloDesk/
 
 HoloDesk compiles cleanly under modern Apple software tools with no extra configuration needed.
 
-### Standard Requirements
-*   **macOS Version:** 14.0+ (Sonoma) or 15.0+ (Sequoia)
-*   **Xcode Version:** Xcode 16.0+
-*   **SDKTarget:** visionOS 2.0 SDK+
-*   **Playgrounds:** Swift Playgrounds 4.5+ (macOS / iPadOS)
+> [!IMPORTANT]
+> **Xcode Vision Pro Simulator Host Requirement:**
+> To compile, build, and simulate the modern **visionOS 2.0 / OS 26.5** spatial rendering features inside the Xcode Simulator, your host Mac computer **MUST be running macOS Tahoe 26.5** (or newer Xcode 16+ compatible macOS release).
+
+### System Compatibility Matrix
+| Host / Target Metric | Required Specifications |
+|----------------------|-------------------------|
+| **Host Mac OS** | 💻 **macOS Tahoe 26.5+** |
+| **Xcode Version** | 🛠️ Xcode 16.0+ |
+| **Target SDK** | 🧊 visionOS 2.0 SDK+ |
+| **Swift Playgrounds**| 📱 Swift Playgrounds 4.5+ (iPadOS / macOS Tahoe) |
 
 ### Running inside Xcode:
-1.  Ensure you have **Xcode 16** or higher installed with the **visionOS 2.0 Simulator** runtime.
+1.  Ensure you have **macOS Tahoe 26.5** and **Xcode 16+** installed with the **visionOS 2.0 Simulator** runtime.
 2.  Clone this repository locally:
     ```bash
     git clone https://github.com/notminelap/HoloDesk.git
