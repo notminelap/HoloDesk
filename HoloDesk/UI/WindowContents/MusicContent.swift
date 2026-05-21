@@ -34,12 +34,18 @@ struct MusicContent: View {
                 Spacer()
                 
                 // Active waveform indicator
-                HStack(spacing: 2) {
-                    ForEach(0..<4, id: \.self) { i in
-                        RoundedRectangle(cornerRadius: 1)
-                            .fill(.pink)
-                            .frame(width: 2, height: isPlaying ? CGFloat.random(in: 4...12) : 4)
-                            .animation(isPlaying ? .easeInOut(duration: 0.3).repeatForever(autoreverses: true).delay(Double(i) * 0.05) : .default, value: isPlaying)
+                TimelineView(.animation) { timeline in
+                    let time = timeline.date.timeIntervalSinceReferenceDate
+                    HStack(spacing: 2) {
+                        ForEach(0..<5, id: \.self) { i in
+                            let speed = 8.0 + Double(i) * 2.5
+                            let sineVal = sin(time * speed)
+                            let height = isPlaying ? (6.0 + 8.0 * abs(sineVal)) : 4.0
+                            
+                            RoundedRectangle(cornerRadius: 1)
+                                .fill(Color.pink)
+                                .frame(width: 2, height: height)
+                        }
                     }
                 }
             }
@@ -207,7 +213,35 @@ struct MusicContent: View {
             .frame(height: 120)
             .overlay(
                 ZStack {
-                    // Galaxy dust / rotating ambient records
+                    // Concentric radial sound wave ripples expanding outward
+                    TimelineView(.animation) { timeline in
+                        let time = timeline.date.timeIntervalSinceReferenceDate
+                        ZStack {
+                            ForEach(0..<3, id: \.self) { ring in
+                                let speed = 2.0
+                                let progress = (time * speed + Double(ring) * 0.33).truncatingRemainder(dividingBy: 1.0)
+                                let opacity = isPlaying ? (1.0 - progress) * 0.15 : 0.03
+                                let scale = 0.5 + progress * 1.6
+                                
+                                Circle()
+                                    .stroke(
+                                        LinearGradient(
+                                            colors: [
+                                                Color.pink.opacity(opacity),
+                                                Color.purple.opacity(opacity * 0.3),
+                                                .clear
+                                            ],
+                                            startPoint: .topLeading,
+                                            endPoint: .bottomTrailing
+                                        ),
+                                        lineWidth: 1.5
+                                    )
+                                    .frame(width: 80 * scale, height: 80 * scale)
+                            }
+                        }
+                    }
+                    
+                    // Galaxy dust / rotating ambient vinyl records
                     Circle()
                         .strokeBorder(.white.opacity(0.03), lineWidth: 1)
                         .frame(width: 100, height: 100)
@@ -219,7 +253,7 @@ struct MusicContent: View {
                         .font(.system(size: 40))
                         .foregroundStyle(
                             LinearGradient(
-                                colors: [.pink.opacity(0.2), .purple.opacity(0.08)],
+                                colors: [.pink.opacity(0.25), .purple.opacity(0.09)],
                                 startPoint: .top,
                                 endPoint: .bottom
                             )
@@ -233,31 +267,38 @@ struct MusicContent: View {
                             }
                         }
                     
-                    // City skyline silhouette (Midnight City!)
+                    // City skyline silhouette (Midnight City!) dynamically responsive!
                     VStack {
                         Spacer()
-                        HStack(spacing: 3) {
-                            ForEach(0..<10, id: \.self) { i in
-                                let heights: [CGFloat] = [20, 35, 28, 50, 18, 42, 30, 48, 22, 38]
-                                RoundedRectangle(cornerRadius: 1)
-                                    .fill(.white.opacity(isPlaying ? 0.22 : 0.12))
-                                    .frame(width: 8, height: heights[i])
-                                    .animation(.spring(response: 0.4, dampingFraction: 0.6).delay(Double(i) * 0.02), value: isPlaying)
+                        TimelineView(.animation) { timeline in
+                            let time = timeline.date.timeIntervalSinceReferenceDate
+                            HStack(spacing: 3) {
+                                ForEach(0..<10, id: \.self) { i in
+                                    let baseHeights: [CGFloat] = [20, 35, 28, 50, 18, 42, 30, 48, 22, 38]
+                                    let speed = 4.0 + Double(i * 3 % 7) * 1.2
+                                    let phase = Double(i) * 0.4
+                                    let bounce = isPlaying ? abs(sin(time * speed + phase)) * 14.0 : 0.0
+                                    
+                                    RoundedRectangle(cornerRadius: 1)
+                                        .fill(.white.opacity(isPlaying ? 0.28 : 0.12))
+                                        .frame(width: 8, height: baseHeights[i] + bounce)
+                                }
                             }
+                            .padding(.bottom, 8)
                         }
-                        .padding(.bottom, 8)
                     }
                     
-                    // Small glowing window lights on buildings
+                    // Small glowing window lights on buildings (statically seeded for performance)
                     VStack {
                         Spacer()
                         HStack(spacing: 12) {
-                            ForEach(0..<5, id: \.self) { _ in
+                            ForEach(0..<5, id: \.self) { i in
+                                let offsets: [CGFloat] = [18, 32, 24, 38, 15]
                                 Rectangle()
                                     .fill(Color(red: 1.0, green: 0.85, blue: 0.4))
                                     .frame(width: 2, height: 2)
-                                    .opacity(isPlaying ? 0.6 : 0.2)
-                                    .offset(y: -CGFloat.random(in: 12...38))
+                                    .opacity(isPlaying ? 0.65 : 0.2)
+                                    .offset(y: -offsets[i])
                             }
                         }
                         .padding(.bottom, 10)

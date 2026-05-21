@@ -61,25 +61,80 @@ struct WeatherContent: View {
     // MARK: - Sky Background
     
     private var skyGradient: some View {
-        LinearGradient(
-            colors: [
-                Color(hue: 0.58, saturation: 0.6, brightness: 0.85),
-                Color(hue: 0.55, saturation: 0.4, brightness: 0.65),
-                Color(hue: 0.6, saturation: 0.3, brightness: 0.45),
-            ],
-            startPoint: .top,
-            endPoint: .bottom
-        )
-        .overlay(
-            // Sun glow
-            RadialGradient(
-                colors: [.yellow.opacity(0.2), .clear],
-                center: .init(x: 0.7, y: 0.15),
-                startRadius: 10,
-                endRadius: 120
+        TimelineView(.animation) { timeline in
+            let time = timeline.date.timeIntervalSinceReferenceDate
+            
+            // Shifting sky background based on time and potential lightning activity
+            let lightningIntensity = abs(sin(time * 0.05)) > 0.97 ? (sin(time * 60) > 0 ? 0.35 : 0.0) : 0.0
+            
+            LinearGradient(
+                colors: [
+                    Color(hue: 0.58, saturation: 0.6 - lightningIntensity, brightness: 0.85 + lightningIntensity),
+                    Color(hue: 0.55, saturation: 0.4, brightness: 0.65 + lightningIntensity * 0.5),
+                    Color(hue: 0.60, saturation: 0.3, brightness: 0.45)
+                ],
+                startPoint: .top,
+                endPoint: .bottom
             )
-        )
-        .ignoresSafeArea()
+            .overlay(
+                // Dynamic sun glow pulsing slowly
+                RadialGradient(
+                    colors: [Color.yellow.opacity(0.2 + sin(time * 0.5) * 0.03), .clear],
+                    center: .init(x: 0.7, y: 0.15),
+                    startRadius: 10,
+                    endRadius: 130
+                )
+            )
+            .overlay(
+                Canvas { context, size in
+                    // 1. Render drifting mist/vapor clouds
+                    let cloudPositions = [
+                        CGPoint(x: size.width * 0.2 + sin(time * 0.04) * 40.0, y: size.height * 0.2),
+                        CGPoint(x: size.width * 0.85 + cos(time * 0.03) * 50.0, y: size.height * 0.35)
+                    ]
+                    
+                    for (i, pos) in cloudPositions.enumerated() {
+                        let cloudRadius = size.width * (i == 0 ? 0.5 : 0.4)
+                        let cloudGradient = Gradient(colors: [
+                            Color.white.opacity(0.06),
+                            Color.cyan.opacity(0.02),
+                            .clear
+                        ])
+                        context.fill(
+                            Path(CGRect(origin: .zero, size: size)),
+                            with: .shading(.radialGradient(cloudGradient, center: pos, startRadius: 0, endRadius: cloudRadius))
+                        )
+                    }
+                    
+                    // 2. Render falling spatial precipitation rain strokes
+                    let rainCount = 45
+                    for i in 0..<rainCount {
+                        let seedX = Double((i * 79 + 17) % 1000) / 1000.0
+                        let seedY = Double((i * 43 + 13) % 1000) / 1000.0
+                        
+                        let fallSpeed = 380.0 + Double((i * 7) % 5) * 45.0
+                        let startY = seedY * size.height + (time * fallSpeed).truncatingRemainder(dividingBy: size.height)
+                        let startX = (seedX * size.width - startY * 0.25).truncatingRemainder(dividingBy: size.width)
+                        
+                        // Keep rain inside bounds
+                        let boundedX = startX >= 0 ? startX : (size.width + startX)
+                        let boundedY = startY.truncatingRemainder(dividingBy: size.height)
+                        
+                        let linePath = Path { path in
+                            path.move(to: CGPoint(x: boundedX, y: boundedY))
+                            path.addLine(to: CGPoint(x: boundedX - 3.5, y: boundedY + 12.0))
+                        }
+                        
+                        context.stroke(
+                            linePath,
+                            with: .color(.cyan.opacity(0.16 + Double(i % 3) * 0.05)),
+                            lineWidth: 0.75
+                        )
+                    }
+                }
+            )
+            .ignoresSafeArea()
+        }
     }
     
     // MARK: - Main Temperature
