@@ -23,8 +23,14 @@ final class WorkspaceManager {
     
     /// Load a preset from a bundled JSON file.
     func loadBundledPreset(mode: WorkspaceMode) -> Workspace? {
+        #if SWIFT_PACKAGE
+        let bundle = Bundle.module
+        #else
+        let bundle = Bundle.main
+        #endif
+        
         guard let fileName = presetFileNames[mode],
-              let url = Bundle.main.url(forResource: fileName, withExtension: "json"),
+              let url = bundle.url(forResource: fileName, withExtension: "json") ?? Bundle.main.url(forResource: fileName, withExtension: "json"),
               let data = try? Data(contentsOf: url) else {
             return nil
         }
