@@ -22,7 +22,7 @@
 **HoloDesk** is a native spatial operating workspace built from scratch in pure **SwiftUI** and **RealityKit** for **visionOS 2.0+**. It reimagines the classic desktop computing metaphor for spatial computing. Instead of restricting widgets and applications to flat, physical screens, HoloDesk projects them natively into your physical room, leveraging eye tracking, hand gestures, and spatial audio to build an immersive digital office.
 
 ### 🌟 Why HoloDesk Stands Out
-- **Zero Third-Party Dependencies:** 101 Swift files and over 20,600 lines of highly optimized, hand-crafted code with absolutely no external packages or libraries.
+- **Zero Third-Party Dependencies:** 104 Swift files and exactly 22,519 lines of highly optimized, hand-crafted code with absolutely no external packages or libraries.
 - **100% Offline AI Engine:** A time-aware, workspace-context-aware Natural Language Processing (NLP) assistant with 38 operational command intents that runs fully on-device.
 - **Liquid Glass Design System (OS 26.5 Specifications):** Ultra-realistic glass materials rendered programmatically with viscous shifting fluid cores, dynamic sweeping caustics, and double-refraction highlight lines.
 - **Procedural DSP Synthesizer:** Real-time spatial sound synthesis (`SpatialAudioManager`) that generates custom physical audio feedback on windows and background drone ambience.
@@ -94,8 +94,8 @@ Multi-column agile sprint board with card dragging, status column updates, and c
   <img src="Docs/Images/visionos_kanban.png" width="90%" alt="HoloDesk Kanban Board Spatial Application View" />
 </p>
 
-#### 🧠 Coordinate Mind Map
-Logical thought-mapping interface placing interactive text nodes on an infinite spatial grid connected with glowing neon lines.
+#### 🧠 Coordinate Mind Map (Holographic Neural Grid)
+An interactive thought-mapping interface placing text nodes on a spatial grid connected by real-time neural link paths. Utilizing a timeline-driven `dashPhase` offset, glowing color-graded energy pulses flow dynamically along the Bezier curves. Features spring-driven node scales (`1.08x`), glowing background auras, and spatial soundboard feedback on node selection.
 <p align="center">
   <img src="Docs/Images/visionos_mind_map.png" width="90%" alt="HoloDesk Mind Map Spatial Application View" />
 </p>
@@ -113,6 +113,9 @@ A robust terminal console mimicking command inputs, neofetch system specs, git l
   <img src="Docs/Images/visionos_terminal.png" width="90%" alt="HoloDesk Terminal Spatial Application View" />
 </p>
 
+#### 📊 Real-time 8-Core CPU Grid & System Monitor
+An advanced system diagnostics dashboard showcasing 8 independent core thread activity visualizers in a localized dynamic timeline-driven Canvas, equipped with `ShimmerProgressBar` caustics sweeps, circular high-refraction glass glints, and live memory and network logs.
+
 #### 🤖 Floating AI Buddy Companion
 An active animated partner represented as a morphing cyan and purple particle orb hovering in space next to window panes, shifting colors to reflect its active cognitive mood.
 <p align="center">
@@ -126,8 +129,8 @@ An active animated partner represented as a morphing cyan and purple particle or
 
 ### 🎮 Lifestyle, Play & Media
 
-#### ♟️ Playable Chess AI
-A fully interactive spatial chessboard allowing users to play against a three-difficulty AI with semi-transparent board structures and neon-stroked glass pieces.
+#### ♟️ Playable Chess AI & Algebraic Move Engine
+A fully playable, interactive spatial chessboard. Features a standard ranks (1-8) and files (a-h) border framework, separate White/Black captured piece capsules that track exact board configurations, and a 1Hz clock publisher. Supported by glowing cyan outlines for selection, green movement markers, threat-capture borders, and a real-time standard Algebraic Notation generator (`Nf3`, `exd5`, `Qh4`) logging moves to an interactive history tray.
 <p align="center">
   <img src="Docs/Images/visionos_chess_game.png" width="90%" alt="HoloDesk Chess AI Spatial Application View" />
 </p>
@@ -144,8 +147,8 @@ Dynamic records spinning in mathematically driven coordinate rotations paired wi
   <img src="Docs/Images/visionos_music_player.png" width="90%" alt="HoloDesk Music Player Spatial Application View" />
 </p>
 
-#### 🔊 Ambience Soundboard Mixer
-Multi-slider spatial audio control console to blend environmental sound layers like rain chimes, cafe noise, white noise, and ocean murmurs.
+#### 🔊 Ambience Soundboard Mixer & Generative Orb
+A multi-slider spatial console blending environmental soundscapes like rain, crackling fires, birds, ocean waves, and keyboard keys. Powered by a timeline-driven `GenerativeSoundscapeOrb` canvas that dynamically deforms and blends concentric wave paths (e.g., Rain blue ripples, Fire rapid orange spikes, Waves slow cyan swells) in real-time based on active channel volumes.
 <p align="center">
   <img src="Docs/Images/visionos_ambience_mixer.png" width="90%" alt="HoloDesk Ambience Mixer Spatial Application View" />
 </p>
@@ -199,8 +202,8 @@ HoloDesk/
 └── Assets/              → Programmatic audio resources, preset JSON maps, and local icons
 ```
 
-*   **Total Source Code Files:** 101 Swift Files
-*   **Total Lines of Code (LOC):** 20,672
+*   **Total Source Code Files:** 104 Swift Files
+*   **Total Lines of Code (LOC):** 22,519
 *   **Bundle Size:** ~220 KB (No heavy images/videos; completely vector and code-drawn!)
 
 ---
