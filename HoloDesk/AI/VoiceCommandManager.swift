@@ -79,7 +79,7 @@ final class VoiceCommandManager {
             isListening = true
             store.isListening = true
         } catch {
-            print("Audio engine failed to start: \(error)")
+            HoloDeskLogger.audio.error("Audio engine failed to start: \(error.localizedDescription)")
         }
     }
     
@@ -114,13 +114,13 @@ final class VoiceCommandManager {
             (["reset workspace", "clear all", "reset all"],
              { self.currentStore?.clearAllWindows() }),
             (["add notes", "open notes"],
-             { self.currentWindowManager?.spawnWindow(type: .notes, in: self.currentStore!) }),
+             { guard let s = self.currentStore else { return }; self.currentWindowManager?.spawnWindow(type: .notes, in: s) }),
             (["add calendar", "open calendar"],
-             { self.currentWindowManager?.spawnWindow(type: .calendar, in: self.currentStore!) }),
+             { guard let s = self.currentStore else { return }; self.currentWindowManager?.spawnWindow(type: .calendar, in: s) }),
             (["add music", "open music", "play music"],
-             { self.currentWindowManager?.spawnWindow(type: .music, in: self.currentStore!) }),
+             { guard let s = self.currentStore else { return }; self.currentWindowManager?.spawnWindow(type: .music, in: s) }),
             (["add messages", "open messages"],
-             { self.currentWindowManager?.spawnWindow(type: .messages, in: self.currentStore!) }),
+             { guard let s = self.currentStore else { return }; self.currentWindowManager?.spawnWindow(type: .messages, in: s) }),
         ]
         
         for command in commands {

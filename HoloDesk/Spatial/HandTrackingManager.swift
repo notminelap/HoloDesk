@@ -20,7 +20,7 @@ final class HandTrackingManager {
     @MainActor
     func startTracking() async {
         guard HandTrackingProvider.isSupported else {
-            print("Hand tracking not supported on this device")
+            HoloDeskLogger.spatial.warning("Hand tracking not supported on this device")
             return
         }
         
@@ -56,7 +56,7 @@ final class HandTrackingManager {
                 }
             }
         } catch {
-            print("Failed to start hand tracking: \(error)")
+            HoloDeskLogger.spatial.error("Failed to start hand tracking: \(error.localizedDescription)")
             isTracking = false
         }
     }

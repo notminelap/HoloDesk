@@ -18,7 +18,7 @@ final class SpatialAnchorManager {
     @MainActor
     func loadAnchors() async {
         guard WorldTrackingProvider.isSupported else {
-            print("World tracking not supported")
+            HoloDeskLogger.spatial.warning("World tracking not supported")
             return
         }
         
@@ -40,7 +40,7 @@ final class SpatialAnchorManager {
                 }
             }
         } catch {
-            print("Failed to start world tracking: \(error)")
+            HoloDeskLogger.spatial.error("Failed to start world tracking: \(error.localizedDescription)")
         }
     }
     
@@ -51,7 +51,7 @@ final class SpatialAnchorManager {
             try await worldTracking.addAnchor(anchor)
             return anchor.id
         } catch {
-            print("Failed to add anchor: \(error)")
+            HoloDeskLogger.spatial.error("Failed to add anchor: \(error.localizedDescription)")
             return nil
         }
     }
@@ -62,7 +62,7 @@ final class SpatialAnchorManager {
             do {
                 try await worldTracking.removeAnchor(anchor)
             } catch {
-                print("Failed to remove anchor: \(error)")
+                HoloDeskLogger.spatial.error("Failed to remove anchor: \(error.localizedDescription)")
             }
         }
     }

@@ -373,6 +373,132 @@ struct StopwatchWidgetView: View {
     }
 }
 
+// MARK: - World Clock Widget
+
+struct WorldClockWidgetView: View {
+    @State private var currentTime = Date()
+    let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
+    
+    private let zones: [(city: String, tz: String, emoji: String)] = [
+        ("San Francisco", "America/Los_Angeles", "🌉"),
+        ("New York", "America/New_York", "🗽"),
+        ("London", "Europe/London", "🇬🇧"),
+        ("Tokyo", "Asia/Tokyo", "🗼"),
+    ]
+    
+    var body: some View {
+        VStack(spacing: 8) {
+            ForEach(zones, id: \.tz) { zone in
+                HStack(spacing: 8) {
+                    Text(zone.emoji)
+                        .font(.system(size: 14))
+                    VStack(alignment: .leading, spacing: 1) {
+                        Text(zone.city)
+                            .font(.system(size: 10, weight: .semibold))
+                            .foregroundStyle(.white.opacity(0.8))
+                        Text(timeIn(zone: zone.tz))
+                            .font(.system(size: 16, weight: .thin, design: .monospaced))
+                            .foregroundStyle(.white)
+                    }
+                    Spacer()
+                }
+                .padding(.horizontal, 8)
+                .padding(.vertical, 4)
+                .innerGlass(cornerRadius: 8)
+            }
+        }
+        .padding(12)
+        .onReceive(timer) { currentTime = $0 }
+    }
+    
+    private func timeIn(zone tz: String) -> String {
+        let fmt = DateFormatter()
+        fmt.timeZone = TimeZone(identifier: tz)
+        fmt.dateFormat = "h:mm a"
+        return fmt.string(from: currentTime)
+    }
+}
+
+// MARK: - Unit Converter Widget
+
+struct UnitConverterWidgetView: View {
+    @State private var inputValue = "1"
+    @State private var selectedUnit = 0 // 0: Length, 1: Weight, 2: Temp
+    
+    private let categories = ["Length", "Weight", "Temp"]
+    
+    var body: some View {
+        VStack(spacing: 8) {
+            // Category picker
+            HStack(spacing: 4) {
+                ForEach(0..<3, id: \.self) { i in
+                    Button {
+                        selectedUnit = i
+                    } label: {
+                        Text(categories[i])
+                            .font(.system(size: 10, weight: .medium))
+                            .foregroundStyle(selectedUnit == i ? .white : .white.opacity(0.4))
+                            .padding(.horizontal, 10)
+                            .padding(.vertical, 5)
+                            .innerGlass(cornerRadius: 6)
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+            
+            // Input
+            TextField("Value", text: $inputValue)
+                .textFieldStyle(.plain)
+                .font(.system(size: 20, weight: .thin, design: .monospaced))
+                .foregroundStyle(.white)
+                .multilineTextAlignment(.center)
+                .padding(8)
+                .innerGlass(cornerRadius: 10)
+            
+            // Results
+            VStack(spacing: 4) {
+                ForEach(conversions, id: \.label) { item in
+                    HStack {
+                        Text(item.label)
+                            .font(.system(size: 9, weight: .medium))
+                            .foregroundStyle(.white.opacity(0.4))
+                        Spacer()
+                        Text(item.value)
+                            .font(.system(size: 12, weight: .medium, design: .monospaced))
+                            .foregroundStyle(.white.opacity(0.8))
+                    }
+                }
+            }
+            .padding(8)
+            .innerGlass(cornerRadius: 8)
+        }
+        .padding(10)
+    }
+    
+    private var conversions: [(label: String, value: String)] {
+        let v = Double(inputValue) ?? 0
+        switch selectedUnit {
+        case 0: return [
+            ("km", String(format: "%.3f", v * 1.60934)),
+            ("m", String(format: "%.1f", v * 1609.34)),
+            ("ft", String(format: "%.1f", v * 5280)),
+            ("in", String(format: "%.0f", v * 63360)),
+        ]
+        case 1: return [
+            ("kg", String(format: "%.2f", v * 0.453592)),
+            ("g", String(format: "%.1f", v * 453.592)),
+            ("oz", String(format: "%.1f", v * 16)),
+            ("st", String(format: "%.2f", v / 14)),
+        ]
+        default: return [
+            ("°C", String(format: "%.1f", (v - 32) * 5/9)),
+            ("K", String(format: "%.1f", (v - 32) * 5/9 + 273.15)),
+            ("°R", String(format: "%.1f", v + 459.67)),
+        ]
+        }
+    }
+}
+
 // MARK: - Widget Container
 
 struct WidgetContainerView: View {
@@ -409,8 +535,8 @@ struct WidgetContainerView: View {
         case .calculator:    CalculatorWidgetView()
         case .quickNote:     QuickNoteWidgetView()
         case .stopwatch:     StopwatchWidgetView()
-        case .worldClock:    ClockWidgetView() // Reuse for now
-        case .unitConverter: CalculatorWidgetView() // Reuse for now
+        case .worldClock:    WorldClockWidgetView()
+        case .unitConverter: UnitConverterWidgetView()
         }
     }
     

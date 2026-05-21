@@ -97,7 +97,7 @@ final class SpatialAudioManager {
             try engine.start()
             isAmbientPlaying = true
         } catch {
-            print("Audio engine failed: \(error)")
+            HoloDeskLogger.audio.error("Audio engine failed: \(error.localizedDescription)")
         }
     }
     
