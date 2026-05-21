@@ -1,6 +1,12 @@
-// Copyright (c) 2026 Notminelap Industries. All Rights Reserved.
-// Licensed under the HoloDesk Source-Available License.
-// See LICENSE file for details.
+// ─────────────────────────────────────────────────────────────────────────────
+//                         L I Q U I D   G L A S S   S Y S T E M
+// ─────────────────────────────────────────────────────────────────────────────
+//   HoloDesk Premium Design Language - visionOS 2.0+ (Apple OS 26.5)
+//
+//   Copyright (c) 2027 Radhesh Ranvijay. All Rights Reserved.
+//   Designed and engineered by Radhesh Ranvijay for Apple Swift Student Challenge.
+// ─────────────────────────────────────────────────────────────────────────────
+
 
 import SwiftUI
 

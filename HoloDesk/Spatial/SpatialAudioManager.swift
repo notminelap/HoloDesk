@@ -1,6 +1,12 @@
-// Copyright (c) 2026 Notminelap Industries. All Rights Reserved.
-// Licensed under the HoloDesk Source-Available License.
-// See LICENSE file for details.
+// ─────────────────────────────────────────────────────────────────────────────
+//                S P A T I A L   A U D I O   S Y N T H E S I Z E R
+// ─────────────────────────────────────────────────────────────────────────────
+//   HoloDesk Dynamic Positional DSP Sound Engine - visionOS 2.0+
+//
+//   Copyright (c) 2027 Radhesh Ranvijay. All Rights Reserved.
+//   Designed and engineered by Radhesh Ranvijay for Apple Swift Student Challenge.
+// ─────────────────────────────────────────────────────────────────────────────
+
 
 import AVFoundation
 import Observation

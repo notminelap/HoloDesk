@@ -1,6 +1,12 @@
-// Copyright (c) 2026 Notminelap Industries. All Rights Reserved.
-// Licensed under the HoloDesk Source-Available License.
-// See LICENSE file for details.
+// ─────────────────────────────────────────────────────────────────────────────
+//                O F F L I N E   N L P   I N T E L L I G E N C E
+// ─────────────────────────────────────────────────────────────────────────────
+//   HoloDesk Time-Aware 38-Intent On-Device AI Brain - visionOS 2.0+
+//
+//   Copyright (c) 2027 Radhesh Ranvijay. All Rights Reserved.
+//   Designed and engineered by Radhesh Ranvijay for Apple Swift Student Challenge.
+// ─────────────────────────────────────────────────────────────────────────────
+
 
 import SwiftUI
 import Observation

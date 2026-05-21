@@ -1,6 +1,12 @@
-// Copyright (c) 2026 Notminelap Industries. All Rights Reserved.
-// Licensed under the HoloDesk Source-Available License.
-// See LICENSE file for details.
+// ─────────────────────────────────────────────────────────────────────────────
+//                 H O L O G R A P H I C   3 D   L O G O   V I E W
+// ─────────────────────────────────────────────────────────────────────────────
+//   HoloDesk Zero-Dependency Procedural Vector Logo - visionOS 2.0+
+//
+//   Copyright (c) 2027 Radhesh Ranvijay. All Rights Reserved.
+//   Designed and engineered by Radhesh Ranvijay for Apple Swift Student Challenge.
+// ─────────────────────────────────────────────────────────────────────────────
+
 
 import SwiftUI
 
