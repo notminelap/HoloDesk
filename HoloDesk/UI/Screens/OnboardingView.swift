@@ -62,9 +62,9 @@ struct OnboardingView: View {
         ),
         OnboardingPage(
             emoji: "🤖",
-            title: "Gemini AI",
-            subtitle: "Your Spatial Intelligence",
-            description: "Powered by Google Gemini — ask anything, control your workspace with natural language, and let AI suggest optimal layouts for your workflow.",
+            title: "On-Device AI",
+            subtitle: "Built for the Swift Student Challenge",
+            description: "38 intelligent intents run entirely on-device — no internet required. Natural language control, contextual workspace suggestions, and an AI companion that learns your workflow.",
             icon: "sparkles",
             gradient: [
                 Color(hue: 0.55, saturation: 0.7, brightness: 0.8),

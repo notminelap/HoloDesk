@@ -77,12 +77,14 @@ struct SettingsView: View {
                     settingsSection("About") {
                         infoRow("Version", value: "2.1.0")
                         infoRow("Build", value: "2026.05.21")
-                        infoRow("Platform", value: "visionOS 2.0+")
+                        infoRow("Submission", value: "SSC 2027")
+                        infoRow("Platform", value: "visionOS / iPad / Mac")
                         infoRow("Runtime", value: "SwiftUI + RealityKit")
-                        infoRow("AI", value: "Google Gemini")
+                        infoRow("AI", value: "On-Device (38 intents)")
                         infoRow("Developer", value: "Notminelap Industries")
                         infoRow("License", value: "Source Available")
                         infoRow("Swift Files", value: "101")
+                        infoRow("Dependencies", value: "Zero")
                     }
                     
                     // Reset

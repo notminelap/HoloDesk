@@ -7,7 +7,7 @@ import SwiftUI
 // MARK: - WWDC Guided Demo View
 
 /// Auto-playing 3-minute guided tour that showcases HoloDesk's features.
-/// Designed for WWDC Swift Student Challenge judges — hits every evaluation
+/// Designed for Swift Student Challenge 2027 judges — hits every evaluation
 /// criteria: technical depth, creativity, design, and accessibility.
 struct GuidedDemoView: View {
     
@@ -58,9 +58,9 @@ struct GuidedDemoView: View {
             gradient: [Color(hue: 0.8, saturation: 0.5, brightness: 0.5), Color(hue: 0.85, saturation: 0.3, brightness: 0.25)]
         ),
         DemoStep(
-            title: "AI Assistant",
-            subtitle: "Natural language workspace control",
-            description: "Say 'open work mode' or 'add notes' — the AI handles the rest. Works entirely on-device, no network needed.",
+            title: "On-Device AI",
+            subtitle: "38 intents, zero internet",
+            description: "Say 'open work mode' or 'add notes' — the AI handles the rest. Built with on-device NLP, fully offline. No API keys needed for the judge demo.",
             icon: "sparkles",
             action: .showAI,
             duration: 5,
@@ -133,10 +133,10 @@ struct GuidedDemoView: View {
     private var demoHeader: some View {
         HStack {
             HStack(spacing: 6) {
-                Image(systemName: "play.display")
+                Image(systemName: "swift")
                     .font(.system(size: 12))
-                    .foregroundStyle(.holoPrimary)
-                Text("GUIDED TOUR")
+                    .foregroundStyle(.orange)
+                Text("SSC 2027 DEMO")
                     .font(.system(size: 10, weight: .bold))
                     .tracking(2)
                     .foregroundStyle(.white.opacity(0.5))

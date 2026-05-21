@@ -1,6 +1,7 @@
 // swift-tools-version: 5.9
 // ──────────────────────────────────────────────────────────────
 // HoloDesk — Spatial Workspace Platform for Apple Vision Pro
+// Swift Student Challenge 2027 Submission
 // Copyright (c) 2026 Notminelap Industries. All Rights Reserved.
 // ──────────────────────────────────────────────────────────────
 
@@ -9,19 +10,40 @@ import PackageDescription
 let package = Package(
     name: "HoloDesk",
     platforms: [
-        .visionOS(.v2),
-        .macOS(.v14),       // macOS compatibility
-        .iOS(.v17)          // iPad fallback
+        .iOS(.v17),
+        .macOS(.v14),
+        .visionOS(.v2)
     ],
     products: [
-        .library(
+        .iOSApplication(
             name: "HoloDesk",
-            targets: ["HoloDesk"]
-        ),
+            targets: ["HoloDesk"],
+            bundleIdentifier: "com.notminelap.holodesk",
+            teamIdentifier: "",
+            displayVersion: "2.1.0",
+            bundleVersion: "1",
+            appIcon: .placeholder(icon: .cube),
+            accentColor: .presetColor(.cyan),
+            supportedDeviceFamilies: [
+                .pad,
+                .mac,
+                .vision
+            ],
+            supportedInterfaceOrientations: [
+                .portrait,
+                .landscapeRight,
+                .landscapeLeft
+            ],
+            capabilities: [
+                .camera(purposeString: "Spatial scanning and 3D object capture"),
+                .microphone(purposeString: "Voice commands and audio recording")
+            ],
+            appCategory: .productivity
+        )
     ],
     dependencies: [],
     targets: [
-        .target(
+        .executableTarget(
             name: "HoloDesk",
             dependencies: ["RealityKitContent"],
             path: "HoloDesk",

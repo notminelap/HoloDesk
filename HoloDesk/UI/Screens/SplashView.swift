@@ -157,7 +157,7 @@ struct SplashView: View {
                         )
                         .opacity(textOpacity)
                     
-                    Text("S P A T I A L   W O R K S P A C E")
+                    Text("SWIFT STUDENT CHALLENGE 2027")
                         .font(.system(size: 10, weight: .medium))
                         .tracking(4)
                         .foregroundStyle(.white.opacity(0.4))
@@ -167,10 +167,15 @@ struct SplashView: View {
                 Spacer()
                 
                 // Bottom branding
-                VStack(spacing: 4) {
-                    Text("Built by")
-                        .font(.system(size: 9))
-                        .foregroundStyle(.white.opacity(0.2))
+                VStack(spacing: 6) {
+                    HStack(spacing: 6) {
+                        Image(systemName: "swift")
+                            .font(.system(size: 10))
+                            .foregroundStyle(.orange.opacity(0.6))
+                        Text("Swift Student Challenge")
+                            .font(.system(size: 9, weight: .medium))
+                            .foregroundStyle(.white.opacity(0.3))
+                    }
                     
                     Text("NOTMINELAP INDUSTRIES")
                         .font(.system(size: 10, weight: .semibold))
