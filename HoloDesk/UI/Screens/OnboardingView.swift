@@ -190,15 +190,19 @@ struct OnboardingView: View {
                     .frame(width: 72, height: 72)
                 
                 // Icon
-                Image(systemName: page.icon)
-                    .font(.system(size: 30, weight: .medium))
-                    .foregroundStyle(
-                        LinearGradient(
-                            colors: [.white, page.gradient[0].opacity(0.8)],
-                            startPoint: .top,
-                            endPoint: .bottom
+                if page.icon == "cube.transparent" {
+                    HoloLogoView(size: 52, isAnimated: true)
+                } else {
+                    Image(systemName: page.icon)
+                        .font(.system(size: 30, weight: .medium))
+                        .foregroundStyle(
+                            LinearGradient(
+                                colors: [.white, page.gradient[0].opacity(0.8)],
+                                startPoint: .top,
+                                endPoint: .bottom
+                            )
                         )
-                    )
+                }
                 
                 // Specular
                 Ellipse()

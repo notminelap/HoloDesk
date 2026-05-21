@@ -151,16 +151,7 @@ struct ContentView: View {
         HStack {
             // App icon & title
             HStack(spacing: 10) {
-                // Animated logo
-                ZStack {
-                    RoundedRectangle(cornerRadius: 10)
-                        .fill(LinearGradient.accentGradient.opacity(0.2))
-                        .frame(width: 36, height: 36)
-                    
-                    Image(systemName: "cube.transparent")
-                        .font(.system(size: 20, weight: .semibold))
-                        .foregroundStyle(LinearGradient.accentGradient)
-                }
+                HoloLogoView(size: 36, isAnimated: true)
                 
                 VStack(alignment: .leading, spacing: 2) {
                     Text("HoloDesk")

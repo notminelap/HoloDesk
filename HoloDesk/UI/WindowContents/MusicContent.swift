@@ -182,7 +182,7 @@ struct MusicContent: View {
         .padding(16)
         .onAppear {
             if isPlaying {
-                withAnimation(.linear(duration: 15).repeatForever(false)) {
+                withAnimation(.linear(duration: 15).repeatForever(autoreverses: false)) {
                     rotationAngle = 360.0
                 }
             }
@@ -225,9 +225,9 @@ struct MusicContent: View {
                             )
                         )
                         .rotationEffect(.degrees(rotationAngle))
-                        .onChange(of: isPlaying) {
-                            if isPlaying {
-                                withAnimation(.linear(duration: 15).repeatForever(false)) {
+                        .onChange(of: isPlaying) { _, playing in
+                            if playing {
+                                withAnimation(.linear(duration: 15).repeatForever(autoreverses: false)) {
                                     rotationAngle += 360.0
                                 }
                             }

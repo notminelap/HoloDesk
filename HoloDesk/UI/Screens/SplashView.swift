@@ -94,53 +94,9 @@ struct SplashView: View {
                         .frame(width: 120, height: 120)
                         .blur(radius: glowRadius)
                     
-                    // Logo
-                    ZStack {
-                        // Glass backing
-                        Circle()
-                            .fill(.ultraThinMaterial)
-                            .frame(width: 80, height: 80)
-                        
-                        Circle()
-                            .fill(
-                                RadialGradient(
-                                    colors: [
-                                        Color.holoPrimary.opacity(0.4),
-                                        Color.holoSecondary.opacity(0.2),
-                                        .clear
-                                    ],
-                                    center: .center,
-                                    startRadius: 5,
-                                    endRadius: 40
-                                )
-                            )
-                            .frame(width: 80, height: 80)
-                        
-                        Image(systemName: "cube.transparent.fill")
-                            .font(.system(size: 32, weight: .medium))
-                            .foregroundStyle(
-                                LinearGradient(
-                                    colors: [.white, .white.opacity(0.8)],
-                                    startPoint: .top,
-                                    endPoint: .bottom
-                                )
-                            )
-                        
-                        // Specular highlight
-                        Ellipse()
-                            .fill(
-                                LinearGradient(
-                                    colors: [.white.opacity(0.5), .clear],
-                                    startPoint: .top,
-                                    endPoint: .center
-                                )
-                            )
-                            .frame(width: 48, height: 18)
-                            .offset(y: -24)
-                            .blur(radius: 2)
-                    }
-                    .scaleEffect(logoScale)
-                    .opacity(logoOpacity)
+                    HoloLogoView(size: 80, isAnimated: true)
+                        .scaleEffect(logoScale)
+                        .opacity(logoOpacity)
                 }
                 
                 // Text
