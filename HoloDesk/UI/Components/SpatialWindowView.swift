@@ -14,6 +14,7 @@ struct SpatialWindowView: View {
     
     @Environment(WindowManager.self) private var windowManager
     @Environment(WorkspaceStore.self) private var store
+    @Environment(SpatialAudioManager.self) private var audio
     @Environment(\.dismissWindow) private var dismissWindow
     
     @State private var isAppeared = false
@@ -50,6 +51,7 @@ struct SpatialWindowView: View {
             withAnimation(.spatialSpawn) {
                 isAppeared = true
             }
+            audio.playSFX(.windowOpen, at: window.position)
         }
         .accessibilityElement(children: .contain)
         .accessibilityLabel("\(window.type.displayName) window")
@@ -63,6 +65,7 @@ struct SpatialWindowView: View {
             HStack(spacing: 5) {
                 trafficLight(.red) {
                     withAnimation(.spatialDismiss) { isAppeared = false }
+                    audio.playSFX(.windowClose, at: window.position)
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
                         windowManager.dismissWindow(id: window.id, in: store)
                     }

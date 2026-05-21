@@ -126,6 +126,7 @@ struct ClockWidgetView: View {
 // MARK: - Calculator Widget
 
 struct CalculatorWidgetView: View {
+    @Environment(SpatialAudioManager.self) private var audio
     @State private var display = "0"
     @State private var operand: Double = 0
     @State private var operation: String?
@@ -181,6 +182,7 @@ struct CalculatorWidgetView: View {
     }
     
     private func handleTap(_ btn: String) {
+        audio.playSFX(.tap)
         switch btn {
         case "C":
             display = "0"; operand = 0; operation = nil; isNewInput = true
@@ -221,6 +223,7 @@ struct CalculatorWidgetView: View {
 // MARK: - Quick Note Widget
 
 struct QuickNoteWidgetView: View {
+    @Environment(SpatialAudioManager.self) private var audio
     @State private var noteText = ""
     @State private var savedNotes: [String] = ["Ship v1.0 🚀", "Call Alex @ 3pm", "Buy groceries"]
     
@@ -250,6 +253,7 @@ struct QuickNoteWidgetView: View {
                     guard !noteText.isEmpty else { return }
                     savedNotes.insert(noteText, at: 0)
                     noteText = ""
+                    audio.playSFX(.tap)
                     HapticManager.shared.lightTap()
                 } label: {
                     Image(systemName: "plus.circle.fill")
@@ -272,6 +276,7 @@ struct QuickNoteWidgetView: View {
                             Spacer()
                             Button {
                                 savedNotes.remove(at: index)
+                                audio.playSFX(.tap)
                             } label: {
                                 Image(systemName: "xmark")
                                     .font(.system(size: 7, weight: .bold))
@@ -291,6 +296,7 @@ struct QuickNoteWidgetView: View {
 // MARK: - Stopwatch Widget
 
 struct StopwatchWidgetView: View {
+    @Environment(SpatialAudioManager.self) private var audio
     @State private var elapsed: TimeInterval = 0
     @State private var isRunning = false
     @State private var laps: [TimeInterval] = []
@@ -304,6 +310,7 @@ struct StopwatchWidgetView: View {
             
             HStack(spacing: 12) {
                 Button {
+                    audio.playSFX(.tap)
                     if isRunning {
                         timer?.invalidate()
                         isRunning = false
@@ -323,6 +330,7 @@ struct StopwatchWidgetView: View {
                 .buttonStyle(.plain)
                 
                 Button {
+                    audio.playSFX(.tap)
                     if isRunning {
                         laps.insert(elapsed, at: 0)
                     } else {
@@ -422,6 +430,7 @@ struct WorldClockWidgetView: View {
 // MARK: - Unit Converter Widget
 
 struct UnitConverterWidgetView: View {
+    @Environment(SpatialAudioManager.self) private var audio
     @State private var inputValue = "1"
     @State private var selectedUnit = 0 // 0: Length, 1: Weight, 2: Temp
     
@@ -434,6 +443,7 @@ struct UnitConverterWidgetView: View {
                 ForEach(0..<3, id: \.self) { i in
                     Button {
                         selectedUnit = i
+                        audio.playSFX(.tap)
                     } label: {
                         Text(categories[i])
                             .font(.system(size: 10, weight: .medium))

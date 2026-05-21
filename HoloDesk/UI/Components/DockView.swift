@@ -16,6 +16,7 @@ struct DockView: View {
     let onVoice: () -> Void
     
     @Environment(WorkspaceStore.self) private var store
+    @Environment(SpatialAudioManager.self) private var audio
     
     @State private var showEnvironment = false
     @State private var showSharePlay = false
@@ -223,7 +224,10 @@ struct DockView: View {
         isAccent: Bool = false,
         action: @escaping () -> Void
     ) -> some View {
-        Button(action: action) {
+        Button {
+            audio.playSFX(.tap)
+            action()
+        } label: {
             VStack(spacing: 3) {
                 Image(systemName: icon)
                     .font(.system(size: 16, weight: .medium))
@@ -255,7 +259,10 @@ struct DockView: View {
         badge: Int = 0,
         action: @escaping () -> Void
     ) -> some View {
-        Button(action: action) {
+        Button {
+            audio.playSFX(.tap)
+            action()
+        } label: {
             ZStack(alignment: .topTrailing) {
                 VStack(spacing: 2) {
                     Image(systemName: icon)

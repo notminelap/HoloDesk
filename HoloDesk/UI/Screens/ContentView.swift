@@ -14,6 +14,7 @@ struct ContentView: View {
     @Environment(WindowManager.self) private var windowManager
     @Environment(VoiceCommandManager.self) private var voiceManager
     @Environment(RoomManager.self) private var roomManager
+    @Environment(SpatialAudioManager.self) private var audio
     @Environment(AccessibilityEngine.self) private var accessibility
     @Environment(\.openWindow) private var openWindow
     @Environment(\.openImmersiveSpace) private var openImmersiveSpace
@@ -426,8 +427,10 @@ struct ContentView: View {
     private func toggleVoice() {
         if store.isListening {
             voiceManager.stopListening()
+            audio.playSFX(.tap)
         } else {
             voiceManager.startListening(store: store, windowManager: windowManager)
+            audio.playSFX(.aiActivate)
         }
     }
 }

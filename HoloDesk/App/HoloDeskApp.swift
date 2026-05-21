@@ -19,6 +19,7 @@ struct HoloDeskApp: App {
     @State private var windowManager = WindowManager()
     @State private var voiceManager = VoiceCommandManager()
     @State private var roomManager = RoomManager()
+    @State private var audio = SpatialAudioManager()
     
     // ────────────────────────────────────────
     // MARK: - Spatial Foundation
@@ -92,6 +93,7 @@ struct HoloDeskApp: App {
                 .environment(windowManager)
                 .environment(voiceManager)
                 .environment(roomManager)
+                .environment(audio)
                 .environment(accessibilityEngine)
                 .environment(deskEngine)
                 .environment(postureEngine)
@@ -127,6 +129,7 @@ struct HoloDeskApp: App {
                     .environment(windowManager)
                     .environment(voiceManager)
                     .environment(roomManager)
+                    .environment(audio)
                     .environment(accessibilityEngine)
             }
         }
@@ -139,12 +142,14 @@ struct HoloDeskApp: App {
                 .environment(store)
                 .environment(deskEngine)
                 .environment(postureEngine)
+                .environment(audio)
         }
         .immersionStyle(selection: .constant(.mixed), in: .mixed, .progressive, .full)
         
         // ── Volumetric Window (3D Viewer) ────
         WindowGroup("3D Viewer", id: "volumetric") {
             ModelViewerContent()
+                .environment(audio)
         }
         .windowStyle(.volumetric)
         .defaultSize(width: 0.5, height: 0.5, depth: 0.5, in: .meters)
@@ -155,6 +160,10 @@ struct HoloDeskApp: App {
     // ═══════════════════════════════════════
     
     private func initializeApp() {
+        // Start audio systems
+        audio.startEngine()
+        audio.playSFX(.chime)
+        
         // Generate daily briefing
         aiIntelligence.generateBriefing()
         aiIntelligence.generateWeeklyInsights()

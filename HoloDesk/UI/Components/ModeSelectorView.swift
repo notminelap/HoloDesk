@@ -11,6 +11,7 @@ struct ModeSelectorView: View {
     
     @Environment(WorkspaceStore.self) private var store
     @Environment(WindowManager.self) private var windowManager
+    @Environment(SpatialAudioManager.self) private var audio
     
     var body: some View {
         HStack(spacing: 6) {
@@ -27,6 +28,7 @@ struct ModeSelectorView: View {
         
         return Button {
             guard !windowManager.isTransitioning else { return }
+            audio.playSFX(.success)
             Task {
                 await windowManager.transitionToMode(mode, in: store)
             }
