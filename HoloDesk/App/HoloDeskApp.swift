@@ -161,6 +161,7 @@ struct HoloDeskApp: App {
     
     private func initializeApp() {
         // Start audio systems
+        audio.store = store
         audio.startEngine()
         audio.playSFX(.chime)
         

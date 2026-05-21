@@ -6,17 +6,24 @@ import SwiftUI
 
 // MARK: - Meditation Mode Content
 
-/// Guided meditation — breathing circle, ambient visuals, session timer.
+/// Guided meditation — breathing circle, ambient visuals, session timer with spatial audio.
 struct MeditationContent: View {
+    
+    @Environment(SpatialAudioManager.self) private var audio
     
     @State private var isActive = false
     @State private var breathPhase: BreathPhase = .inhale
     @State private var breathScale: CGFloat = 0.6
+    @State private var phaseProgress: Double = 0.0
     @State private var sessionMinutes = 5
     @State private var remainingSeconds = 300
     @State private var completedBreaths = 0
+    
     @State private var sessionTimer: Timer?
     @State private var breathTimer: Timer?
+    
+    // Ambient rotating background particle/glow angle
+    @State private var ambientRotation = 0.0
     
     enum BreathPhase: String {
         case inhale = "Breathe In"
@@ -33,12 +40,21 @@ struct MeditationContent: View {
             }
         }
         
+        var instruction: String {
+            switch self {
+            case .inhale: return "Feel the clean spatial energy filling your lungs"
+            case .hold:   return "Suspend your breath, finding stillness in the void"
+            case .exhale: return "Release all stress, tension, and noise into the air"
+            case .rest:   return "Relax completely, returning to your natural state"
+            }
+        }
+        
         var color: Color {
             switch self {
-            case .inhale: return Color(hue: 0.55, saturation: 0.5, brightness: 0.9)
-            case .hold:   return Color(hue: 0.6, saturation: 0.4, brightness: 0.8)
-            case .exhale: return Color(hue: 0.75, saturation: 0.4, brightness: 0.7)
-            case .rest:   return Color(hue: 0.65, saturation: 0.3, brightness: 0.6)
+            case .inhale: return Color(red: 0.15, green: 0.72, blue: 0.75) // Calm Teal
+            case .hold:   return Color(red: 0.48, green: 0.38, blue: 0.88) // Deep Royal Purple
+            case .exhale: return Color(red: 0.95, green: 0.45, blue: 0.35) // Warm Coral
+            case .rest:   return Color(red: 0.38, green: 0.68, blue: 0.48) // Peaceful Sage
             }
         }
         
@@ -54,201 +70,385 @@ struct MeditationContent: View {
     
     var body: some View {
         ZStack {
-            // Background gradient
-            LinearGradient(
-                colors: [
-                    breathPhase.color.opacity(0.15),
-                    Color(white: 0.03)
-                ],
-                startPoint: .top,
-                endPoint: .bottom
-            )
+            // Interactive spatial background with slowly rotating atmospheric glow
+            ZStack {
+                Color(white: 0.02)
+                
+                Circle()
+                    .fill(
+                        RadialGradient(
+                            colors: [breathPhase.color.opacity(0.18), .clear],
+                            center: .center,
+                            startRadius: 0,
+                            endRadius: 280
+                        )
+                    )
+                    .blur(radius: 40)
+                    .scaleEffect(isActive ? breathScale * 1.2 : 0.8)
+                    .offset(x: isActive ? CGFloat(sin(ambientRotation) * 40) : 0,
+                            y: isActive ? CGFloat(cos(ambientRotation) * 40) : 0)
+            }
+            .ignoresSafeArea()
+            .onAppear {
+                if isActive {
+                    withAnimation(.linear(duration: 20).repeatForever(autoreverses: true)) {
+                        ambientRotation = .pi * 2
+                    }
+                }
+            }
             
-            if isActive {
-                activeSession
-            } else {
-                startScreen
+            VStack {
+                if isActive {
+                    activeSession
+                        .transition(.spatialAppear)
+                } else {
+                    startScreen
+                        .transition(.spatialAppear)
+                }
             }
         }
         .onDisappear {
-            sessionTimer?.invalidate()
-            sessionTimer = nil
-            breathTimer?.invalidate()
-            breathTimer = nil
-            isActive = false
+            stopAllTimers()
         }
     }
     
     // MARK: - Start Screen
     
     private var startScreen: some View {
-        VStack(spacing: 20) {
-            Image(systemName: "leaf.fill")
-                .font(.system(size: 36))
-                .foregroundStyle(.green.opacity(0.6))
+        VStack(spacing: 24) {
+            // Top icon with radial soft glow
+            ZStack {
+                Circle()
+                    .fill(Color.green.opacity(0.08))
+                    .frame(width: 80, height: 80)
+                    .blur(radius: 5)
+                
+                Image(systemName: "leaf.fill")
+                    .font(.system(size: 32))
+                    .foregroundStyle(
+                        LinearGradient(
+                            colors: [Color.green, Color.teal],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
+            }
+            .padding(.top, 16)
             
-            Text("Meditation")
-                .font(.system(size: 20, weight: .light, design: .rounded))
-                .foregroundStyle(.white)
-            
-            Text("Find your center in spatial space")
-                .font(.system(size: 12))
-                .foregroundStyle(.white.opacity(0.4))
-            
-            // Duration picker
-            HStack(spacing: 12) {
-                ForEach([3, 5, 10, 15, 20], id: \.self) { mins in
-                    Button {
-                        sessionMinutes = mins
-                        remainingSeconds = mins * 60
-                    } label: {
-                        Text("\(mins)m")
-                            .font(.system(size: 12, weight: sessionMinutes == mins ? .bold : .regular))
-                            .foregroundStyle(sessionMinutes == mins ? .white : .white.opacity(0.4))
-                            .padding(.horizontal, 12)
-                            .padding(.vertical, 6)
-                            .background(
-                                sessionMinutes == mins
-                                ? Color.green.opacity(0.2)
-                                : Color.clear,
-                                in: Capsule()
-                            )
-                    }
-                    .buttonStyle(.plain)
-                }
+            VStack(spacing: 8) {
+                Text("Spatial Sanctuary")
+                    .font(.system(size: 24, weight: .light, design: .rounded))
+                    .foregroundStyle(.white)
+                    .tracking(1.2)
+                
+                Text("Align your breathing with synthesized atmospheric soundscapes.")
+                    .font(.system(size: 13))
+                    .foregroundStyle(.white.opacity(0.5))
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal, 24)
             }
             
+            // Duration Picker
+            VStack(alignment: .leading, spacing: 10) {
+                Text("SESSION DURATION")
+                    .font(.system(size: 10, weight: .bold))
+                    .foregroundStyle(.white.opacity(0.4))
+                    .padding(.leading, 6)
+                
+                HStack(spacing: 10) {
+                    ForEach([1, 3, 5, 10, 15], id: \.self) { mins in
+                        Button {
+                            sessionMinutes = mins
+                            remainingSeconds = mins * 60
+                            audio.playSFX(.softTick)
+                            HapticManager.shared.lightTap()
+                        } label: {
+                            Text("\(mins)m")
+                                .font(.system(size: 13, weight: sessionMinutes == mins ? .bold : .regular))
+                                .foregroundStyle(sessionMinutes == mins ? .white : .white.opacity(0.5))
+                                .frame(maxWidth: .infinity)
+                                .padding(.vertical, 8)
+                                .background(
+                                    sessionMinutes == mins
+                                    ? Color.green.opacity(0.18)
+                                    : Color.white.opacity(0.03),
+                                    in: RoundedRectangle(cornerRadius: 10)
+                                )
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 10)
+                                        .strokeBorder(
+                                            sessionMinutes == mins ? Color.green.opacity(0.4) : Color.white.opacity(0.06),
+                                            lineWidth: 1
+                                        )
+                                )
+                        }
+                        .buttonStyle(.plain)
+                        .hoverGlow()
+                    }
+                }
+            }
+            .padding(.horizontal, 20)
+            
+            Spacer()
+            
+            // Start Button
             Button {
                 startSession()
             } label: {
-                Text("Begin")
-                    .font(.system(size: 14, weight: .semibold))
-                    .foregroundStyle(.white)
-                    .padding(.horizontal, 32)
-                    .padding(.vertical, 10)
-                    .background(.green.opacity(0.5), in: Capsule())
+                HStack(spacing: 8) {
+                    Image(systemName: "play.fill")
+                        .font(.system(size: 12))
+                    Text("Begin Meditation")
+                        .font(.system(size: 15, weight: .semibold))
+                }
+                .foregroundStyle(.white)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 12)
+                .background(
+                    LinearGradient(
+                        colors: [Color.green.opacity(0.6), Color.teal.opacity(0.6)],
+                        startPoint: .leading,
+                        endPoint: .trailing
+                    ),
+                    in: Capsule()
+                )
+                .overlay(
+                    Capsule()
+                        .strokeBorder(.white.opacity(0.2), lineWidth: 0.5)
+                )
+                .shadow(color: Color.green.opacity(0.25), radius: 12, y: 4)
             }
             .buttonStyle(.plain)
+            .hoverGlow()
+            .spatialDepth()
+            .padding(.horizontal, 20)
+            .padding(.bottom, 16)
         }
+        .padding(16)
     }
     
     // MARK: - Active Session
     
     private var activeSession: some View {
         VStack(spacing: 20) {
-            // Timer
-            Text(formatTime(remainingSeconds))
-                .font(.system(size: 14, weight: .light, design: .monospaced))
-                .foregroundStyle(.white.opacity(0.4))
+            // Header timer bar
+            HStack {
+                HStack(spacing: 6) {
+                    Circle()
+                        .fill(breathPhase.color)
+                        .frame(width: 6, height: 6)
+                    Text(breathPhase.rawValue.uppercased())
+                        .font(.system(size: 10, weight: .bold))
+                        .foregroundStyle(breathPhase.color)
+                        .tracking(1.5)
+                }
+                
+                Spacer()
+                
+                Text(formatTime(remainingSeconds))
+                    .font(.system(size: 13, weight: .medium, design: .monospaced))
+                    .foregroundStyle(.white.opacity(0.6))
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 4)
+                    .background(.white.opacity(0.04), in: Capsule())
+            }
+            .padding(.horizontal, 12)
             
             Spacer()
             
-            // Breathing circle
+            // Breathing Circle & Radial Ring
             ZStack {
-                // Outer glow rings
+                // Expanding cosmic pulse wave
+                Circle()
+                    .stroke(breathPhase.color.opacity(0.2), lineWidth: 2)
+                    .frame(width: 140, height: 140)
+                    .scaleEffect(breathScale * 1.5)
+                    .opacity(isActive ? (2.0 - breathScale) : 0)
+                
+                // Pulsing ambient glow rings
                 ForEach(0..<3, id: \.self) { i in
                     Circle()
-                        .strokeBorder(breathPhase.color.opacity(0.08 - Double(i) * 0.02), lineWidth: 1)
-                        .frame(width: 120 + CGFloat(i) * 30, height: 120 + CGFloat(i) * 30)
-                        .scaleEffect(breathScale + CGFloat(i) * 0.05)
+                        .strokeBorder(
+                            breathPhase.color.opacity(0.12 - Double(i) * 0.03),
+                            lineWidth: 1
+                        )
+                        .frame(width: 130 + CGFloat(i) * 36, height: 130 + CGFloat(i) * 36)
+                        .scaleEffect(breathScale)
                 }
                 
-                // Main circle
+                // Sweeping precise circular progress ring
                 Circle()
-                    .fill(breathPhase.color.opacity(0.25))
+                    .stroke(Color.white.opacity(0.04), lineWidth: 4)
+                    .frame(width: 120, height: 120)
+                
+                Circle()
+                    .trim(from: 0, to: CGFloat(phaseProgress))
+                    .stroke(
+                        AngularGradient(
+                            colors: [breathPhase.color.opacity(0.2), breathPhase.color],
+                            center: .center,
+                            startAngle: .degrees(-90),
+                            endAngle: .degrees(270)
+                        ),
+                        style: StrokeStyle(lineWidth: 4, lineCap: .round)
+                    )
+                    .frame(width: 120, height: 120)
+                    .rotationEffect(.degrees(-90))
+                
+                // Solid core breathing bubble
+                Circle()
+                    .fill(
+                        RadialGradient(
+                            colors: [
+                                breathPhase.color.opacity(0.35),
+                                breathPhase.color.opacity(0.15)
+                            ],
+                            center: .center,
+                            startRadius: 0,
+                            endRadius: 50
+                        )
+                    )
                     .frame(width: 100, height: 100)
                     .scaleEffect(breathScale)
                     .overlay(
                         Circle()
-                            .strokeBorder(breathPhase.color.opacity(0.4), lineWidth: 1.5)
+                            .strokeBorder(
+                                LinearGradient(
+                                    colors: [
+                                        .white.opacity(0.5),
+                                        breathPhase.color.opacity(0.2)
+                                    ],
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                ),
+                                lineWidth: 1.5
+                            )
                             .scaleEffect(breathScale)
                     )
                 
-                // Center
+                // Breath HUD Text
                 VStack(spacing: 4) {
                     Text(breathPhase.rawValue)
-                        .font(.system(size: 13, weight: .medium))
+                        .font(.system(size: 14, weight: .semibold, design: .rounded))
                         .foregroundStyle(.white)
-                    Text("\(Int(breathPhase.duration))s")
-                        .font(.system(size: 10, design: .monospaced))
-                        .foregroundStyle(.white.opacity(0.4))
+                    
+                    Text("\(Int(ceil(breathPhase.duration * (1.0 - phaseProgress))))s")
+                        .font(.system(size: 10, weight: .medium, design: .monospaced))
+                        .foregroundStyle(.white.opacity(0.5))
                 }
             }
+            .padding(.vertical, 12)
+            
+            // Dynamic Breathing Instruction Text
+            Text(breathPhase.instruction)
+                .font(.system(size: 11))
+                .foregroundStyle(.white.opacity(0.6))
+                .multilineTextAlignment(.center)
+                .frame(height: 36)
+                .padding(.horizontal, 24)
             
             Spacer()
             
-            // Stats
-            HStack(spacing: 24) {
-                VStack(spacing: 2) {
-                    Text("\(completedBreaths)")
-                        .font(.system(size: 16, weight: .bold))
-                        .foregroundStyle(.white)
-                    Text("Breaths")
-                        .font(.system(size: 9))
-                        .foregroundStyle(.white.opacity(0.3))
+            // Footer Info & Control Actions
+            HStack(spacing: 20) {
+                // Breaths stats
+                HStack(spacing: 6) {
+                    Image(systemName: "lungs.fill")
+                        .font(.system(size: 10))
+                        .foregroundStyle(.teal)
+                    Text("\(completedBreaths) breaths")
+                        .font(.system(size: 11, weight: .medium))
+                        .foregroundStyle(.white.opacity(0.6))
                 }
+                .padding(.horizontal, 10)
+                .padding(.vertical, 6)
+                .background(.white.opacity(0.04), in: RoundedRectangle(cornerRadius: 8))
                 
-                VStack(spacing: 2) {
-                    Text("\(sessionMinutes - remainingSeconds / 60)m")
-                        .font(.system(size: 16, weight: .bold))
-                        .foregroundStyle(.white)
-                    Text("Elapsed")
-                        .font(.system(size: 9))
-                        .foregroundStyle(.white.opacity(0.3))
+                // End Session button
+                Button {
+                    endSession()
+                } label: {
+                    Text("End Session")
+                        .font(.system(size: 11, weight: .semibold))
+                        .foregroundStyle(.red.opacity(0.8))
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 6)
+                        .background(Color.red.opacity(0.08), in: RoundedRectangle(cornerRadius: 8))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 8)
+                                .strokeBorder(Color.red.opacity(0.2), lineWidth: 1)
+                        )
                 }
+                .buttonStyle(.plain)
+                .hoverGlow()
             }
-            
-            // Stop
-            Button {
-                sessionTimer?.invalidate()
-                sessionTimer = nil
-                isActive = false
-            } label: {
-                Text("End Session")
-                    .font(.system(size: 11, weight: .medium))
-                    .foregroundStyle(.white.opacity(0.5))
-                    .padding(.horizontal, 16)
-                    .padding(.vertical, 6)
-                    .innerGlass(cornerRadius: 8)
-            }
-            .buttonStyle(.plain)
+            .padding(.bottom, 8)
         }
-        .padding(16)
+        .padding(14)
     }
     
-    // MARK: - Logic
+    // MARK: - Logic & Timers
     
     private func startSession() {
-        isActive = true
+        withAnimation(.spring(response: 0.5, dampingFraction: 0.75)) {
+            isActive = true
+        }
         remainingSeconds = sessionMinutes * 60
         completedBreaths = 0
+        
+        // Start atmospheric sweep sound
+        audio.playSFX(.cosmicSweep)
+        
+        // Turn on drone if available
+        audio.startAmbientDrone()
+        
+        // Begin organic breathing cycle
+        breathPhase = .inhale
         animateBreath()
         startTimer()
+        
+        withAnimation(.linear(duration: 20).repeatForever(autoreverses: true)) {
+            ambientRotation = .pi * 2
+        }
     }
     
     private func animateBreath() {
         guard isActive else { return }
         
-        // Apply the current phase animation
+        // Play gentle transition click
+        audio.playSFX(.softTick)
+        
+        // Apply breathing size scale with spring
         applyBreathAnimation()
         
-        // Schedule phase transitions via Timer
+        // Reset sweeping progress ring and animate it over phase duration
+        phaseProgress = 0.0
+        withAnimation(.linear(duration: breathPhase.duration)) {
+            phaseProgress = 1.0
+        }
+        
+        // Schedule next phase
         breathTimer?.invalidate()
         breathTimer = Timer.scheduledTimer(withTimeInterval: breathPhase.duration, repeats: false) { _ in
             guard isActive else { return }
-            if breathPhase == .rest { completedBreaths += 1 }
+            if breathPhase == .rest {
+                completedBreaths += 1
+            }
             breathPhase = breathPhase.next
             animateBreath()
         }
     }
     
     private func applyBreathAnimation() {
-        withAnimation(.easeInOut(duration: breathPhase.duration)) {
+        let responseTime: Double = breathPhase.duration
+        
+        // Use a customized spring-like easeInOut for incredibly natural feel
+        withAnimation(.easeInOut(duration: responseTime)) {
             switch breathPhase {
-            case .inhale: breathScale = 1.0
-            case .hold:   breathScale = 1.0
-            case .exhale: breathScale = 0.6
-            case .rest:   breathScale = 0.6
+            case .inhale: breathScale = 1.15
+            case .hold:   breathScale = 1.15
+            case .exhale: breathScale = 0.65
+            case .rest:   breathScale = 0.65
             }
         }
     }
@@ -256,15 +456,45 @@ struct MeditationContent: View {
     private func startTimer() {
         sessionTimer?.invalidate()
         sessionTimer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { timer in
-            if remainingSeconds > 0 && isActive {
+            guard isActive else {
+                timer.invalidate()
+                return
+            }
+            if remainingSeconds > 0 {
                 remainingSeconds -= 1
             } else {
-                timer.invalidate()
-                sessionTimer = nil
-                isActive = false
-                HapticManager.shared.success()
+                completeSession()
             }
         }
+    }
+    
+    private func completeSession() {
+        audio.playSFX(.success) // Play majestic pentatonic success
+        audio.stopAmbientDrone()
+        HapticManager.shared.success()
+        
+        withAnimation(.spring(response: 0.5, dampingFraction: 0.75)) {
+            isActive = false
+        }
+        stopAllTimers()
+    }
+    
+    private func endSession() {
+        audio.playSFX(.windowClose) // Play descending swoop
+        audio.stopAmbientDrone()
+        HapticManager.shared.lightTap()
+        
+        withAnimation(.spring(response: 0.5, dampingFraction: 0.75)) {
+            isActive = false
+        }
+        stopAllTimers()
+    }
+    
+    private func stopAllTimers() {
+        sessionTimer?.invalidate()
+        sessionTimer = nil
+        breathTimer?.invalidate()
+        breathTimer = nil
     }
     
     private func formatTime(_ seconds: Int) -> String {

@@ -16,6 +16,8 @@ struct ChessContent: View {
     @State private var whiteTime = 600
     @State private var blackTime = 600
     
+    @Environment(SpatialAudioManager.self) private var audio
+    
     struct ChessPiece {
         var type: PieceType
         var isWhite: Bool
@@ -115,6 +117,7 @@ struct ChessContent: View {
                         board = ChessPiece.startingBoard
                         isWhiteTurn = true
                         moveHistory = []
+                        audio.playSFX(.success)
                         HapticManager.shared.mediumTap()
                     } label: {
                         Image(systemName: "arrow.counterclockwise")
@@ -183,11 +186,15 @@ struct ChessContent: View {
                 board[row][col] = board[sel.row][sel.col]
                 board[sel.row][sel.col] = nil
                 isWhiteTurn.toggle()
+                audio.playSFX(.tap)
                 HapticManager.shared.lightTap()
+            } else {
+                audio.playSFX(.softTick)
             }
             selectedSquare = nil
         } else if board[row][col] != nil {
             selectedSquare = (row, col)
+            audio.playSFX(.softTick)
         }
     }
 }

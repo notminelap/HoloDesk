@@ -15,6 +15,9 @@ public enum SoundEffect: Sendable {
     case success        // Pentatonic major chord arpeggio
     case error          // Low dissonant alert
     case chime          // Soft environmental chime
+    case bubblePop      // Quick organic pop sound (pop!)
+    case cosmicSweep    // Sweeping cinematic riser/whoosh
+    case softTick       // Mechanical click/tick sound
 }
 
 // MARK: - Spatial Audio Manager
@@ -27,10 +30,15 @@ final class SpatialAudioManager {
     var isMuted = false
     var masterVolume: Float = 0.7
     var isAmbientPlaying = false
+    var store: WorkspaceStore?
     
     private var audioEngine: AVAudioEngine?
     private var playerNodes: [UUID: AVAudioPlayerNode] = [:]
     private var environmentNode: AVAudioEnvironmentNode?
+    
+    // Procedural ambient drone properties
+    private var ambientSourceNode: AVAudioSourceNode?
+    private var isDroneActive = false
     
     init() {
         setupAudioEngine()
@@ -122,6 +130,87 @@ final class SpatialAudioManager {
         player.play()
     }
     
+    // MARK: - Generative Ambient Drone
+    
+    /// Starts a real-time generative warm atmospheric synthesizer pad.
+    /// Synthesized dynamically via mathematical formulas with detuned oscillators.
+    func startAmbientDrone() {
+        guard let engine = audioEngine, let environment = environmentNode, !isDroneActive, !isMuted else { return }
+        
+        if !engine.isRunning {
+            startEngine()
+        }
+        
+        isDroneActive = true
+        
+        var phase1: Double = 0
+        var phase2: Double = 0
+        var phase3: Double = 0
+        var lfoPhase: Double = 0
+        
+        let sourceNode = AVAudioSourceNode { [weak self] (silence, timestamp, frameCount, outputData) -> OSStatus in
+            guard let self = self, self.isDroneActive else { return 0 }
+            let abl = UnsafeMutableAudioBufferListPointer(outputData)
+            guard let buffer = abl.first else { return 0 }
+            let data = buffer.mData?.assumingMemoryBound(to: Float.self)
+            
+            let sampleRate = 44100.0
+            
+            for frame in 0..<Int(frameCount) {
+                // LFO for volume/detune modulation (0.04 Hz)
+                lfoPhase += 2.0 * .pi * 0.04 / sampleRate
+                let lfoVal = 0.5 + 0.5 * sin(lfoPhase)
+                let detune = 0.3 * sin(lfoPhase * 0.4)
+                
+                // Oscillator 1: F2 (87.31 Hz)
+                phase1 += 2.0 * .pi * 87.31 / sampleRate
+                let osc1 = sin(phase1)
+                
+                // Oscillator 2: C3 (130.81 Hz) with detune
+                phase2 += 2.0 * .pi * (130.81 + detune) / sampleRate
+                let osc2 = sin(phase2)
+                
+                // Oscillator 3: F3 (174.61 Hz)
+                phase3 += 2.0 * .pi * 174.61 / sampleRate
+                let osc3 = sin(phase3)
+                
+                // Combined warm chord: F2 minor-seventh/sus4 hybrid (F-C-F)
+                let mix = (osc1 * 0.5 + osc2 * 0.35 + osc3 * 0.15 * lfoVal) * 0.10 * self.masterVolume
+                
+                data?[frame] = Float(mix)
+            }
+            
+            return 0
+        }
+        
+        engine.attach(sourceNode)
+        
+        // Connect to environment for high-quality spatialization
+        let format = AVAudioFormat(standardFormatWithSampleRate: 44100.0, channels: 1)!
+        engine.connect(sourceNode, to: environment, format: format)
+        
+        // Position drone above the workspace
+        sourceNode.position = AVAudio3DPoint(x: 0, y: 2.5, z: -1.0)
+        sourceNode.reverbBlend = 0.85 // High reverb blend for atmospheric space
+        sourceNode.renderingAlgorithm = .HRTFHQ
+        
+        self.ambientSourceNode = sourceNode
+        isAmbientPlaying = true
+        
+        HoloDeskLogger.audio.info("Dynamic generative ambient drone started")
+    }
+    
+    /// Stops the generative ambient drone.
+    func stopAmbientDrone() {
+        guard isDroneActive, let engine = audioEngine, let node = ambientSourceNode else { return }
+        isDroneActive = false
+        node.stop()
+        engine.detach(node)
+        self.ambientSourceNode = nil
+        isAmbientPlaying = false
+        HoloDeskLogger.audio.info("Dynamic generative ambient drone stopped")
+    }
+    
     // MARK: - Volume
     
     func setVolume(_ volume: Float) {
@@ -132,6 +221,11 @@ final class SpatialAudioManager {
     func toggleMute() {
         isMuted.toggle()
         audioEngine?.mainMixerNode.outputVolume = isMuted ? 0 : masterVolume
+        if isMuted {
+            stopAmbientDrone()
+        } else if store?.isImmersiveSpaceOpen == true {
+            startAmbientDrone()
+        }
     }
     
     // MARK: - Start / Stop
@@ -140,15 +234,14 @@ final class SpatialAudioManager {
         guard let engine = audioEngine, !engine.isRunning else { return }
         do {
             try engine.start()
-            isAmbientPlaying = true
         } catch {
             HoloDeskLogger.audio.error("Audio engine failed: \(error.localizedDescription)")
         }
     }
     
     func stopEngine() {
+        stopAmbientDrone()
         audioEngine?.stop()
-        isAmbientPlaying = false
     }
 }
 
@@ -167,6 +260,9 @@ fileprivate enum SoundBufferGenerator {
         case .success:      duration = 0.40
         case .error:        duration = 0.30
         case .chime:        duration = 0.50
+        case .bubblePop:    duration = 0.08
+        case .cosmicSweep:  duration = 0.80
+        case .softTick:     duration = 0.04
         }
         
         let format = AVAudioFormat(standardFormatWithSampleRate: sampleRate, channels: 1)!
@@ -236,6 +332,26 @@ fileprivate enum SoundBufferGenerator {
                 let freq = 659.25
                 let env = exp(-2.5 * t) * 0.30
                 sample = sin(2.0 * .pi * freq * t) * env
+                
+            case .bubblePop:
+                // Rapid frequency upward pitch sweep + steep decay (waterdrop pop!)
+                let freq = 400.0 + (1800.0 * (t / duration))
+                let env = exp(-35.0 * t) * (1.0 - t / duration)
+                sample = sin(2.0 * .pi * freq * t) * env * 0.35
+                
+            case .cosmicSweep:
+                // A massive organic cinematic swoosh (riser whoosh)
+                let f1 = 120.0 + 380.0 * (t / duration)
+                let f2 = 122.0 + 390.0 * (t / duration)
+                let f3 = 240.0 + 760.0 * (t / duration)
+                let env = sin(.pi * (t / duration)) * exp(-1.5 * t) * 0.22
+                sample = (sin(2.0 * .pi * f1 * t) + sin(2.0 * .pi * f2 * t) * 0.8 + sin(2.0 * .pi * f3 * t) * 0.5) * env
+                
+            case .softTick:
+                // High-precision clean mechanical click
+                let freq = 1800.0 * exp(-100.0 * t)
+                let env = exp(-85.0 * t)
+                sample = sin(2.0 * .pi * freq * t) * env * 0.20
             }
             
             data[i] = Float(sample)

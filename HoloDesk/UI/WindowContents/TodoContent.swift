@@ -20,6 +20,8 @@ struct TodoContent: View {
     @State private var newTaskPriority: Priority = .medium
     @State private var showAddField = false
     
+    @Environment(SpatialAudioManager.self) private var audio
+    
     struct TodoItem: Identifiable {
         let id = UUID()
         var text: String
@@ -143,8 +145,8 @@ struct TodoContent: View {
                 VStack(spacing: 2) {
                     ForEach(Array(items.enumerated()), id: \.element.id) { index, item in
                         HStack(spacing: 10) {
-                            // Checkbox
                             Button {
+                                audio.playSFX(.bubblePop)
                                 withAnimation(.spring(response: 0.3)) {
                                     items[index].done.toggle()
                                 }
@@ -162,8 +164,11 @@ struct TodoContent: View {
                                         Image(systemName: "checkmark")
                                             .font(.system(size: 9, weight: .bold))
                                             .foregroundStyle(.holoSuccess)
+                                            .transition(.scale.combined(with: .opacity))
                                     }
                                 }
+                                .scaleEffect(item.done ? 1.1 : 1.0)
+                                .animation(.spring(response: 0.2, dampingFraction: 0.6), value: item.done)
                             }
                             .buttonStyle(.plain)
                             
@@ -182,8 +187,8 @@ struct TodoContent: View {
                             
                             Spacer()
                             
-                            // Delete
                             Button {
+                                audio.playSFX(.bubblePop)
                                 withAnimation(.spring(response: 0.3)) {
                                     items.remove(at: index)
                                 }
@@ -209,6 +214,7 @@ struct TodoContent: View {
     
     private func addTask() {
         guard !newTaskText.trimmingCharacters(in: .whitespaces).isEmpty else { return }
+        audio.playSFX(.success)
         withAnimation(.spring(response: 0.3)) {
             items.insert(TodoItem(text: newTaskText, done: false, priority: newTaskPriority), at: 0)
             newTaskText = ""

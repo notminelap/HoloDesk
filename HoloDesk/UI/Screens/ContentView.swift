@@ -415,11 +415,17 @@ struct ContentView: View {
     private func toggleImmersive() {
         Task {
             if store.isImmersiveSpaceOpen {
+                audio.playSFX(.windowClose)
+                audio.stopAmbientDrone()
                 await dismissImmersiveSpace()
                 store.isImmersiveSpaceOpen = false
             } else {
+                audio.playSFX(.cosmicSweep)
                 let result = await openImmersiveSpace(id: "immersive")
                 store.isImmersiveSpaceOpen = (result == .opened)
+                if store.isImmersiveSpaceOpen {
+                    audio.startAmbientDrone()
+                }
             }
         }
     }
