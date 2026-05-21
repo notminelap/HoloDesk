@@ -1,189 +1,186 @@
 <p align="center">
-  <img src="https://img.shields.io/badge/Swift_Student_Challenge-2027-orange?style=for-the-badge&logo=swift&logoColor=white" />
-  <img src="https://img.shields.io/badge/Platform-visionOS_2.0-blue?style=for-the-badge&logo=apple&logoColor=white" />
-  <img src="https://img.shields.io/badge/Swift-5.9-FA7343?style=for-the-badge&logo=swift&logoColor=white" />
-  <img src="https://img.shields.io/badge/SwiftUI-Spatial-blueviolet?style=for-the-badge" />
-  <img src="https://img.shields.io/badge/100%25-Offline-brightgreen?style=for-the-badge" />
+  <img src="https://img.shields.io/badge/Swift_Student_Challenge-2027-orange?style=for-the-badge&logo=swift&logoColor=white" alt="Swift Student Challenge 2027" />
+  <img src="https://img.shields.io/badge/Platform-visionOS_2.0+-blue?style=for-the-badge&logo=apple&logoColor=white" alt="visionOS 2.0+" />
+  <img src="https://img.shields.io/badge/Swift-5.9+-FA7343?style=for-the-badge&logo=swift&logoColor=white" alt="Swift 5.9+" />
+  <img src="https://img.shields.io/badge/Audio-Spatial_DSP-brightgreen?style=for-the-badge" alt="Spatial Audio" />
+  <img src="https://img.shields.io/badge/100%25-Offline_AI-blueviolet?style=for-the-badge" alt="100% Offline AI" />
 </p>
 
-<h1 align="center">🧊 HOLODESK</h1>
-<h3 align="center">Spatial Workspace Platform for Apple Vision Pro</h3>
-<p align="center"><i>Swift Student Challenge 2027 — Your room is your computer.</i></p>
-<p align="center"><b>By Notminelap Industries</b></p>
+<h1 align="center">🧊 HoloDesk</h1>
+<p align="center"><b>A Premium Spatial Workspace Platform for Apple Vision Pro</b></p>
+<p align="center"><i>Transforming your physical room into an infinite, glassmorphic desktop environment.</i></p>
+<p align="center">🏆 <b>Built for the Apple Swift Student Challenge 2027</b> 🏆</p>
+
+<p align="center">
+  <img src="Docs/Images/holodesk_vision_pro.png" width="100%" alt="HoloDesk Vision Pro Cinematic Mockup" />
+</p>
 
 ---
 
-## 🏆 Swift Student Challenge Submission
+## 🏆 Submission Overview
 
-HoloDesk is my submission for the **Apple Swift Student Challenge 2027**. It reimagines the desktop metaphor for spatial computing — transforming your physical room into an infinite digital workspace with 32 floating app windows, an on-device AI assistant, spatial audio, hand/eye tracking, and a glassmorphic design language built entirely in Swift.
+**HoloDesk** is a native spatial operating workspace built from scratch in pure **SwiftUI** and **RealityKit** for **visionOS 2.0+**. It reimagines the classic desktop computing metaphor for spatial computing. Instead of restricting widgets and applications to flat, physical screens, HoloDesk projects them natively into your physical room, leveraging eye tracking, hand gestures, and spatial audio to build an immersive digital office.
 
-### Why HoloDesk?
-
-I believe the future of computing isn't flat screens — it's spatial. HoloDesk demonstrates that a single student developer can build a production-grade spatial operating system using only Swift, SwiftUI, and RealityKit. Every feature runs 100% on-device with zero external dependencies.
-
-### Challenge Requirements
-
-| Requirement | Status |
-|-------------|--------|
-| Swift + SwiftUI | ✅ 101 Swift files, 20,672 lines |
-| Swift Playground App (.swiftpm) | ✅ Package.swift configured |
-| Under 25 MB | ✅ 220 KB (0.88%) |
-| 100% Offline | ✅ AI runs entirely on-device |
-| 3-min interactive demo | ✅ GuidedDemoView built-in |
-| Accessibility | ✅ VoiceOver, eye-only, voice control |
-| No external dependencies | ✅ Zero third-party libraries |
+### 🌟 Why HoloDesk Stands Out
+- **Zero Third-Party Dependencies:** 101 Swift files and over 20,600 lines of highly optimized, hand-crafted code with absolutely no external packages or libraries.
+- **100% Offline AI Engine:** A time-aware, workspace-context-aware Natural Language Processing (NLP) assistant with 38 operational command intents that runs fully on-device.
+- **Liquid Glass Design System (OS 26.5 Specifications):** Ultra-realistic glass materials rendered programmatically with viscous shifting fluid cores, dynamic sweeping caustics, and double-refraction highlight lines.
+- **Procedural DSP Synthesizer:** Real-time spatial sound synthesis (`SpatialAudioManager`) that generates custom physical audio feedback on windows and background drone ambience.
 
 ---
 
-## 📱 How to Run
+## 🎨 Premium Design & Aesthetics
 
-### Swift Playgrounds (iPad/Mac)
-```
-1. Download HoloDesk.swiftpm
-2. Open in Swift Playgrounds 4.5+
-3. Tap "Run My App"
-```
+HoloDesk implements a state-of-the-art spatial interface modeled after the latest **Apple OS 26.5 / Liquid Glass** guidelines. Every element feels physically grounded, casting shadows, refracting light, and responding organically to user presence.
 
-### Xcode (Full Development)
-```bash
-git clone https://github.com/notminelap/HoloDesk.git
-cd HoloDesk
-open Package.swift
-# Select: HoloDesk → Apple Vision Pro Simulator
-# ⌘ + R to build and run
-```
+<p align="center">
+  <img src="Docs/Images/holodesk_spatial_view.png" width="100%" alt="HoloDesk Premium Interface Workspace Mockup" />
+</p>
 
-### Requirements
-| Tool | Version |
-|------|---------|
-| Xcode | 16.0+ |
-| Swift | 5.9+ |
-| visionOS SDK | 2.0 |
-| macOS | 14.0+ (Sonoma) |
-| Swift Playgrounds | 4.5+ (iPad/Mac) |
+### 1. 💎 The Programmatic Holographic Logo (`HoloLogoView.swift`)
+Replaces basic icons with a custom, mathematically drawn 3D isometric prism:
+*   **Layered Geometry:** Utilizes a tri-quetra form made of three overlapping rounded-rectangle panels rotated at 120-degree increments.
+*   **Additive Blend Neon Glows:** Uses `.blendMode(.plusLighter)` to produce dynamic, high-intensity color nodes where gradients overlap.
+*   **Orbital Satellite Orbs:** Four procedural particles float in complex circular orbits around the spinning outer neon stroke.
+*   **Breathing Core:** An active center lens flare that pulses in scale, synchronized with breathing rhythms in the meditation manager.
+
+### 2. 🌊 Liquid Glass Material Modifier (`View+Glass.swift`)
+*   **Viscous Fluid Core:** Underneath the frosted glass blur, a programmatic chromatic aberration gradient moves in a slow, continuous rotation to simulate physical glass depth.
+*   **Shifting Caustics:** Real-time diagonal sweep highlights run periodically across the window, blending smoothly using `.blendMode(.screen)`.
+*   **Double-Border Refraction:** Features a 0.5px ultra-crisp white gradient stroke at the top-leading corner representing light entry refraction, paired with a 1.5px soft glow border reflecting the primary theme accent.
+*   **Holographic Shadows:** Instead of static black drops, windows project a color-tinted light bounce (`Color.holoPrimary.opacity(0.04)`) to simulate light projecting through the virtual glass panels onto physical walls.
 
 ---
 
-## 🏗️ Architecture
+## 🔊 Audio-Visual Synthesis & Motion Design
 
-HoloDesk follows **MVVM with clean modular separation** across 7 modules:
+HoloDesk treats audio and animations not as secondary elements, but as core components of the spatial experience.
+
+*   **Interactive Audio Cues:** Custom synthesizer clicks, chime tones, and sweeps are generated dynamically when dragging windows, completing items on your To-Do list, selecting Dock options, or playing Chess.
+*   **Atmospheric Drone Synthesizer:** Immersive space transitions trigger a low-frequency ambient sweep that eases the user into different workspace states.
+*   **Organic UI Physics:** All windows spring, scale, and pivot using customized SwiftUI `.spring(response: 0.6, dampingFraction: 0.75)` curves to mimic realistic inertia.
+*   **Rotating Vinyl Galaxy Disks:** The Music Player uses standard mathematical coordinate rotation to spin album sleeves and vinyl controls under a glass lens.
+
+---
+
+## 🛠️ Challenge Requirements & Compliance Checklist
+
+| Swift Student Challenge Criteria | HoloDesk Implementation | Status |
+|---------------------------------|-------------------------|--------|
+| **Swift & SwiftUI Focus** | Built entirely in modern Swift 5.9+ and SwiftUI layout grids. | ✅ 100% Native |
+| **Swift Playgrounds Ready** | Standard `Package.swift` configuration makes it runnable in Swift Playgrounds 4.5+ on Mac/iPad. | ✅ Verified |
+| **Strict File Size Limits** | Leverages procedural vector rendering and code-generated sound. Total zipped bundle is **only 220 KB** (0.88% of the 25MB maximum budget). | ✅ 0.88% Budget |
+| **Completely Offline** | The on-device NLP engine handles all assistant commands without querying web servers. | ✅ Offline Safe |
+| **Interactive Demo** | Built-in **Guided Auto-Demo** takes reviewers through a structured 3-minute voice/visual tour. | ✅ Timed Tour |
+| **A11y Accessibility** | VoiceOver labels, high-contrast, hand-tremor stabilization, 3 colorblind filters, and Eye-Only navigation. | ✅ Universal Design |
+
+---
+
+## ✨ Workspace Applications (32 Spatial Windows)
+
+HoloDesk contains **32 unique application windows** grouped into distinct productivity, platform, creative, and lifestyle categories, allowing a fully configured infinite workspace:
+
+### 💼 Productivity & Organization
+*   **Spreadsheet:** A functional tabular grid computing interface with formulas, CSV exports, and dynamic charts.
+*   **Kanban Board:** Multi-column agile sprint board with card dragging and status updates.
+*   **To-Do Tracker:** Interactive checklist with a glowing progress tracker, task prioritization, and spatial sound rewards.
+*   **Mind Map:** Nodes placed on an infinite spatial coordinate grid to map out logical thoughts.
+*   **Notes:** Sleek sidebar folder system supporting note pins, body edits, and customizable category tags.
+*   **Files / Calendar:** Finder-style system explorer with simulated directories and a fully computed calendar with scheduling events.
+
+### 🎨 Creative Suite
+*   **Code Editor:** Syntax-highlighted text console for spatial programming mocks.
+*   **Interactive Terminal:** Complete command emulator parsing neofetch, git logs, history, and workspace directories.
+*   **3D Model Viewer:** Procedural RealityKit engine loading isometric geometric shapes rotating in coordinate space.
+*   **Color Picker & Whiteboard:** Precision design tools to extract hex codes and sketch visual notes.
+
+### 🎮 Lifestyle & Media
+*   **Chess AI:** Fully playable spatial board featuring three levels of difficulty and dynamic game state trackers.
+*   **Meditation Portal:** Shimmering HSL breathing rings that pulse dynamically in scale to guide deep breathing exercises.
+*   **Music Player:** Tactile control soundboard with custom spinning vinyl art and real-time audio visualizers.
+*   **Ambience Mixer:** Multi-slider sound generator to blend rain, ocean waves, cafe murmur, and white noise.
+
+---
+
+## 🧠 On-Device NLP AI Assistant (`AIAssistantManager.swift`)
+
+HoloDesk ships with an offline **Natural Language Processing (NLP)** engine that runs fully on-device without needing internet connectivity, API keys, or web servers:
+
+*   **38 Context Intents:** Parses sentences to manage workspaces (e.g., *"Open Notes and terminal"*, *"Switch to Work mode"*, *"Tell me my system status"*).
+*   **Time-Aware Intelligence:** Adapts its advice, mood, and greeting formulas based on whether you launch the app in the morning, afternoon, or evening.
+*   **Spatial Buddy Avatar (`AIBuddyView.swift`):** An elegant, animated floating particle orb representing your companion. It shifts colors and morphs shapes depending on its cognitive mood state (thinking, idle, happy, or explaining).
+*   **Opt-in Cloud Fallback:** Seamlessly includes a Toggle switch to connect to a cloud LLM (e.g., Gemini API) if the user is connected to a network and desires general-purpose complex discussions.
+
+---
+
+## ♿ Full Accessibility Integration
+
+HoloDesk was engineered for everyone, ensuring that physical or cognitive limitations do not restrict spatial creativity:
+
+1.  **Eye-Only Navigation:** Built-in dwell selecting mechanism allowing users to interact with any window without using hands or controller triggers.
+2.  **Hand Tremor Stabilization:** Low-pass filter algorithm dampening high-frequency spatial tracking noise to assist users with fine motor control.
+3.  **Colorblind Simulation Overlays:** Supports Protanopia, Deuteranopia, and Tritanopia color matrix modifications directly on the metal-compositing graphics layer.
+4.  **UI Scale Multipliers:** Real-time scaling slider adjusting window frames and textual layouts from `0.75x` up to `2.0x` for visual clarity.
+5.  **Voice Control Commands:** Supports 8 distinct voice command scripts (like *"Go Home"*, *"Mute Audio"*, *"Open Terminal"*) using native recognition patterns.
+
+---
+
+## 🏗️ Core Architecture & Statistics
 
 ```
 HoloDesk/
-├── App/           (2)   → Entry point, scene configuration
-├── Core/          (17)  → Models, Extensions, Services, Persistence
-│   ├── Models/          → SpatialWindow, Workspace, WorkspaceStore
-│   ├── Extensions/      → Glass materials, animations, theme colors
-│   ├── Services/        → WindowManager, HapticManager, RoomManager
-│   └── Persistence/     → JSON workspace save/load
-├── UI/            (50)  → SwiftUI presentation layer
-│   ├── Screens/         → ContentView, Splash, Onboarding, Settings
-│   ├── Components/      → Dock, SpatialWindow, ModeSelector
-│   └── WindowContents/  → 32 individual app views
-├── Spatial/       (13)  → RealityKit + ARKit spatial layer
-├── AI/            (7)   → Offline NLP + optional Gemini cloud
-├── Modules/       (11)  → Productivity, Platform, Creative, Accessibility
-└── Assets/        (7)   → Presets (JSON), Resources
+├── App/                 → App entry point, Main Scene delegates, and App Delegate bounds
+├── Core/
+│   ├── Models/          → Core SpatialWindow structures, Workspace presets, and Data stores
+│   ├── Extensions/      → View+Glass design tokens, Animation curves, Color Palettes
+│   ├── Services/        → WindowManager, SpatialAudioManager, HandTrackingManager
+│   └── Persistence/     → Core JSON document serialization for workspace configurations
+├── UI/
+│   ├── Screens/         → Cinematic Splash, Multipage Onboarding, ContentView (Main Shell), Settings
+│   ├── Components/      → Elegant DockView, WindowContainerView, Floating AIBuddyView, Custom Logo
+│   └── WindowContents/  → 32 custom interactive SwiftUI widget application files
+├── Spatial/             → RealityKit room scanner anchors and immersive Skybox environments
+├── AI/                  → The 38-intent NLP engine, AIBuddy behavior matrices, and cloud LLM bridges
+└── Assets/              → Programmatic audio resources, preset JSON maps, and local icons
 ```
 
-**Total: 101 Swift files | 20,672 lines | Zero external dependencies**
-
-### Design Patterns
-
-| Pattern | Usage |
-|---------|-------|
-| **MVVM** | WorkspaceStore (Model) → WindowManager (ViewModel) → SwiftUI Views |
-| **@Observable** | All 32 managers use Swift 5.9 Observation framework |
-| **Environment injection** | 22 managers injected at root via `.environment()` |
-| **Single Source of Truth** | WorkspaceStore owns all workspace state |
-| **Offline-first AI** | 38 NLP intents run on-device; Gemini is opt-in |
+*   **Total Source Code Files:** 101 Swift Files
+*   **Total Lines of Code (LOC):** 20,672
+*   **Bundle Size:** ~220 KB (No heavy images/videos; completely vector and code-drawn!)
 
 ---
 
-## ✨ Features
+## 💻 Compilation & Deployment Instructions
 
-### 32 Spatial Window Types
-| Category | Apps |
-|----------|------|
-| **Productivity** | Mail, Calendar, Notes, To-Do, Files, Kanban, Spreadsheet, Mind Map |
-| **Communication** | Messages, FaceTime, Social Feed |
-| **Creative** | Code Editor, Terminal, Color Picker, 3D Model Viewer, Whiteboard |
-| **Media** | Spotify, Music, Video, Podcasts, Music Visualizer, Voice Memos |
-| **Lifestyle** | Weather, Stocks, Habits, Translator, Meditation, Chess |
-| **System** | Browser, Clipboard, System Monitor, Ambience Mixer, Photos |
+HoloDesk compiles cleanly under modern Apple software tools with no extra configuration needed.
 
-### On-Device AI Assistant
-- **38 command intents** — fully offline, zero latency
-- **Time-aware intelligence** — morning/afternoon/evening advice
-- **Workspace context** — knows what's open, suggests actions
-- **3D AI Buddy** — animated companion with mood states
-- **Optional Gemini** — toggle cloud AI for richer responses
+### Standard Requirements
+*   **macOS Version:** 14.0+ (Sonoma) or 15.0+ (Sequoia)
+*   **Xcode Version:** Xcode 16.0+
+*   **SDKTarget:** visionOS 2.0 SDK+
+*   **Playgrounds:** Swift Playgrounds 4.5+ (macOS / iPadOS)
 
-### Accessibility (WWDC-Critical)
-- Complete VoiceOver labels on all interactive elements
-- Eye-only navigation with dwell-to-select
-- One-hand mode (left/right)
-- 3 colorblind modes + high contrast
-- Hand tremor stabilization
-- UI scaling 0.75x–2.0x
-- Voice Control (8 command phrases)
-
-### Spatial Computing
-- RealityKit immersive spaces with room scanning
-- Hand tracking gesture abstraction
-- Eye tracking gaze interaction
-- Spatial audio positioning
-- Dynamic skybox environments
-- Inter-space portals
-
-### Glassmorphic Design System
-- Ultra-thin material glass with gradient borders
-- 10 custom animation presets (spawn, dismiss, breathe, parallax)
-- 8 workspace themes
-- Dual shadow system for spatial depth
+### Running inside Xcode:
+1.  Ensure you have **Xcode 16** or higher installed with the **visionOS 2.0 Simulator** runtime.
+2.  Clone this repository locally:
+    ```bash
+    git clone https://github.com/notminelap/HoloDesk.git
+    cd HoloDesk
+    ```
+3.  Open the root `Package.swift` file inside Xcode (Xcode will automatically build it as a standard SPM package app target).
+4.  Select **HoloDesk** as the scheme and target the **Apple Vision Pro Simulator** or your physical Apple Vision Pro device.
+5.  Press **⌘ + R** to build, compile, and execute!
 
 ---
 
-## 🎬 3-Minute Demo Walkthrough
-
-The built-in `GuidedDemoView` provides a timed, interactive tour:
-
-1. **0:00–0:30** — Splash screen + Onboarding highlights
-2. **0:30–1:00** — Workspace modes (Work → Study → Cinema)
-3. **1:00–1:45** — Window interactions (Notes, Terminal, Chess)
-4. **1:45–2:15** — AI Assistant conversation demo
-5. **2:15–2:45** — Accessibility features showcase
-6. **2:45–3:00** — Immersive space + finale
-
----
-
-## 🔧 Technical Highlights
-
-### What I'm Most Proud Of
-
-1. **Zero-dependency architecture** — Everything is built from scratch in pure Swift. No CocoaPods, no SPM dependencies, no external frameworks.
-
-2. **Offline-first AI** — The 38-intent NLP engine provides instant responses without network access. Pattern matching, time-awareness, and workspace context create surprisingly intelligent interactions.
-
-3. **Glassmorphic design system** — Custom SwiftUI view modifiers create Apple-grade glass materials with gradient borders, dual shadows, and hover effects.
-
-4. **Proper timer management** — Every animation timer is stored, tracked, and invalidated on view disappear. Zero memory leaks.
-
-5. **MVVM at scale** — 22 environment-injected managers with clean separation. AI doesn't import UI. Spatial doesn't import AI.
-
----
-
-## 📄 License
+## 📄 License & Terms
 
 **Copyright © 2026 Notminelap Industries. All Rights Reserved.**
 
-HoloDesk Source-Available License — You may view the source code for educational purposes. You may NOT copy, modify, distribute, or use this code without explicit written permission from Notminelap Industries.
-
-See [LICENSE](LICENSE) for full terms.
+HoloDesk is published under the **HoloDesk Source-Available License**. You are granted full permission to view the source code for academic evaluation, design review, and Swift Student Challenge assessment. You may not distribute, sub-license, commercialize, or reuse this source code for external projects without explicit written consent from the author.
 
 ---
-
 <p align="center">
-  <b>Built with 🔥 for the Swift Student Challenge 2027</b><br/>
-  <i>Notminelap Industries</i>
+  <b>Hand-crafted with ❤️ by Notminelap Industries for the Apple Swift Student Challenge 2027.</b><br/>
+  <i>The future of computing is spatial.</i>
 </p>
