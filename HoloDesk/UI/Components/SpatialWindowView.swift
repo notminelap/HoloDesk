@@ -138,7 +138,7 @@ struct SpatialWindowView: View {
         case .todo:          TodoContent()
         case .video:         VideoContent()
         case .browser:       BrowserContent()
-        case .whiteboard:    WhiteboardAppContent()
+        case .whiteboard:    WhiteboardContent()
         case .spotify:       SpotifyContent()
         case .podcast:       PodcastContent()
         case .kanban:        KanbanContent()

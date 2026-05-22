@@ -143,14 +143,48 @@ struct ImmersiveSpaceView: View {
                 // Smooth bobbing and breathing behavior
                 buddy.position.y = buddyPosition.y + Float(sin(animationTime * 1.8)) * 0.02
                 
+                // Dynamic AI Mood sync
+                let mood = buddyAI.aiMood
+                let pulseFrequency: Double
+                let rotationSpeedMultiplier: Double
+                let visorColor: UIColor
+                
+                switch mood {
+                case .thinking:
+                    pulseFrequency = 6.0
+                    rotationSpeedMultiplier = 1.3
+                    visorColor = .systemBlue
+                case .creative:
+                    pulseFrequency = 4.2
+                    rotationSpeedMultiplier = 2.4
+                    visorColor = .systemPink
+                case .calm:
+                    pulseFrequency = 1.4
+                    rotationSpeedMultiplier = 0.5
+                    visorColor = .systemTeal
+                case .idle:
+                    pulseFrequency = 2.2
+                    rotationSpeedMultiplier = 1.0
+                    visorColor = .cyan
+                }
+                
+                // Visor dynamic glowing color and pulse sync
+                if let head = buddy.findEntity(named: "BuddyHead"),
+                   let visor = head.findEntity(named: "BuddyVisor") {
+                    let pulse = 0.5 + 0.48 * Float(sin(animationTime * pulseFrequency))
+                    var visorMat = UnlitMaterial()
+                    visorMat.color = .init(tint: visorColor.withAlphaComponent(CGFloat(pulse)))
+                    visor.components.set(ModelComponent(mesh: MeshResource.generateCapsule(height: 0.11, radius: 0.012), materials: [visorMat]))
+                }
+                
                 // Update gyroscope chest ring rotations
                 if let ring1 = buddy.findEntity(named: "BuddyChestRing1") {
-                    ring1.transform.rotation = simd_quatf(angle: Float(animationTime * 2.2), axis: SIMD3(0, 1, 0))
+                    ring1.transform.rotation = simd_quatf(angle: Float(animationTime * 2.2 * rotationSpeedMultiplier), axis: SIMD3(0, 1, 0))
                 }
                 if let ring2 = buddy.findEntity(named: "BuddyChestRing2") {
                     // Opposite rotation + 15 degree X tilt
                     let rotX = simd_quatf(angle: Float(15 * .pi / 180), axis: SIMD3(1, 0, 0))
-                    let rotY = simd_quatf(angle: Float(-animationTime * 1.8), axis: SIMD3(0, 1, 0))
+                    let rotY = simd_quatf(angle: Float(-animationTime * 1.8 * rotationSpeedMultiplier), axis: SIMD3(0, 1, 0))
                     ring2.transform.rotation = rotX * rotY
                 }
             }
@@ -168,6 +202,9 @@ struct ImmersiveSpaceView: View {
             
             // ── 6. Update Volumetric Room interior transforms ──
             updateRoomInteriorMode(in: root, mode: store.currentMode)
+            
+            // ── 6.5. Update Ambient Particles morphing ──
+            updateAmbientParticles(in: root, mode: store.currentMode, time: animationTime)
             
             // ── 7. Continuous Animation Upkeep (bobbing, rotating coins, sparks) ──
             applyContinuousVolumetricAnimations(in: root)
@@ -349,6 +386,113 @@ struct ImmersiveSpaceView: View {
         return root
     }
     
+    // MARK: - Dynamic Ambient Particles Morphing
+    
+    private func updateAmbientParticles(in root: Entity, mode: WorkspaceMode, time: Double) {
+        guard let particlesContainer = root.findEntity(named: "AmbientParticles") else { return }
+        
+        let children = particlesContainer.children
+        let count = children.count
+        guard count > 0 else { return }
+        
+        for i in 0..<count {
+            let particle = children[i]
+            
+            let modeKey = mode.rawValue
+            let needsMaterialUpdate = particle.accessibilityDescription != modeKey
+            
+            if needsMaterialUpdate {
+                particle.accessibilityDescription = modeKey
+                var material = UnlitMaterial()
+                
+                switch mode {
+                case .gaming:
+                    // Cyber neon-pink and cyan
+                    let color: UIColor = (i % 2 == 0) ? .systemPink : .cyan
+                    material.color = .init(tint: color.withAlphaComponent(0.45))
+                case .study:
+                    // Warm orange fireplace sparks
+                    let hue = Float.random(in: 0.05...0.12)
+                    let color = UIColor(hue: CGFloat(hue), saturation: 0.9, brightness: 0.95, alpha: 0.6)
+                    material.color = .init(tint: color)
+                case .cinema:
+                    // Muted dark purple atmospheric flares
+                    let color = UIColor(red: 0.25, green: 0.1, blue: 0.45, alpha: 0.22)
+                    material.color = .init(tint: color)
+                case .work, .custom:
+                    // Calm teal and blue circular energy nodes
+                    let color: UIColor = (i % 2 == 0) ? .systemTeal : .init(red: 0.2, green: 0.4, blue: 0.9, alpha: 0.4)
+                    material.color = .init(tint: color)
+                }
+                
+                if var modelComponent = particle.components[ModelComponent.self] {
+                    modelComponent.materials = [material]
+                    particle.components.set(modelComponent)
+                }
+            }
+            
+            let seed = Float(i)
+            
+            switch mode {
+            case .gaming:
+                // Cyber neon-pink and cyan drifting data packets
+                let speed: Float = 0.5
+                let xOffset = sin(Float(time) * 1.5 + seed * 0.4) * 0.1
+                let zOffset = cos(Float(time) * 1.2 + seed * 0.4) * 0.1
+                particle.position.x += Float(sin(Float(time) * speed + seed)) * 0.008 + xOffset * 0.02
+                particle.position.y += Float(cos(Float(time) * 0.8 + seed)) * 0.003
+                
+            case .study:
+                // Warm orange fireplace sparks rising
+                let duration: Double = 2.0
+                let timeOffset = Double(i) * (duration / Double(count))
+                let age = (time + timeOffset).truncatingRemainder(dividingBy: duration)
+                let pct = Float(age / duration)
+                
+                let radius: Float = 1.8
+                let angle = seed * (2.0 * .pi / Float(count))
+                
+                let startX = cos(angle) * radius * 0.4
+                let startZ = sin(angle) * radius * 0.4 - 1.2
+                let startY: Float = -1.2
+                let endY: Float = 1.0
+                
+                particle.position = SIMD3(
+                    startX + sin(Float(time * 2.0) + seed) * 0.12,
+                    startY + (endY - startY) * pct,
+                    startZ + cos(Float(time * 1.5) + seed) * 0.12
+                )
+                let scaleVal = (1.0 - pct) * 1.2
+                particle.scale = SIMD3(scaleVal, scaleVal, scaleVal)
+                
+            case .cinema:
+                // Muted dark purple flares bobbing slowly
+                let radius: Float = 2.2
+                let angle = seed * (2.0 * .pi / Float(count)) + Float(time * 0.05)
+                let yOffset = sin(Float(time * 0.2) + seed) * 0.15
+                
+                particle.position = SIMD3(
+                    cos(angle) * radius,
+                    0.2 + yOffset,
+                    sin(angle) * radius - 1.5
+                )
+                particle.scale = SIMD3(1.4, 1.4, 1.4)
+                
+            case .work, .custom:
+                // Calm teal and blue energy nodes bobbing
+                let bob = sin(Float(time * 0.8) + seed * 0.5) * 0.06
+                let angle = seed * (2.0 * .pi / Float(count))
+                let radius: Float = 1.6
+                particle.position = SIMD3(
+                    cos(angle) * radius * 0.8,
+                    Float(bob) + 0.1 * sin(seed),
+                    sin(angle) * radius * 0.8 - 1.5
+                )
+                particle.scale = SIMD3(1.0, 1.0, 1.0)
+            }
+        }
+    }
+    
     // MARK: - Ground Radial Grid
     
     private func createGroundGrid() -> Entity {
@@ -501,6 +645,7 @@ struct ImmersiveSpaceView: View {
         
         // ── 3. Glowing Neon Eyes Visor ──
         let visor = Entity()
+        visor.name = "BuddyVisor"
         let visorMesh = MeshResource.generateCapsule(height: 0.11, radius: 0.012)
         var visorMat = UnlitMaterial()
         visorMat.color = .init(tint: .init(red: 0.0, green: 1.0, blue: 1.0, alpha: 0.98))

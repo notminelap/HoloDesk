@@ -3,19 +3,54 @@
 // See LICENSE file for details.
 
 import SwiftUI
+import Observation
+
+// MARK: - Performance Diagnostics Engine
+
+/// Manages real-time background diagnostics for HoloDesk.
+/// Decouples UI rendering from thread polling using visionOS 2.0+ standard Observation.
+@Observable
+final class PerformanceDiagnostics {
+    var cpuUsage: Double = 0.34
+    var memoryUsage: Double = 0.62
+    var batteryLevel: Double = 0.78
+    var thermalState = "Nominal"
+    var cpuHistory: [Double] = (0..<30).map { _ in Double.random(in: 0.15...0.6) }
+    
+    private var isAnimating = false
+    private var usageTimer: Timer?
+    
+    func startMonitoring() {
+        guard !isAnimating else { return }
+        isAnimating = true
+        usageTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] _ in
+            guard let self = self, self.isAnimating else { return }
+            withAnimation(.easeInOut(duration: 1.0)) {
+                self.cpuUsage = Double.random(in: 0.15...0.65)
+                self.memoryUsage = Double.random(in: 0.55...0.75)
+                self.cpuHistory.removeFirst()
+                self.cpuHistory.append(self.cpuUsage)
+            }
+        }
+    }
+    
+    func stopMonitoring() {
+        isAnimating = false
+        usageTimer?.invalidate()
+        usageTimer = nil
+    }
+    
+    deinit {
+        stopMonitoring()
+    }
+}
 
 // MARK: - System Monitor Content
 
 /// Real-time system monitoring — CPU, memory, battery, storage, network.
 struct SystemMonitorContent: View {
     
-    @State private var cpuUsage: Double = 0.34
-    @State private var memoryUsage: Double = 0.62
-    @State private var batteryLevel: Double = 0.78
-    @State private var thermalState = "Nominal"
-    @State private var cpuHistory: [Double] = (0..<30).map { _ in Double.random(in: 0.15...0.6) }
-    @State private var isAnimating = false
-    @State private var usageTimer: Timer?
+    @State private var diagnostics = PerformanceDiagnostics()
     
     private let processes: [(name: String, cpu: String, mem: String)] = [
         ("HoloDesk", "12.3%", "245 MB"),
@@ -37,8 +72,8 @@ struct SystemMonitorContent: View {
                     .foregroundStyle(.white)
                 Spacer()
                 HStack(spacing: 4) {
-                    Circle().fill(thermalState == "Nominal" ? .green : .orange).frame(width: 6, height: 6)
-                    Text(thermalState)
+                    Circle().fill(diagnostics.thermalState == "Nominal" ? .green : .orange).frame(width: 6, height: 6)
+                    Text(diagnostics.thermalState)
                         .font(.system(size: 9))
                         .foregroundStyle(.white.opacity(0.4))
                 }
@@ -48,9 +83,9 @@ struct SystemMonitorContent: View {
             
             // Gauges
             HStack(spacing: 14) {
-                gaugeView("CPU", value: cpuUsage, color: .cyan, detail: "\(Int(cpuUsage * 100))%")
-                gaugeView("RAM", value: memoryUsage, color: .orange, detail: "6.2 GB")
-                gaugeView("Battery", value: batteryLevel, color: batteryLevel < 0.2 ? .red : .green, detail: "\(Int(batteryLevel * 100))%")
+                gaugeView("CPU", value: diagnostics.cpuUsage, color: .cyan, detail: "\(Int(diagnostics.cpuUsage * 100))%")
+                gaugeView("RAM", value: diagnostics.memoryUsage, color: .orange, detail: "6.2 GB")
+                gaugeView("Battery", value: diagnostics.batteryLevel, color: diagnostics.batteryLevel < 0.2 ? .red : .green, detail: "\(Int(diagnostics.batteryLevel * 100))%")
             }
             .padding(.horizontal, 14)
             .padding(.vertical, 8)
@@ -87,10 +122,12 @@ struct SystemMonitorContent: View {
                             let s1 = sin(time * freq + offset)
                             let s2 = sin(time * freq * 2.3 + offset * 0.5) * 0.35
                             let s3 = cos(time * freq * 4.9) * 0.12
-                            let jitter = Double.random(in: -0.05...0.05)
+                            
+                            // Deterministic time-based high-speed jitter to replace memory-allocating Double.random
+                            let jitter = sin(time * 25.0 + Double(core) * 3.14) * 0.04
                             
                             var activity = 0.45 + 0.4 * s1 + 0.12 * s2 + 0.08 * s3 + jitter
-                            activity = activity * (0.55 + cpuUsage * 0.9)
+                            activity = activity * (0.55 + diagnostics.cpuUsage * 0.9)
                             activity = max(0.06, min(0.96, activity))
                             
                             // Background track for core
@@ -222,13 +259,10 @@ struct SystemMonitorContent: View {
             .padding(.bottom, 12)
         }
         .onAppear {
-            isAnimating = true
-            animateUsage()
+            diagnostics.startMonitoring()
         }
         .onDisappear {
-            isAnimating = false
-            usageTimer?.invalidate()
-            usageTimer = nil
+            diagnostics.stopMonitoring()
         }
     }
     
@@ -266,19 +300,6 @@ struct SystemMonitorContent: View {
             Text(label)
                 .font(.system(size: 8, weight: .medium))
                 .foregroundStyle(.white.opacity(0.4))
-        }
-    }
-    
-    private func animateUsage() {
-        usageTimer?.invalidate()
-        usageTimer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { _ in
-            guard isAnimating else { return }
-            withAnimation(.easeInOut(duration: 1)) {
-                cpuUsage = Double.random(in: 0.15...0.65)
-                memoryUsage = Double.random(in: 0.55...0.75)
-                cpuHistory.removeFirst()
-                cpuHistory.append(cpuUsage)
-            }
         }
     }
 }

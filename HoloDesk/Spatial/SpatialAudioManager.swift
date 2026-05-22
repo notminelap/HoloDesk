@@ -252,6 +252,94 @@ final class SpatialAudioManager {
         stopAmbientDrone()
         audioEngine?.stop()
     }
+    
+    // MARK: - Procedural Keyboard Wave Synthesizer
+    
+    enum WaveType: String, CaseIterable, Codable {
+        case sine = "Sine"
+        case triangle = "Triangle"
+        case square = "Square"
+        case sawtooth = "Sawtooth"
+    }
+    
+    /// Mathematically synthesizes an oscillator wave in 3D environment space with a clickless envelope.
+    func playTone(frequency: Double, waveType: WaveType, duration: Double, at position: SIMD3<Float> = SIMD3<Float>(0, 0, -1.0)) {
+        guard let engine = audioEngine, let environment = environmentNode, !isMuted else { return }
+        
+        if !engine.isRunning {
+            startEngine()
+        }
+        
+        let player = AVAudioPlayerNode()
+        player.renderingAlgorithm = .HRTFHQ
+        player.reverbBlend = 0.25
+        player.position = AVAudio3DPoint(x: position.x, y: position.y, z: position.z)
+        
+        engine.attach(player)
+        engine.connect(player, to: environment, format: nil)
+        
+        let sampleRate = 44100.0
+        let format = AVAudioFormat(standardFormatWithSampleRate: sampleRate, channels: 1)!
+        let frameCount = AVAudioFrameCount(duration * sampleRate)
+        guard let buffer = AVAudioPCMBuffer(pcmFormat: format, frameCapacity: frameCount) else {
+            engine.detach(player)
+            return
+        }
+        buffer.frameLength = frameCount
+        
+        guard let data = buffer.floatChannelData?[0] else {
+            engine.detach(player)
+            return
+        }
+        
+        // Attack envelope (5ms) & Decay envelope (50ms)
+        let attackFrames = Int(0.005 * sampleRate)
+        let decayFrames = Int(0.050 * sampleRate)
+        let totalFrames = Int(frameCount)
+        
+        for i in 0..<totalFrames {
+            let t = Double(i) / sampleRate
+            var sample = 0.0
+            
+            let period = 1.0 / frequency
+            let cycleProgress = (t.truncatingRemainder(dividingBy: period)) / period
+            
+            switch waveType {
+            case .sine:
+                sample = sin(2.0 * .pi * frequency * t)
+            case .triangle:
+                if cycleProgress < 0.5 {
+                    sample = -1.0 + 4.0 * cycleProgress
+                } else {
+                    sample = 3.0 - 4.0 * cycleProgress
+                }
+            case .square:
+                sample = cycleProgress < 0.5 ? 1.0 : -1.0
+            case .sawtooth:
+                sample = -1.0 + 2.0 * cycleProgress
+            }
+            
+            // Envelope modulation
+            var amplitude = 0.35
+            if i < attackFrames {
+                let factor = Double(i) / Double(attackFrames)
+                amplitude *= factor
+            } else if i > totalFrames - decayFrames {
+                let factor = Double(totalFrames - i) / Double(decayFrames)
+                amplitude *= factor
+            }
+            
+            data[i] = Float(sample * amplitude)
+        }
+        
+        player.scheduleBuffer(buffer, at: nil, options: []) {
+            Task { @MainActor in
+                player.stop()
+                engine.detach(player)
+            }
+        }
+        player.play()
+    }
 }
 
 // MARK: - Sound Buffer Generator

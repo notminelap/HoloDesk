@@ -143,10 +143,10 @@ struct ChessContent: View {
                         .foregroundStyle(.white)
                 }
                 
-                // Captured Pieces Tray (shows captured white & black pieces)
+                // Captured Pieces Tray (shows captured white & black pieces wrapping dynamically)
                 VStack(alignment: .leading, spacing: 4) {
                     if !capturedBlack.isEmpty {
-                        HStack(spacing: 2) {
+                        LazyVGrid(columns: [GridItem(.adaptive(minimum: 12, maximum: 16), spacing: 2)], alignment: .leading, spacing: 2) {
                             ForEach(capturedBlack) { piece in
                                 Text(piece.symbol)
                                     .font(.system(size: 11))
@@ -154,12 +154,12 @@ struct ChessContent: View {
                             }
                         }
                         .padding(.horizontal, 5)
-                        .padding(.vertical, 2)
-                        .background(.white.opacity(0.08), in: Capsule())
+                        .padding(.vertical, 3)
+                        .background(.white.opacity(0.08), in: RoundedRectangle(cornerRadius: 6))
                     }
                     
                     if !capturedWhite.isEmpty {
-                        HStack(spacing: 2) {
+                        LazyVGrid(columns: [GridItem(.adaptive(minimum: 12, maximum: 16), spacing: 2)], alignment: .leading, spacing: 2) {
                             ForEach(capturedWhite) { piece in
                                 Text(piece.symbol)
                                     .font(.system(size: 11))
@@ -167,11 +167,10 @@ struct ChessContent: View {
                             }
                         }
                         .padding(.horizontal, 5)
-                        .padding(.vertical, 2)
-                        .background(.black.opacity(0.25), in: Capsule())
+                        .padding(.vertical, 3)
+                        .background(.black.opacity(0.25), in: RoundedRectangle(cornerRadius: 6))
                     }
                 }
-                .frame(height: 28, alignment: .leading)
                 
                 // Timers
                 VStack(spacing: 4) {
@@ -354,7 +353,11 @@ struct ChessContent: View {
                 }
                 
                 isWhiteTurn.toggle()
-                audio.playSFX(.tap)
+                if targetPiece != nil {
+                    audio.playSFX(.bubblePop)
+                } else {
+                    audio.playSFX(.tap)
+                }
                 HapticManager.shared.lightTap()
                 selectedSquare = nil
             } else {

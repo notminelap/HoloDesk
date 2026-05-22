@@ -26,6 +26,23 @@ final class AIAssistantManager {
     var suggestedAction: SuggestedAction?
     var aiMode: AIMode = .balanced
     var conversationCount = 0
+    var aiMood: AssistantMood = .idle
+    
+    enum AssistantMood: String, CaseIterable {
+        case thinking = "Thinking"
+        case creative = "Creative"
+        case calm = "Calm"
+        case idle = "Idle"
+        
+        var color: Color {
+            switch self {
+            case .thinking: return .blue
+            case .creative: return .pink
+            case .calm: return .teal
+            case .idle: return .cyan
+            }
+        }
+    }
     
     /// Whether to attempt Gemini API (disabled for WWDC submission)
     var useGeminiAPI = false  // Default OFF for offline-first
@@ -90,12 +107,14 @@ final class AIAssistantManager {
         
         addUserMessage(text)
         isThinking = true
+        aiMood = .thinking
         conversationCount += 1
         
         Task {
             // Step 1: Local intent matching (instant, no API)
             if let localResponse = matchLocalIntent(text.lowercased(), store: store) {
-                addAssistantMessage(localResponse.message)
+                updateMoodForResponse(localResponse.message, hasAction: localResponse.action != nil)
+                await addAssistantMessageStreamed(localResponse.message)
                 if let action = localResponse.action {
                     suggestedAction = action
                     executeAction(action, store: store, windowManager: windowManager)
@@ -106,9 +125,9 @@ final class AIAssistantManager {
             
             // Step 2: Smart local NLP for conversational queries (offline)
             if let smartResponse = smartLocalResponse(text.lowercased(), store: store) {
-                // Simulate natural typing delay
-                try? await Task.sleep(for: .milliseconds(400))
-                addAssistantMessage(smartResponse)
+                try? await Task.sleep(for: .milliseconds(200))
+                updateMoodForResponse(smartResponse, hasAction: false)
+                await addAssistantMessageStreamed(smartResponse)
                 isThinking = false
                 return
             }
@@ -122,16 +141,21 @@ final class AIAssistantManager {
                         workspaceContext: context
                     )
                     let (cleanMessage, action) = parseActionTags(from: response)
-                    addAssistantMessage(cleanMessage)
+                    updateMoodForResponse(cleanMessage, hasAction: action != nil)
+                    await addAssistantMessageStreamed(cleanMessage)
                     if let action = action {
                         suggestedAction = action
                         executeAction(action, store: store, windowManager: windowManager)
                     }
                 } catch {
-                    addAssistantMessage(smartFallback(text.lowercased(), store: store))
+                    let fallback = smartFallback(text.lowercased(), store: store)
+                    updateMoodForResponse(fallback, hasAction: false)
+                    await addAssistantMessageStreamed(fallback)
                 }
             } else {
-                addAssistantMessage(smartFallback(text.lowercased(), store: store))
+                let fallback = smartFallback(text.lowercased(), store: store)
+                updateMoodForResponse(fallback, hasAction: false)
+                await addAssistantMessageStreamed(fallback)
             }
             
             isThinking = false
@@ -397,6 +421,52 @@ final class AIAssistantManager {
     private func addAssistantMessage(_ text: String) {
         currentMessage = text
         messageHistory.append(AssistantMessage(text: text, isUser: false, timestamp: Date()))
+    }
+    
+    @MainActor
+    func addAssistantMessageStreamed(_ text: String) async {
+        let messageIndex = messageHistory.count
+        let initialMessage = AssistantMessage(text: "", isUser: false, timestamp: Date(), isStreaming: true)
+        messageHistory.append(initialMessage)
+        
+        currentMessage = ""
+        var accumulated = ""
+        for char in text {
+            accumulated.append(char)
+            currentMessage = accumulated
+            if messageIndex < messageHistory.count {
+                messageHistory[messageIndex] = AssistantMessage(
+                    text: accumulated,
+                    isUser: false,
+                    timestamp: Date(),
+                    isStreaming: true
+                )
+            }
+            try? await Task.sleep(for: .milliseconds(15))
+        }
+        
+        if messageIndex < messageHistory.count {
+            messageHistory[messageIndex] = AssistantMessage(
+                text: text,
+                isUser: false,
+                timestamp: Date(),
+                isStreaming: false
+            )
+        }
+        currentMessage = text
+    }
+    
+    private func updateMoodForResponse(_ text: String, hasAction: Bool) {
+        let textLower = text.lowercased()
+        if textLower.contains("study") || textLower.contains("meditat") || textLower.contains("calm") || textLower.contains("zen") {
+            aiMood = .calm
+        } else if textLower.contains("game") || textLower.contains("gaming") || textLower.contains("chess") || textLower.contains("whiteboard") || textLower.contains("draw") || textLower.contains("creative") {
+            aiMood = .creative
+        } else if hasAction {
+            aiMood = .thinking
+        } else {
+            aiMood = .idle
+        }
     }
     
     func clearHistory() {
