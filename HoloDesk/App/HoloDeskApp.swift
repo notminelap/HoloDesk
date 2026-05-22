@@ -193,6 +193,7 @@ struct HoloDeskApp: App {
         ImmersiveSpace(id: "immersive") {
             ImmersiveSpaceView()
                 .environment(store)
+                .environment(windowManager)
                 .environment(deskEngine)
                 .environment(postureEngine)
                 .environment(audio)

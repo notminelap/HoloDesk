@@ -4,6 +4,7 @@
 
 import SwiftUI
 import Observation
+import simd
 
 // MARK: - Desk Interaction Engine
 
@@ -41,12 +42,12 @@ final class DeskInteractionEngine {
     
     /// Detect throw gesture and move window to wall display mode
     func handleThrow(windowId: UUID, velocity: SIMD3<Float>, store: WorkspaceStore) {
-        let speed = length(velocity)
+        let speed = simd_length(velocity)
         guard speed > throwVelocityThreshold else { return }
         
         if let index = store.activeWindows.firstIndex(where: { $0.id == windowId }) {
             // Move to wall (far away, facing user)
-            let direction = normalize(velocity)
+            let direction = simd_normalize(velocity)
             store.activeWindows[index].position = SIMD3(direction.x * 3, 1.8, direction.z * 3)
             store.activeWindows[index].size = store.activeWindows[index].type.defaultSize * 1.5
             HapticManager.shared.success()

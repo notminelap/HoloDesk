@@ -14,6 +14,9 @@ final class HandTrackingManager {
     var rightHandPosition: SIMD3<Float>?
     var isPinching = false
     
+    /// Low-pass filter smoothing coefficient (1.0 = no smoothing, 0.0 = static/infinite smoothing)
+    var smoothingAlpha: Float = 0.35
+    
     private var session: ARKitSession?
     private var handTracking: HandTrackingProvider?
     
@@ -37,10 +40,19 @@ final class HandTrackingManager {
                 switch update.event {
                 case .updated:
                     let anchor = update.anchor
+                    let rawPosition = extractHandPosition(anchor)
                     if anchor.chirality == .left {
-                        leftHandPosition = extractHandPosition(anchor)
+                        if let prev = leftHandPosition {
+                            leftHandPosition = prev * (1.0 - smoothingAlpha) + rawPosition * smoothingAlpha
+                        } else {
+                            leftHandPosition = rawPosition
+                        }
                     } else {
-                        rightHandPosition = extractHandPosition(anchor)
+                        if let prev = rightHandPosition {
+                            rightHandPosition = prev * (1.0 - smoothingAlpha) + rawPosition * smoothingAlpha
+                        } else {
+                            rightHandPosition = rawPosition
+                        }
                     }
                     // Check for pinch gesture
                     isPinching = checkPinch(anchor)

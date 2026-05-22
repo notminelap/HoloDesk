@@ -116,8 +116,8 @@ A robust terminal console mimicking command inputs, neofetch system specs, git l
 #### 📊 Real-time 8-Core CPU Grid & System Monitor
 An advanced system diagnostics dashboard showcasing 8 independent core thread activity visualizers in a localized dynamic timeline-driven Canvas, equipped with `ShimmerProgressBar` caustics sweeps, circular high-refraction glass glints, and live memory and network logs.
 
-#### 🤖 Floating AI Buddy Companion
-An active animated partner represented as a morphing cyan and purple particle orb hovering in space next to window panes, shifting colors to reflect its active cognitive mood.
+#### 🤖 Floating 3D Holographic AI Buddy
+A living, breathing 3D spatial companion that stands in your room. Replaces standard flat windows with a procedurally rendered 3D hologram (chrome torso, glowing cyber brain, interactive rotating orbital chest rings, and ground platform). You can pinch and drag the buddy to reposition them anywhere in your physical environment, and chat via an anchored glassmorphic 3D dialog bubble complete with quick action chips and custom text inputs.
 <p align="center">
   <img src="Docs/Images/visionos_ai_buddy.png" width="90%" alt="HoloDesk AI Buddy Spatial Application View" />
 </p>
@@ -152,6 +152,32 @@ A multi-slider spatial console blending environmental soundscapes like rain, cra
 <p align="center">
   <img src="Docs/Images/visionos_ambience_mixer.png" width="90%" alt="HoloDesk Ambience Mixer Spatial Application View" />
 </p>
+
+---
+
+## 🌐 The Volumetric Spatial Environment (`ImmersiveSpaceView.swift`)
+
+HoloDesk introduces a state-of-the-art **mixed reality workspace mode** that integrates physical room understanding, custom 3D character interaction, and dynamic interior styling:
+
+### 1. 🌐 Simulated 3D LiDAR Room Scan
+Upon activating the immersive space, HoloDesk triggers a **4-second volumetric room scanning sequence**:
+*   **Sweeping Cyan Laser:** A mathematically-driven horizontal scanning plane sweeps vertically from the floor to the ceiling.
+*   **Volumetric Wireframe Meshes:** Real-time green and cyan wireframe bounding boxes materialize around physical furniture (Couch, Table, Ergonomic Chair, Structural Walls) with custom neon corner anchors.
+*   **LiDAR HUD Diagnostic Dashboard:** An anchored diagnostic panel displaying real-time scanning progress, active mesh point density, object count markers, and active sensor updates.
+*   **Synchronized Sonar Audio:** Custom DSP pings accelerate dynamically as the progress bar fills from 0% to 100%, resolving in a major sparkling success sweep.
+
+### 2. 🧊 3D Holographic AI Companion Android
+The floating AI Buddy companion is represented as a fully 3D spatial humanoid hologram placed directly in your physical environment:
+*   **Procedural Code Rendering:** Designed completely in code using lightweight RealityKit meshes—a transparent glassmorphic head, glowing cyber-visor eyes, a chrome central brain core, a metallic torso capsule, opposing rotating neon chest gyroscope rings, and a glowing base platform.
+*   **Spatial Drag and Placement:** Seamlessly integrated with standard hand tracking; pinch, drag, and position the buddy anywhere in your physical room (coordinates are automatically bounded and saved).
+*   **3D Dialog Speech Bubble:** A floating, glass-material panel anchored to the buddy featuring the time-aware AI conversation log, quick setup buttons, and direct text prompt input.
+
+### 3. 🎭 Volumetric Room Interior Transformations
+Toggling different workspace modes will **physically redecorate and alter the lighting of your room** with programmatic volumetric props and custom lights:
+*   **🧑‍💻 Workplace Mode:** Spawns a futuristic drafting screen plate tilted at 22 degrees, metallic cylinder supports, and a cyber floor task lamp emitting a volumetric warm light source (attenuation radius of 4.8m).
+*   **🎬 Cinema Mode:** Constructs a massive curved movie theater screen using angled box segments, rows of plush red cinema backrest chairs, volumetric floor steps, and a soft blue projector light cone directed at the screen center.
+*   **🎮 Gaming Mode:** Transforms your room into a cyber arcade. Spawns two floating arcade cabinets that bob sinusoidally in opposing frequencies, five retro gold spinning coins floating in an arc, and dynamic pink and blue spotlights.
+*   **📚 Study Mode:** Materializes a warm brick fireplace mantle with a dark inner cavity and glowing orange fireside point light. Rising fire sparks (8 coordinates-driven particles) drift and dissolve in the air alongside towers of randomly rotated vintage books.
 
 ---
 

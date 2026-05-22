@@ -24,6 +24,9 @@ public enum SoundEffect: Sendable {
     case bubblePop      // Quick organic pop sound (pop!)
     case cosmicSweep    // Sweeping cinematic riser/whoosh
     case softTick       // Mechanical click/tick sound
+    case sonarPing      // High sonar ticking click
+    case scanComplete   // Synthesized sparkling chord swell
+    case buddySpawn     // Magical atmospheric spatial chime sweep
 }
 
 // MARK: - Spatial Audio Manager
@@ -269,6 +272,9 @@ fileprivate enum SoundBufferGenerator {
         case .bubblePop:    duration = 0.08
         case .cosmicSweep:  duration = 0.80
         case .softTick:     duration = 0.04
+        case .sonarPing:    duration = 0.22
+        case .scanComplete: duration = 0.60
+        case .buddySpawn:   duration = 0.90
         }
         
         let format = AVAudioFormat(standardFormatWithSampleRate: sampleRate, channels: 1)!
@@ -358,6 +364,34 @@ fileprivate enum SoundBufferGenerator {
                 let freq = 1800.0 * exp(-100.0 * t)
                 let env = exp(-85.0 * t)
                 sample = sin(2.0 * .pi * freq * t) * env * 0.20
+                
+            case .sonarPing:
+                // Sonar radar sweep ping (sine sweep + resonance chime)
+                let freq = 1300.0 * exp(-15.0 * t)
+                let env = exp(-9.0 * t)
+                sample = sin(2.0 * .pi * freq * t) * env * 0.30
+                
+            case .scanComplete:
+                // Sparkling major pentatonic upward swell (C6 -> E6 -> G6 -> C7)
+                let noteDur = 0.08
+                var freq = 1046.50
+                if t > noteDur * 3 {
+                    freq = 2093.00
+                } else if t > noteDur * 2 {
+                    freq = 1567.98
+                } else if t > noteDur {
+                    freq = 1318.51
+                }
+                let localT = t.truncatingRemainder(dividingBy: noteDur)
+                let env = exp(-6.0 * localT) * 0.35
+                sample = sin(2.0 * .pi * freq * t) * env
+                
+            case .buddySpawn:
+                // Shimmering chime drone with a deep whoosh
+                let f1 = 100.0 + 250.0 * (t / duration)
+                let f2 = 880.0
+                let env = sin(.pi * (t / duration)) * exp(-2.5 * t) * 0.30
+                sample = (sin(2.0 * .pi * f1 * t) * 0.5 + sin(2.0 * .pi * f2 * t) * 0.8) * env
             }
             
             data[i] = Float(sample)

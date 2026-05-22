@@ -22,6 +22,12 @@ final class WorkspaceStore {
     /// Whether the immersive space is open
     var isImmersiveSpaceOpen: Bool = false
     
+    /// Whether LiDAR scanning is active
+    var isLidarScanning: Bool = false
+    
+    /// Progress of LiDAR scanning (0.0 to 1.0)
+    var lidarScanProgress: Double = 0.0
+    
     /// Whether demo mode is running
     var isDemoRunning: Bool = false
     

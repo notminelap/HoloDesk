@@ -410,12 +410,18 @@ struct ContentView: View {
                 audio.stopAmbientDrone()
                 await dismissImmersiveSpace()
                 store.isImmersiveSpaceOpen = false
+                store.isLidarScanning = false
+                store.lidarScanProgress = 0.0
             } else {
                 audio.playSFX(.cosmicSweep)
+                store.isLidarScanning = true
+                store.lidarScanProgress = 0.0
                 let result = await openImmersiveSpace(id: "immersive")
                 store.isImmersiveSpaceOpen = (result == .opened)
                 if store.isImmersiveSpaceOpen {
                     audio.startAmbientDrone()
+                } else {
+                    store.isLidarScanning = false
                 }
             }
         }
