@@ -275,6 +275,7 @@ struct QuickNoteWidgetView: View {
                                 .foregroundStyle(.white.opacity(0.75))
                             Spacer()
                             Button {
+                                guard index < savedNotes.count else { return }
                                 savedNotes.remove(at: index)
                                 audio.playSFX(.tap)
                             } label: {
@@ -315,8 +316,8 @@ struct StopwatchWidgetView: View {
                         timer?.invalidate()
                         isRunning = false
                     } else {
-                        timer = Timer.scheduledTimer(withTimeInterval: 0.01, repeats: true) { _ in
-                            elapsed += 0.01
+                        timer = Timer.scheduledTimer(withTimeInterval: 0.05, repeats: true) { _ in
+                            elapsed += 0.05
                         }
                         isRunning = true
                     }

@@ -64,6 +64,7 @@ struct MusicVisualizerContent: View {
         }
         .onAppear {
             isAnimating = true
+            animationTimer?.invalidate()
             animationTimer = Timer.scheduledTimer(withTimeInterval: 0.12, repeats: true) { _ in
                 guard isAnimating else { return }
                 withAnimation(.easeInOut(duration: 0.15)) {

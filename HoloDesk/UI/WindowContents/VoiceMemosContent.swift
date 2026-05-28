@@ -85,6 +85,12 @@ struct VoiceMemosContent: View {
             }
             .padding(.bottom, 14)
         }
+        .onDisappear {
+            recordingTimer?.invalidate()
+            recordingTimer = nil
+            waveformTimer?.invalidate()
+            waveformTimer = nil
+        }
     }
     
     // MARK: - Recording View
@@ -172,7 +178,7 @@ struct VoiceMemosContent: View {
         recordingDuration = 0
         animateWaveform()
         recordingTimer?.invalidate()
-        recordingTimer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { [self] _ in
+        recordingTimer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { _ in
             recordingDuration += 1
         }
     }
