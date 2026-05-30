@@ -61,7 +61,7 @@ struct WeatherContent: View {
     // MARK: - Sky Background
     
     private var skyGradient: some View {
-        TimelineView(.animation) { timeline in
+        TimelineView(.periodic(from: .now, by: 1.0/30.0)) { timeline in
             let time = timeline.date.timeIntervalSinceReferenceDate
             
             // Shifting sky background based on time and potential lightning activity

@@ -1,7 +1,8 @@
 HOLODESK
-Copyright (c) 2026 Notminelap Industries. All Rights Reserved.
+Copyright (c) 2027 Radhesh Ranvijay. All Rights Reserved.
 
-This product includes software developed by Notminelap Industries.
+This product is designed and engineered by Radhesh Ranvijay
+for the Apple Swift Student Challenge 2027.
 
 The source code is made available for viewing purposes only under the
 HoloDesk Source-Available License. Unauthorized copying, modification,
@@ -17,6 +18,10 @@ This project uses the following Apple frameworks:
 - SwiftUI (Apple Inc.)
 - RealityKit (Apple Inc.)
 - ARKit (Apple Inc.)
-- UIKit (Apple Inc.)
+- AVFoundation (Apple Inc.)
+- Observation (Apple Inc.)
+- Speech (Apple Inc.)
 
 All Apple frameworks are used under the Apple Developer Program License Agreement.
+
+No third-party packages, CocoaPods, or external dependencies are used.

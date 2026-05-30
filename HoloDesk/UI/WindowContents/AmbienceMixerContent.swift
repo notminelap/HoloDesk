@@ -472,7 +472,7 @@ struct GenerativeSoundscapeOrb: View {
     var isPlaying: Bool
     
     var body: some View {
-        TimelineView(.animation) { timeline in
+        TimelineView(.periodic(from: .now, by: 1.0/30.0)) { timeline in
             let time = timeline.date.timeIntervalSinceReferenceDate
             
             Canvas { context, size in
