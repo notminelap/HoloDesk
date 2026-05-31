@@ -1,7 +1,7 @@
 // ─────────────────────────────────────────────────────────────────────────────
 //                         L I Q U I D   G L A S S   S Y S T E M
 // ─────────────────────────────────────────────────────────────────────────────
-//   HoloDesk Premium Design Language - visionOS 2.0+ (Apple OS 26.5)
+//   HoloDesk Premium Design Language - visionOS 2.0+ (Apple OS 26.4)
 //
 //   Copyright (c) 2027 Radhesh Ranvijay. All Rights Reserved.
 //   Designed and engineered by Radhesh Ranvijay for Apple Swift Student Challenge.
@@ -14,7 +14,7 @@ import SwiftUI
 
 extension View {
     
-    /// Applies a premium visionOS 2.0 / OS 26.5 native "Liquid Glass" background.
+    /// Applies a premium visionOS 2.0 / OS 26.4 native "Liquid Glass" background.
     /// Multi-layered: ultraThinMaterial + dynamic fluid cores + shifting caustics + double border refraction.
     func glassBackground(
         cornerRadius: CGFloat = 20,
@@ -242,7 +242,7 @@ extension View {
     }
 }
 
-// MARK: - Liquid Glass Helpers (OS 26.5 Specification)
+// MARK: - Liquid Glass Helpers (OS 26.4 Specification)
 
 /// Programmatic shifting liquid iridescence layer under the frosted material.
 struct LiquidGlassFluidCore: View {

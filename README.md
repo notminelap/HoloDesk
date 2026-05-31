@@ -89,7 +89,7 @@ A native spatial operating workspace built from scratch in pure **SwiftUI** and 
     </td>
     <td align="center" width="25%">
       <h3>💎 Liquid Glass Design</h3>
-      <p>OS 26.5 specification. Viscous shifting fluid cores, sweeping caustics reflections, double-refraction borders, holographic shadow projections.</p>
+      <p>OS 26.4 specification. Viscous shifting fluid cores, sweeping caustics reflections, double-refraction borders, holographic shadow projections.</p>
     </td>
     <td align="center" width="25%">
       <h3>🔊 Procedural DSP Audio</h3>
@@ -355,7 +355,7 @@ HoloDesk/
 ## 💻 Getting Started
 
 > [!IMPORTANT]
-> **Host Requirement:** Your Mac must be running **macOS Tahoe 26.5+** with **Xcode 16+** and the **visionOS 2.0 Simulator** runtime.
+> **Host Requirement:** Your Mac must be running **macOS Tahoe 26.4+** with **Xcode 16+** and the **visionOS 2.0 Simulator** runtime.
 
 ```bash
 # Clone the repository
@@ -374,7 +374,7 @@ open Package.swift
 
 | Requirement | Specification |
 |------------|---------------|
-| **Host OS** | macOS Tahoe 26.5+ |
+| **Host OS** | macOS Tahoe 26.4+ |
 | **IDE** | Xcode 16.0+ |
 | **Target SDK** | visionOS 2.0+ |
 | **Playgrounds** | Swift Playgrounds 4.5+ |

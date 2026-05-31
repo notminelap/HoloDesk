@@ -42,7 +42,7 @@
 //  here are the key components of the core architecture:
 //
 //  📂 App/                 -> [HoloDeskApp.swift] Main entry point, volume & space scenes.
-//  📂 Core/Extensions/     -> [View+Glass.swift] The Liquid Glass OS 26.5 design system.
+//  📂 Core/Extensions/     -> [View+Glass.swift] The Liquid Glass OS 26.4 design system.
 //                             [Color+Theme.swift] Custom neon HSL color spaces.
 //  📂 UI/Components/       -> [HoloLogoView.swift] Procedural 3D holographic prism logo.
 //                             [SpatialWindowView.swift] Custom plain-window container.
