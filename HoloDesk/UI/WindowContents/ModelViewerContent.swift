@@ -116,6 +116,14 @@ struct ModelViewerContent: View {
             rotationTimer?.invalidate()
             rotationTimer = nil
         }
+        .onChange(of: isRotating) { _, newValue in
+            if newValue {
+                autoRotate()
+            } else {
+                rotationTimer?.invalidate()
+                rotationTimer = nil
+            }
+        }
     }
     
     @ViewBuilder
