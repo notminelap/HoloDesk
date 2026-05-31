@@ -36,6 +36,9 @@ public enum SoundEffect: Sendable {
 @Observable
 final class SpatialAudioManager {
     
+    /// Shared singleton for views that can't use @Environment injection
+    static let shared = SpatialAudioManager()
+    
     var isMuted = false
     var masterVolume: Float = 0.7
     var isAmbientPlaying = false
