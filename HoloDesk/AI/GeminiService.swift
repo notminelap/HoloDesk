@@ -12,7 +12,9 @@ actor GeminiService {
     
     static let shared = GeminiService()
     
-    private let apiKey = "AIzaSyDA-SInU4HYMv45FDmElUJaoJCFCiddxBA"
+    /// API key loaded from environment — NEVER hardcode keys in source.
+    /// Set via: Xcode Scheme → Run → Arguments → Environment Variables → GEMINI_API_KEY
+    private let apiKey: String = ProcessInfo.processInfo.environment["GEMINI_API_KEY"] ?? ""
     private let model = "gemini-2.0-flash"
     private let baseURL = "https://generativelanguage.googleapis.com/v1beta/models"
     
