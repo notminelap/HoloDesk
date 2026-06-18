@@ -15,7 +15,7 @@ import Observation
 
 /// The AI brain of HoloDesk. Works 100% offline with rich local NLP.
 /// On visionOS 27+, routes through Apple Foundation Models for on-device intelligence.
-/// Optionally connects to Gemini for free-form conversation when available.
+/// Powered entirely by Apple Intelligence — no third-party APIs.
 /// WWDC-compliant: all core features work without network.
 @Observable
 final class AIAssistantManager {
@@ -44,9 +44,6 @@ final class AIAssistantManager {
             }
         }
     }
-    
-    /// Whether to attempt Gemini API (disabled for WWDC submission)
-    var useGeminiAPI = false  // Default OFF for offline-first
     
     /// Whether to use Apple Intelligence (on-device Foundation Models) on visionOS 27+
     var useAppleIntelligence = true  // Default ON — privacy-first, no network needed
@@ -154,31 +151,10 @@ final class AIAssistantManager {
                 return
             }
             
-            // Step 3: Optional Gemini API for complex queries
-            if useGeminiAPI {
-                do {
-                    let context = GeminiService.buildContext(from: store)
-                    let response = try await GeminiService.shared.chat(
-                        message: text,
-                        workspaceContext: context
-                    )
-                    let (cleanMessage, action) = parseActionTags(from: response)
-                    updateMoodForResponse(cleanMessage, hasAction: action != nil)
-                    await addAssistantMessageStreamed(cleanMessage)
-                    if let action = action {
-                        suggestedAction = action
-                        executeAction(action, store: store, windowManager: windowManager)
-                    }
-                } catch {
-                    let fallback = smartFallback(text.lowercased(), store: store)
-                    updateMoodForResponse(fallback, hasAction: false)
-                    await addAssistantMessageStreamed(fallback)
-                }
-            } else {
-                let fallback = smartFallback(text.lowercased(), store: store)
-                updateMoodForResponse(fallback, hasAction: false)
-                await addAssistantMessageStreamed(fallback)
-            }
+            // Step 3: Smart fallback for unmatched queries
+            let fallback = smartFallback(text.lowercased(), store: store)
+            updateMoodForResponse(fallback, hasAction: false)
+            await addAssistantMessageStreamed(fallback)
             
             isThinking = false
         }
@@ -375,7 +351,7 @@ final class AIAssistantManager {
         return suggestions[conversationCount % suggestions.count]
     }
     
-    // MARK: - Parse Gemini Action Tags
+    // MARK: - Parse AI Action Tags
     
     private func parseActionTags(from response: String) -> (String, SuggestedAction?) {
         var cleanMessage = response
@@ -494,8 +470,5 @@ final class AIAssistantManager {
     func clearHistory() {
         messageHistory.removeAll()
         conversationCount = 0
-        if useGeminiAPI {
-            Task { await GeminiService.shared.resetConversation() }
-        }
     }
 }

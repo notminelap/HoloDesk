@@ -189,7 +189,7 @@ struct TerminalContent: View {
             ef58cca 🏆 WWDC Swift Student Challenge Readiness
             969de67 🐛🎨 WWDC Quality Audit — 8 Critical Fixes
             1452abf 🎨 Ultra-Realistic Visual Polish Pass
-            0e4151d 🤖 Gemini AI Integration + 3D AI Buddy
+            0e4151d 🧠 Apple Intelligence On-Device AI + 3D AI Buddy
             25b64c1 🧊 HoloDesk v2.0.0 — The Spatial Workspace Platform
             """)
         case "history":
@@ -225,16 +225,16 @@ struct TerminalContent: View {
                    ████████
               ████          ████       holodesk-user@HoloDesk
             ██  ██████████████  ██     ─────────────────────
-          ██  ██              ██  ██   OS:      visionOS 2.0
-          ██  ██   HOLODESK   ██  ██   Host:    Apple Vision Pro
-          ██  ██              ██  ██   Kernel:  Darwin 24.0.0
-            ██  ██████████████  ██     Shell:   HoloDeskShell 2.0
-              ████          ████       DE:      SwiftUI + RealityKit
-                   ████████            WM:      Spatial Window Manager
-                                       Apps:    32 built-in
-                                       AI:      Gemini 2.0 Flash (Offline)
-                                       Files:   101 Swift sources
-                                       Lines:   19,973
+           ██  ██              ██  ██   OS:      visionOS 27
+           ██  ██   HOLODESK   ██  ██   Host:    Apple Vision Pro
+           ██  ██              ██  ██   Kernel:  Darwin 24.0.0
+             ██  ██████████████  ██     Shell:   HoloDeskShell 3.0
+               ████          ████       DE:      SwiftUI + RealityKit
+                    ████████            WM:      Spatial Window Manager
+                                        Apps:    32 built-in
+                                        AI:      Apple Intelligence (On-Device)
+                                        Files:   105 Swift sources
+                                        Lines:   24,917
                                        Dev:     Notminelap Industries
         """
         history.append(TerminalLine(type: .system, text: art))

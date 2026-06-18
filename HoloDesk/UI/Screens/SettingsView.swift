@@ -65,22 +65,22 @@ struct SettingsView: View {
                         }
                     }
                     
-                    // AI & Gemini
-                    settingsSection("AI & Gemini") {
-                        infoRow("AI Engine", value: "Offline NLP (38 intents)")
-                        infoRow("Cloud Fallback", value: "Gemini 2.0 Flash")
-                        infoRow("Default Mode", value: "Offline-First")
+                    // AI & Apple Intelligence
+                    settingsSection("AI & Apple Intelligence") {
+                        infoRow("AI Engine", value: "Apple Intelligence (On-Device)")
+                        infoRow("Fallback", value: "Offline NLP (38 intents)")
+                        infoRow("Default Mode", value: "On-Device First")
                         infoRow("Intents", value: "38 commands")
                     }
                     
                     // About
                     settingsSection("About") {
-                        infoRow("Version", value: "2.1.0")
-                        infoRow("Build", value: "2026.05.21")
+                        infoRow("Version", value: "3.0.0")
+                        infoRow("Build", value: "2026.06.18")
                         infoRow("Submission", value: "SSC 2027")
-                        infoRow("Platform", value: "visionOS 2.0+ (Apple Vision Pro)")
+                        infoRow("Platform", value: "visionOS 27 (Apple Vision Pro)")
                         infoRow("Runtime", value: "SwiftUI + RealityKit")
-                        infoRow("AI", value: "On-Device (38 intents)")
+                        infoRow("AI", value: "Apple Intelligence (On-Device)")
                         infoRow("Developer", value: "Notminelap Industries")
                         infoRow("License", value: "Source Available")
                         infoRow("Swift Files", value: "101")

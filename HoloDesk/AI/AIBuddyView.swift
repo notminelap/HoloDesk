@@ -282,9 +282,9 @@ struct AIBuddyView: View {
             
             // Input
             HStack(spacing: 6) {
-                // Gemini indicator
+                // Apple Intelligence indicator
                 Circle()
-                    .fill(assistant.useGeminiAPI ? .green : .orange)
+                    .fill(assistant.useAppleIntelligence ? .green : .cyan)
                     .frame(width: 6, height: 6)
                 
                 TextField("Ask me anything...", text: $userInput)
@@ -353,7 +353,7 @@ struct AIBuddyView: View {
                         )
                 }
                 
-                Text(assistant.useGeminiAPI ? "Thinking with Gemini..." : "Thinking...")
+                Text("Apple Intelligence thinking...")
                     .font(.system(size: 10))
                     .foregroundStyle(.white.opacity(0.4))
             }
