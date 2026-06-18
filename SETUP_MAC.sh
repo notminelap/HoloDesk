@@ -11,7 +11,7 @@ echo ""
 
 # Check Xcode
 if ! command -v xcodebuild &> /dev/null; then
-    echo "❌ Xcode not found! Install Xcode 16+ from the App Store."
+    echo "❌ Xcode not found! Install Xcode 27+ from the App Store."
     exit 1
 fi
 
@@ -29,7 +29,7 @@ echo ""
 echo "📁 Setup Instructions:"
 echo "========================"
 echo ""
-echo "1. Open Xcode 16+"
+echo "1. Open Xcode 27+"
 echo "2. File → New → Project"
 echo "3. Select: visionOS → App"
 echo "4. Settings:"
@@ -77,6 +77,6 @@ echo "🎉 Done! HoloDesk should build and run."
 echo ""
 echo "Troubleshooting:"
 echo "  • If you get 'No such module RealityKit' → Make sure visionOS SDK is installed"
-echo "  • If you get 'No such module Observation' → Make sure minimum deployment is visionOS 1.0"
+echo "  • If you get 'No such module Observation' → Make sure minimum deployment is visionOS 3.0"
 echo "  • If hand tracking doesn't work → Must test on real Vision Pro device"
 echo ""

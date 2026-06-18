@@ -29,7 +29,7 @@ HoloDesk is published under a **Source-Available License**. While the code is pu
 
 ## 🛠️ Development Setup
 
-1. **macOS Tahoe 26.4+** with **Xcode 16+**
+1. **macOS 27+** with **Xcode 27+**
 2. Clone the repo and open `Package.swift` in Xcode
 3. Target **Apple Vision Pro Simulator**
 4. Build with **⌘ + R**

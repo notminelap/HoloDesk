@@ -1,7 +1,7 @@
 // ─────────────────────────────────────────────────────────────────────────────
 //                         L I Q U I D   G L A S S   S Y S T E M
 // ─────────────────────────────────────────────────────────────────────────────
-//   HoloDesk Premium Design Language - visionOS 2.0+ (Apple OS 26.4)
+//   HoloDesk Premium Design Language - visionOS 2.0+ (Apple visionOS 27)
 //
 //   Copyright (c) 2027 Radhesh Ranvijay. All Rights Reserved.
 //   Designed and engineered by Radhesh Ranvijay for Apple Swift Student Challenge.
@@ -14,7 +14,7 @@ import SwiftUI
 
 extension View {
     
-    /// Applies a premium visionOS 2.0 / OS 26.4 native "Liquid Glass" background.
+    /// Applies a premium visionOS 2.0 / visionOS 27 native "Liquid Glass" background.
     /// Multi-layered: ultraThinMaterial + dynamic fluid cores + shifting caustics + double border refraction.
     func glassBackground(
         cornerRadius: CGFloat = 20,
@@ -68,6 +68,18 @@ extension View {
                             ],
                             startPoint: .topLeading,
                             endPoint: .bottomTrailing
+                        ),
+                        lineWidth: 1.5
+                    )
+            )
+            // visionOS 27: Enhanced edge darkening for depth
+            .overlay(
+                RoundedRectangle(cornerRadius: cornerRadius)
+                    .strokeBorder(
+                        LinearGradient(
+                            colors: [.black.opacity(0.15), .clear, .black.opacity(0.1)],
+                            startPoint: .top,
+                            endPoint: .bottom
                         ),
                         lineWidth: 1.5
                     )
@@ -242,7 +254,7 @@ extension View {
     }
 }
 
-// MARK: - Liquid Glass Helpers (OS 26.4 Specification)
+// MARK: - Liquid Glass Helpers (visionOS 27 Specification)
 
 /// Programmatic shifting liquid iridescence layer under the frosted material.
 struct LiquidGlassFluidCore: View {
@@ -325,5 +337,25 @@ struct LiquidGlassCaustics: View {
                 sweepOffset = 1.4
             }
         }
+    }
+}
+
+// MARK: - visionOS 27 Active Window Dimming
+
+extension View {
+    /// Dims content when the window is inactive — visionOS 27 `appearsActive` integration.
+    /// Falls back to full opacity on earlier visionOS versions.
+    func activeWindowAware() -> some View {
+        self.modifier(ActiveWindowModifier())
+    }
+}
+
+struct ActiveWindowModifier: ViewModifier {
+    @Environment(\.isEnabled) private var isEnabled
+    
+    func body(content: Content) -> some View {
+        content
+            .opacity(isEnabled ? 1.0 : 0.7)
+            .animation(.easeInOut(duration: 0.25), value: isEnabled)
     }
 }

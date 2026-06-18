@@ -1,7 +1,7 @@
 // ─────────────────────────────────────────────────────────────────────────────
 //                O F F L I N E   N L P   I N T E L L I G E N C E
 // ─────────────────────────────────────────────────────────────────────────────
-//   HoloDesk Time-Aware 38-Intent On-Device AI Brain - visionOS 2.0+
+//   HoloDesk Time-Aware 38-Intent On-Device AI Brain - visionOS 27
 //
 //   Copyright (c) 2027 Radhesh Ranvijay. All Rights Reserved.
 //   Designed and engineered by Radhesh Ranvijay for Apple Swift Student Challenge.
@@ -11,9 +11,10 @@
 import SwiftUI
 import Observation
 
-// MARK: - AI Workspace Assistant (Offline-First + Gemini)
+// MARK: - AI Workspace Assistant (Offline-First + Apple Intelligence)
 
 /// The AI brain of HoloDesk. Works 100% offline with rich local NLP.
+/// On visionOS 27+, routes through Apple Foundation Models for on-device intelligence.
 /// Optionally connects to Gemini for free-form conversation when available.
 /// WWDC-compliant: all core features work without network.
 @Observable
@@ -46,6 +47,12 @@ final class AIAssistantManager {
     
     /// Whether to attempt Gemini API (disabled for WWDC submission)
     var useGeminiAPI = false  // Default OFF for offline-first
+    
+    /// Whether to use Apple Intelligence (on-device Foundation Models) on visionOS 27+
+    var useAppleIntelligence = true  // Default ON — privacy-first, no network needed
+    
+    /// Reference to the Apple Intelligence service
+    private let appleIntelligence = AppleIntelligenceService.shared
     
     struct AssistantMessage: Identifiable {
         let id = UUID()
@@ -128,6 +135,21 @@ final class AIAssistantManager {
                 try? await Task.sleep(for: .milliseconds(200))
                 updateMoodForResponse(smartResponse, hasAction: false)
                 await addAssistantMessageStreamed(smartResponse)
+                isThinking = false
+                return
+            }
+            
+            // Step 2.5: Apple Intelligence (on-device Foundation Models, visionOS 27+)
+            if useAppleIntelligence && appleIntelligence.isAvailable {
+                let context = AppleIntelligenceService.buildContext(from: store)
+                let response = await appleIntelligence.processMessage(text, workspaceContext: context)
+                let (cleanMessage, action) = parseActionTags(from: response)
+                updateMoodForResponse(cleanMessage, hasAction: action != nil)
+                await addAssistantMessageStreamed(cleanMessage)
+                if let action = action {
+                    suggestedAction = action
+                    executeAction(action, store: store, windowManager: windowManager)
+                }
                 isThinking = false
                 return
             }

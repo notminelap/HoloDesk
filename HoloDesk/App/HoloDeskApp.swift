@@ -1,7 +1,7 @@
 // ─────────────────────────────────────────────────────────────────────────────
 //                                 H O L O D E S K
 // ─────────────────────────────────────────────────────────────────────────────
-//   Spatial Workspace Platform for Apple Vision Pro | visionOS 2.0+
+//   Spatial Workspace Platform for Apple Vision Pro | visionOS 27 (v3.0)
 //   Submission for the Apple Swift Student Challenge 2027
 //
 //   Created and hand-crafted by:
@@ -20,17 +20,17 @@
 //   Apple Swift Student Challenge 2027.
 //
 //   The project represents a deep engineering endeavor to bring a native,
-//   infinite glassmorphic multitasking environment to visionOS 2.0. To respect
+//   infinite glassmorphic multitasking environment to visionOS 27. To respect
 //   the 25MB Swift Student Challenge file budget and showcase absolute mastery
 //   of the Apple developer toolchains, HoloDesk features:
 //
 //   1. ZERO THIRD-PARTY DEPENDENCIES: 100% written in pure Swift and SwiftUI.
 //   2. ULTRA-COMPACT BUNDLE SIZE: Under 230 KB (only 0.9% of the 25MB budget)
 //      by utilizing vector graphics and procedural DSP spatial audio synthesis.
-//   3. ON-DEVICE INTELLIGENCE: A fully offline NLP AI engine executing 38
-//      complex workspace command intents without needing web APIs.
-//   4. MODERN DESIGN AESTHETICS: The new 'Liquid Glass' material system
-//      emulating shifting iridescent cores and bezel refraction caustics.
+//   3. ON-DEVICE INTELLIGENCE: Apple Foundation Models (visionOS 27+) with a
+//      fully offline NLP AI engine executing 38 complex workspace command intents.
+//   4. MODERN DESIGN AESTHETICS: The 'Liquid Glass v2' material system (visionOS 27)
+//      with enhanced edge darkening, specular highlights, and inactive window dimming.
 //
 //   Every single file has been fully documented and structured to be extremely
 //   informative and educational for fellow student developers."
@@ -42,13 +42,14 @@
 //  here are the key components of the core architecture:
 //
 //  📂 App/                 -> [HoloDeskApp.swift] Main entry point, volume & space scenes.
-//  📂 Core/Extensions/     -> [View+Glass.swift] The Liquid Glass OS 26.4 design system.
+//  📂 Core/Extensions/     -> [View+Glass.swift] The Liquid Glass v2 (visionOS 27) design system.
 //                             [Color+Theme.swift] Custom neon HSL color spaces.
 //  📂 UI/Components/       -> [HoloLogoView.swift] Procedural 3D holographic prism logo.
 //                             [SpatialWindowView.swift] Custom plain-window container.
 //  📂 Spatial/             -> [SpatialAudioManager.swift] Real-time DSP audio oscillator generator.
 //                             [ImmersiveSpaceView.swift] RealityKit mixed space & stars skybox.
 //  📂 AI/                  -> [AIAssistantManager.swift] The 38-intent on-device NLP engine.
+//                             [AppleIntelligenceService.swift] Apple Foundation Models (visionOS 27+).
 //  📂 UI/WindowContents/   -> 32 custom spatial widgets (Chess AI, Spreadsheet Pro,
 //                             Meditation Portal, Interactive Terminal, Music Player, etc.)
 //
@@ -58,7 +59,7 @@
 import SwiftUI
 import RealityKit
 
-// MARK: - HoloDesk App (visionOS 2.0)
+// MARK: - HoloDesk App (visionOS 27)
 
 /// Main app entry point — configures window groups, immersive spaces, and volumes.
 /// All state is centralized here and distributed via SwiftUI environment.

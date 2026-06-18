@@ -1,7 +1,7 @@
-// swift-tools-version: 5.9
+// swift-tools-version: 6.0
 // ──────────────────────────────────────────────────────────────
 // HoloDesk — Spatial Workspace Platform for Apple Vision Pro
-// Swift Student Challenge 2027 Submission
+// Swift Student Challenge 2027 — visionOS 27 Submission
 // Copyright (c) 2026 Notminelap Industries. All Rights Reserved.
 // ──────────────────────────────────────────────────────────────
 
@@ -10,7 +10,7 @@ import PackageDescription
 let package = Package(
     name: "HoloDesk",
     platforms: [
-        .visionOS(.v2)
+        .visionOS(.v3)
     ],
     products: [
         .iOSApplication(
@@ -18,7 +18,7 @@ let package = Package(
             targets: ["HoloDesk"],
             bundleIdentifier: "com.notminelap.holodesk",
             teamIdentifier: "",
-            displayVersion: "2.1.0",
+            displayVersion: "3.0.0",
             bundleVersion: "1",
             appIcon: .placeholder(icon: .cube),
             accentColor: .presetColor(.cyan),

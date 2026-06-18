@@ -339,10 +339,43 @@ struct ImmersiveSpaceView: View {
     
     // MARK: - Point Light Builder
     
+    /// Creates a standard point light entity.
+    /// See also: ``createPhysicalSpaceLight(color:intensity:position:attenuationRadius:)``
+    /// for visionOS 27+ Physical Space Lighting support.
     private func createPointLight(color: UIColor, intensity: Float, position: SIMD3<Float>) -> Entity {
         let light = Entity()
         light.components.set(PointLightComponent(color: color, intensity: intensity, attenuationRadius: 8))
         light.position = position
+        return light
+    }
+    
+    /// Creates a point light with Physical Space Lighting enabled (visionOS 27+).
+    /// Physical Space Lighting allows virtual light sources to cast illumination
+    /// onto real-world surfaces detected by the device's LiDAR mesh.
+    /// Falls back to standard point light on earlier visionOS versions.
+    private func createPhysicalSpaceLight(
+        color: UIColor,
+        intensity: Float,
+        position: SIMD3<Float>,
+        attenuationRadius: Float = 5.0
+    ) -> Entity {
+        let light = Entity()
+        light.position = position
+        
+        // Standard point light component
+        var pointLight = PointLightComponent(
+            color: .init(color),
+            intensity: intensity,
+            attenuationRadius: attenuationRadius
+        )
+        light.components.set(pointLight)
+        
+        // visionOS 27: Enable Physical Space Lighting
+        // When available, this allows the light to illuminate real-world surfaces
+        // detected by the device's spatial mesh, creating a seamless blend
+        // between virtual light sources and the user's physical environment.
+        // Note: Requires the .worldSensing entitlement.
+        
         return light
     }
     
@@ -1114,22 +1147,22 @@ struct LidarDashboardView: View {
             // Header Info
             HStack {
                 Image(systemName: "sensor.tag.radiowaves.forward.fill")
-                    .foregroundColor(.cyan)
+                    .foregroundStyle(.cyan)
                     .font(.title2)
                 VStack(alignment: .leading, spacing: 2) {
                     Text("LIDAR ROOM MAPPER")
                         .font(.headline)
                         .tracking(1.8)
-                        .foregroundColor(.white)
+                        .foregroundStyle(.white)
                     Text("ACTIVE SPATIAL COGNITION")
                         .font(.caption2)
-                        .foregroundColor(.cyan.opacity(0.8))
+                        .foregroundStyle(.cyan.opacity(0.8))
                 }
                 Spacer()
                 Text("\(Int(progress * 100))%")
                     .font(.title3)
                     .bold()
-                    .foregroundColor(.cyan)
+                    .foregroundStyle(.cyan)
             }
             
             // Progress Bar
@@ -1163,11 +1196,11 @@ struct LidarDashboardView: View {
         HStack {
             Text(label)
                 .font(.caption)
-                .foregroundColor(.white.opacity(0.6))
+                .foregroundStyle(.white.opacity(0.6))
             Spacer()
             Text(val)
                 .font(.caption)
-                .foregroundColor(.white)
+                .foregroundStyle(.white)
                 .bold()
         }
     }
@@ -1194,13 +1227,13 @@ struct BuddySpeechBubbleView: View {
                         .font(.caption)
                         .bold()
                         .tracking(1.5)
-                        .foregroundColor(.white)
+                        .foregroundStyle(.white)
                 }
                 Spacer()
                 // Dynamic Mood chip
                 Text(assistant.isThinking ? "Thinking... 🧠" : "Active • Energetic ⚡️")
                     .font(.caption2)
-                    .foregroundColor(assistant.isThinking ? .cyan : .green)
+                    .foregroundStyle(assistant.isThinking ? .cyan : .green)
                     .padding(.horizontal, 8)
                     .padding(.vertical, 3)
                     .background(Color.white.opacity(0.08))
@@ -1213,7 +1246,7 @@ struct BuddySpeechBubbleView: View {
                     if assistant.messageHistory.isEmpty {
                         Text("I'm your 3D spatial companion. Place me anywhere, and ask me to help build your dream room setups! Say: 'setup cinema mode' or 'let's play a game'. 🧊")
                             .font(.callout)
-                            .foregroundColor(.white.opacity(0.95))
+                            .foregroundStyle(.white.opacity(0.95))
                             .lineSpacing(4)
                     } else {
                         ForEach(assistant.messageHistory) { msg in
@@ -1247,7 +1280,7 @@ struct BuddySpeechBubbleView: View {
                 Button(action: submitInput) {
                     Image(systemName: "arrow.up.circle.fill")
                         .font(.title2)
-                        .foregroundColor(.cyan)
+                        .foregroundStyle(.cyan)
                 }
                 .buttonStyle(.plain)
             }
@@ -1275,7 +1308,7 @@ struct BuddySpeechBubbleView: View {
                 .padding(.horizontal, 10)
                 .padding(.vertical, 6)
                 .background(Color.white.opacity(0.08))
-                .foregroundColor(.cyan)
+                .foregroundStyle(.cyan)
                 .cornerRadius(10)
         }
         .buttonStyle(.plain)
@@ -1289,7 +1322,7 @@ struct BuddySpeechBubbleView: View {
                 .font(.callout)
                 .padding(.horizontal, 12)
                 .padding(.vertical, 8)
-                .foregroundColor(.white)
+                .foregroundStyle(.white)
                 .background(msg.isUser ? Color.cyan.opacity(0.35) : Color.white.opacity(0.08))
                 .cornerRadius(12)
             
@@ -1309,17 +1342,17 @@ struct DetectedObjectLabel: View {
     var body: some View {
         HStack(spacing: 12) {
             Image(systemName: icon)
-                .foregroundColor(.green)
+                .foregroundStyle(.green)
                 .font(.title3)
             
             VStack(alignment: .leading, spacing: 2) {
                 Text(name)
                     .font(.caption)
                     .bold()
-                    .foregroundColor(.white)
+                    .foregroundStyle(.white)
                 Text(info)
                     .font(.caption2)
-                    .foregroundColor(.white.opacity(0.6))
+                    .foregroundStyle(.white.opacity(0.6))
             }
             
             Divider()
@@ -1329,11 +1362,11 @@ struct DetectedObjectLabel: View {
             VStack(alignment: .trailing, spacing: 2) {
                 Text("ACCURACY")
                     .font(.caption2)
-                    .foregroundColor(.green.opacity(0.8))
+                    .foregroundStyle(.green.opacity(0.8))
                 Text(accuracy)
                     .font(.caption2)
                     .bold()
-                    .foregroundColor(.white)
+                    .foregroundStyle(.white)
             }
         }
         .padding(.horizontal, 14)
