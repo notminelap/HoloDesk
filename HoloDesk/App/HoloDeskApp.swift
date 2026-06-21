@@ -134,6 +134,14 @@ struct HoloDeskApp: App {
     @State private var delight = DelightSystem()
     @State private var spatialMagic = SpatialMagicEngine()
     
+    // ────────────────────────────────────────
+    // MARK: - Unique Features (visionOS 27)
+    // ────────────────────────────────────────
+    @State private var easterEggs = SpatialEasterEggs()
+    @State private var holoPet = HoloPet()
+    @State private var constellations = WindowConstellations()
+    @State private var atmosphere = TimeAwareAtmosphere()
+    
     // ═══════════════════════════════════════
     // MARK: - Scene Declarations
     // ═══════════════════════════════════════
@@ -167,6 +175,10 @@ struct HoloDeskApp: App {
                 .environment(spatialMagic)
                 .environment(wellness)
                 .environment(smartHome)
+                .environment(easterEggs)
+                .environment(holoPet)
+                .environment(constellations)
+                .environment(atmosphere)
                 .onAppear {
                     initializeApp()
                 }
@@ -198,6 +210,10 @@ struct HoloDeskApp: App {
                 .environment(deskEngine)
                 .environment(postureEngine)
                 .environment(audio)
+                .environment(easterEggs)
+                .environment(holoPet)
+                .environment(constellations)
+                .environment(atmosphere)
         }
         .immersionStyle(selection: .constant(.mixed), in: .mixed, .progressive, .full)
         
@@ -238,5 +254,10 @@ struct HoloDeskApp: App {
         
         // Auto-save setup
         performance.autoSave(store: store)
+        
+        // Initialize unique features
+        atmosphere.updateAtmosphere()
+        atmosphere.refreshGreeting()
+        constellations.updateConnections(activeWindowTypes: store.activeWindows.map { $0.type })
     }
 }

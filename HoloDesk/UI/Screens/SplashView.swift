@@ -24,6 +24,25 @@ struct SplashView: View {
     @State private var rotationAngle: Double = 0
     @State private var particlePhase: Double = 0
     @State private var backgroundOpacity: Double = 1
+    @State private var bootLineIndex: Int = -1
+    @State private var bootCharIndex: Int = 0
+    @State private var showBootSequence = false
+    @State private var bootComplete = false
+    
+    /// The cinematic boot lines — each appears with a typewriter effect.
+    private let bootLines: [(status: String, text: String)] = [
+        ("OK",  "Swift Runtime 6.0 .............. loaded"),
+        ("OK",  "RealityKit Engine .............. initialized"),
+        ("OK",  "Liquid Glass v2 Renderer ....... compiled"),
+        ("OK",  "Spatial Audio (13 channels) .... online"),
+        ("OK",  "Apple Intelligence ............. ready"),
+        ("OK",  "LiDAR Mesh Scanner ............. calibrating"),
+        ("OK",  "Hand Tracking (22 joints) ...... active"),
+        ("OK",  "HoloPet Companion .............. awakening"),
+        ("OK",  "32 Spatial Applications ........ loaded"),
+        ("OK",  "104 Swift Source Files ......... verified"),
+        ("OK",  "24,673 Lines of Code .......... clean"),
+    ]
     
     enum SplashPhase {
         case logo, text, transition
@@ -99,7 +118,7 @@ struct SplashView: View {
                         .opacity(logoOpacity)
                 }
                 
-                // Text
+                // Text + Boot Sequence
                 VStack(spacing: 8) {
                     Text("HOLODESK")
                         .font(.system(size: 32, weight: .bold, design: .rounded))
@@ -113,11 +132,18 @@ struct SplashView: View {
                         )
                         .opacity(textOpacity)
                     
-                    Text("SWIFT STUDENT CHALLENGE 2027")
-                        .font(.system(size: 10, weight: .medium))
-                        .tracking(4)
-                        .foregroundStyle(.white.opacity(0.4))
+                    Text("SPATIAL OPERATING SYSTEM v3.0.0")
+                        .font(.system(size: 10, weight: .medium, design: .monospaced))
+                        .tracking(2)
+                        .foregroundStyle(.cyan.opacity(0.5))
                         .opacity(subtitleOpacity)
+                }
+                
+                // Boot Sequence Terminal
+                if showBootSequence {
+                    bootSequenceView
+                        .transition(.opacity)
+                        .padding(.top, 8)
                 }
                 
                 Spacer()
@@ -264,17 +290,101 @@ struct SplashView: View {
             textOpacity = 1.0
         }
         
-        // Phase 5: Subtitle + branding (1.5s)
-        withAnimation(.easeOut(duration: 0.5).delay(1.5)) {
+        // Phase 5: Subtitle (1.3s)
+        withAnimation(.easeOut(duration: 0.5).delay(1.3)) {
             subtitleOpacity = 1.0
         }
         
-        // Phase 6: Transition out (3.5s)
-        DispatchQueue.main.asyncAfter(deadline: .now() + 3.5) {
+        // Phase 6: Boot sequence starts (1.8s)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.8) {
+            withAnimation(.easeIn(duration: 0.3)) {
+                showBootSequence = true
+            }
+            startBootSequence()
+        }
+    }
+    
+    // MARK: - Boot Sequence
+    
+    private func startBootSequence() {
+        // Each line appears with ~0.25s delay
+        for i in 0..<bootLines.count {
+            DispatchQueue.main.asyncAfter(deadline: .now() + Double(i) * 0.25) {
+                withAnimation(.easeOut(duration: 0.15)) {
+                    bootLineIndex = i
+                }
+                HapticManager.shared.lightTap()
+            }
+        }
+        
+        // "ALL SYSTEMS NOMINAL" after all lines
+        let allLinesTime = Double(bootLines.count) * 0.25 + 0.3
+        DispatchQueue.main.asyncAfter(deadline: .now() + allLinesTime) {
+            withAnimation(.easeOut(duration: 0.3)) {
+                bootComplete = true
+            }
+            HapticManager.shared.success()
+        }
+        
+        // Transition out
+        DispatchQueue.main.asyncAfter(deadline: .now() + allLinesTime + 1.2) {
             withAnimation(.easeInOut(duration: 0.8)) {
                 backgroundOpacity = 0
                 isComplete = true
             }
         }
+    }
+    
+    // MARK: - Boot Sequence View
+    
+    private var bootSequenceView: some View {
+        VStack(alignment: .leading, spacing: 2) {
+            // Header line
+            Text("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
+                .font(.system(size: 7, weight: .regular, design: .monospaced))
+                .foregroundStyle(.green.opacity(0.3))
+            
+            // Boot lines
+            ForEach(0...min(bootLineIndex, bootLines.count - 1), id: \.self) { i in
+                if i >= 0 && i < bootLines.count {
+                    HStack(spacing: 4) {
+                        Text("[\(bootLines[i].status)]")
+                            .foregroundStyle(.green)
+                        Text(bootLines[i].text)
+                            .foregroundStyle(.green.opacity(0.7))
+                    }
+                    .font(.system(size: 8, weight: .medium, design: .monospaced))
+                    .transition(.move(edge: .bottom).combined(with: .opacity))
+                }
+            }
+            
+            // Footer
+            if bootComplete {
+                Text("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
+                    .font(.system(size: 7, weight: .regular, design: .monospaced))
+                    .foregroundStyle(.green.opacity(0.3))
+                
+                Text("ALL SYSTEMS NOMINAL ✓")
+                    .font(.system(size: 9, weight: .bold, design: .monospaced))
+                    .foregroundStyle(.green)
+                    .padding(.top, 2)
+                
+                Text("Welcome. Your workspace is ready.")
+                    .font(.system(size: 9, weight: .medium, design: .monospaced))
+                    .foregroundStyle(.cyan.opacity(0.8))
+                    .padding(.top, 1)
+            }
+        }
+        .frame(maxWidth: 320, alignment: .leading)
+        .padding(.horizontal, 16)
+        .padding(.vertical, 8)
+        .background(
+            RoundedRectangle(cornerRadius: 8)
+                .fill(.black.opacity(0.6))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 8)
+                        .strokeBorder(.green.opacity(0.15), lineWidth: 0.5)
+                )
+        )
     }
 }

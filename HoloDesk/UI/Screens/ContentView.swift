@@ -16,6 +16,10 @@ struct ContentView: View {
     @Environment(RoomManager.self) private var roomManager
     @Environment(SpatialAudioManager.self) private var audio
     @Environment(AccessibilityEngine.self) private var accessibility
+    @Environment(SpatialEasterEggs.self) private var easterEggs
+    @Environment(HoloPet.self) private var holoPet
+    @Environment(WindowConstellations.self) private var constellations
+    @Environment(TimeAwareAtmosphere.self) private var atmosphere
     @Environment(\.openWindow) private var openWindow
     @Environment(\.openImmersiveSpace) private var openImmersiveSpace
     @Environment(\.dismissImmersiveSpace) private var dismissImmersiveSpace
@@ -65,6 +69,12 @@ struct ContentView: View {
                 
                 Spacer()
                 
+                // Window Constellations indicator
+                if constellations.hasActiveConstellations {
+                    ConstellationIndicator(constellations: constellations)
+                        .padding(.bottom, 4)
+                }
+                
                 // Active windows indicator
                 if !store.activeWindows.isEmpty {
                     activeWindowsBar
@@ -94,15 +104,29 @@ struct ContentView: View {
             VStack {
                 Spacer()
                 HStack {
+                    // HoloPet (bottom-left)
+                    HoloPetView(pet: holoPet)
+                    
                     Spacer()
+                    
+                    // AI Buddy (bottom-right)
                     AIBuddyView(assistant: aiAssistant)
                         .environment(store)
                         .environment(windowManager)
                 }
             }
             .padding(16)
+            
+            // Easter Egg: Confetti overlay
+            ConfettiOverlay(particles: easterEggs.confettiEmojis, isActive: easterEggs.showConfetti)
+            
+            // Easter Egg: Secret message overlay
+            if easterEggs.secretMessage != nil {
+                SecretMessageOverlay(message: easterEggs.secretMessage)
+            }
         }
         .glassBackground(cornerRadius: 32)
+        .timeAwareTint(atmosphere)
         .frame(width: 620, height: 480)
         .spawnAnimation(isPresented: isAppeared)
         .onAppear {
@@ -111,6 +135,8 @@ struct ContentView: View {
                 store.loadPreset(mode: .work)
                 spawnAllWindows()
             }
+            // Update constellations whenever windows change
+            constellations.updateConnections(activeWindowTypes: store.activeWindows.map { $0.type })
         }
         .sheet(isPresented: $showWindowPicker) {
             windowPickerSheet
@@ -123,6 +149,7 @@ struct ContentView: View {
             TextField("Workspace name", text: $customWorkspaceName)
             Button("Save") {
                 store.saveCurrentWorkspace(name: customWorkspaceName.isEmpty ? nil : customWorkspaceName)
+                holoPet.onWorkspaceSaved()
                 // Also save to active room
                 if let roomId = roomManager.activeRoomId {
                     let workspace = Workspace(
@@ -184,6 +211,9 @@ struct ContentView: View {
                 .padding(.vertical, 5)
                 .innerGlass(cornerRadius: 10)
             }
+            
+            // Time-aware atmosphere indicator
+            AtmosphereIndicator(atmosphere: atmosphere)
             
             // Current mode badge
             HStack(spacing: 6) {

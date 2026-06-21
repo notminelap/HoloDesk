@@ -21,10 +21,14 @@ struct ImmersiveSpaceView: View {
     @Environment(WorkspaceStore.self) private var store
     @Environment(WindowManager.self) private var windowManager
     @Environment(SpatialAudioManager.self) private var audio
+    @Environment(HoloPet.self) private var holoPet
+    @Environment(WindowConstellations.self) private var constellations
+    @Environment(TimeAwareAtmosphere.self) private var atmosphere
     
     @State private var handTrackingManager = HandTrackingManager()
     @State private var spatialAnchorManager = SpatialAnchorManager()
     @State private var draggedEntity: Entity?
+    @State private var selectedConstellation: WindowConstellations.Constellation?
     
     // Animation timer running at ~60 FPS
     @State private var animationTime: Double = 0.0
@@ -209,6 +213,38 @@ struct ImmersiveSpaceView: View {
             // ── 7. Continuous Animation Upkeep (bobbing, rotating coins, sparks) ──
             applyContinuousVolumetricAnimations(in: root)
             
+            // ── 7.2. Update HoloPet Entity Position & State ──
+            if let petEntity = attachments.entity(for: "HoloPetAttachment") {
+                petEntity.isEnabled = !store.isLidarScanning
+                if petEntity.parent == nil {
+                    root.addChild(petEntity)
+                }
+                // Sits on nearest desk/surface or floats. Let's place it at:
+                petEntity.position = SIMD3(0.65, 0.72, -1.0)
+                petEntity.position.y += Float(sin(animationTime * 2.0)) * 0.012
+            }
+            
+            // ── 7.4. Update Window Constellation Beams ──
+            updateConstellationBeams(in: root)
+            
+            // ── 7.6. Position Constellation Label ──
+            if let selected = selectedConstellation,
+               let labelEntity = attachments.entity(for: "ConstellationLabel") {
+                labelEntity.isEnabled = !store.isLidarScanning
+                if labelEntity.parent == nil {
+                    root.addChild(labelEntity)
+                }
+                if let fromWin = store.activeWindows.first(where: { $0.type == selected.fromType }),
+                   let toWin = store.activeWindows.first(where: { $0.type == selected.toType }) {
+                    let center = (fromWin.position + toWin.position) / 2.0
+                    labelEntity.position = center + SIMD3(0.0, 0.12, 0.0)
+                } else {
+                    labelEntity.isEnabled = false
+                }
+            } else if let labelEntity = attachments.entity(for: "ConstellationLabel") {
+                labelEntity.isEnabled = false
+            }
+            
         } placeholder: {
             ProgressView()
         } attachments: {
@@ -240,6 +276,33 @@ struct ImmersiveSpaceView: View {
             Attachment(id: "labelWall") {
                 DetectedObjectLabel(name: "Structural Wall Boundary", info: "Normal detected: Z = -2.85m", accuracy: "99.8%", icon: "wall.fill")
             }
+            
+            // ── HoloPet Companion ──
+            Attachment(id: "HoloPetAttachment") {
+                HoloPetView(pet: holoPet)
+            }
+            
+            // ── Constellation Relationship Label ──
+            Attachment(id: "ConstellationLabel") {
+                if let selected = selectedConstellation {
+                    HStack(spacing: 8) {
+                        Image(systemName: "sparkles")
+                            .foregroundStyle(selected.color)
+                        Text(selected.relationship)
+                            .font(.system(size: 11, weight: .bold, design: .rounded))
+                            .foregroundStyle(.white)
+                        Text("Connected")
+                            .font(.system(size: 9))
+                            .foregroundStyle(.white.opacity(0.6))
+                    }
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 6)
+                    .glassBackground(cornerRadius: 12)
+                    .onTapGesture {
+                        selectedConstellation = nil
+                    }
+                }
+            }
         }
         .task {
             await handTrackingManager.startTracking()
@@ -249,6 +312,7 @@ struct ImmersiveSpaceView: View {
         }
         .onAppear {
             buddyAI.activate()
+            holoPet.onImmersiveSpaceOpened()
         }
         // Continuous 60 FPS animation ticker
         .task {
@@ -332,7 +396,20 @@ struct ImmersiveSpaceView: View {
             TapGesture()
                 .targetedToAnyEntity()
                 .onEnded { value in
-                    pulseEntity(value.entity)
+                    let entity = value.entity
+                    if entity.name.hasPrefix("Beam_") {
+                        let parts = entity.name.replacingOccurrences(of: "Beam_", with: "").split(separator: "_")
+                        if parts.count == 2,
+                           let fromType = WindowType(rawValue: String(parts[0])),
+                           let toType = WindowType(rawValue: String(parts[1])) {
+                            if let conn = constellations.connections.first(where: { $0.fromType == fromType && $0.toType == toType }) {
+                                selectedConstellation = conn
+                                audio.playSFX(.tap)
+                            }
+                        }
+                    } else {
+                        pulseEntity(entity)
+                    }
                 }
         )
     }
@@ -1134,6 +1211,83 @@ struct ImmersiveSpaceView: View {
             try? await Task.sleep(for: .milliseconds(180))
             entity.scale = originalScale
         }
+    }
+    
+    // MARK: - Window Constellation Beams Rendering (visionOS 27)
+    
+    private func updateConstellationBeams(in root: Entity) {
+        if let existing = root.findEntity(named: "ConstellationsContainer") {
+            // Teardown children cleanly
+            for child in existing.children {
+                recursivelyTeardownEntity(child)
+            }
+            existing.removeFromParent()
+        }
+        
+        guard constellations.isEnabled && constellations.hasActiveConstellations && !store.isLidarScanning else { return }
+        
+        let container = Entity()
+        container.name = "ConstellationsContainer"
+        
+        let activeWindows = store.activeWindows
+        
+        for conn in constellations.connections {
+            guard let fromWin = activeWindows.first(where: { $0.type == conn.fromType }),
+                  let toWin = activeWindows.first(where: { $0.type == conn.toType }) else {
+                continue
+            }
+            
+            let p1 = fromWin.position
+            let p2 = toWin.position
+            
+            let beam = createBeam(from: p1, to: p2, color: UIColor(conn.color), fromType: conn.fromType, toType: conn.toType)
+            container.addChild(beam)
+        }
+        
+        root.addChild(container)
+    }
+    
+    private func createBeam(
+        from p1: SIMD3<Float>,
+        to p2: SIMD3<Float>,
+        color: UIColor,
+        fromType: WindowType,
+        toType: WindowType
+    ) -> Entity {
+        let beam = Entity()
+        beam.name = "Beam_\(fromType.rawValue)_\(toType.rawValue)"
+        
+        let distance = simd_distance(p1, p2)
+        guard distance > 0.01 else { return beam }
+        
+        let direction = simd_normalize(p2 - p1)
+        
+        let mesh = MeshResource.generateCylinder(height: distance, radius: 0.006)
+        var material = UnlitMaterial()
+        
+        let pulse = 0.4 + 0.3 * Float(sin(animationTime * 4.0))
+        material.color = .init(tint: color.withAlphaComponent(CGFloat(pulse)))
+        
+        beam.components.set(ModelComponent(mesh: mesh, materials: [material]))
+        
+        beam.position = (p1 + p2) / 2.0
+        
+        let up = SIMD3<Float>(0, 1, 0)
+        let axis = simd_cross(up, direction)
+        let dot = simd_dot(up, direction)
+        let rotation: simd_quatf
+        if simd_length(axis) < 0.0001 {
+            rotation = dot > 0 ? simd_quaternion(0, up) : simd_quaternion(.pi, up)
+        } else {
+            let angle = acos(dot)
+            rotation = simd_quaternion(angle, simd_normalize(axis))
+        }
+        beam.orientation = rotation
+        
+        beam.components.set(InputTargetComponent())
+        beam.components.set(CollisionComponent(shapes: [ShapeResource.generateCylinder(height: distance, radius: 0.04)]))
+        
+        return beam
     }
 }
 
