@@ -21,6 +21,9 @@ final class DeskDetectionEngine {
     var edgeGlowIntensity: Float = 0.4
     var environmentColorTemp: Float = 6500 // Kelvin
     
+    private var session: ARKitSession?
+    private var planeProvider: PlaneDetectionProvider?
+    
     struct DetectedSurface: Identifiable {
         let id = UUID()
         var anchor: UUID
@@ -43,15 +46,100 @@ final class DeskDetectionEngine {
     @MainActor
     func startScanning() {
         isScanning = true
-        // In production: ARKit PlaneDetection with .horizontal + scene understanding
-        // Simulated desk detection:
+        
+        #if !targetEnvironment(simulator)
+        if PlaneDetectionProvider.isSupported {
+            Task {
+                await startRealARKitScanning()
+            }
+            return
+        }
+        #endif
+        
+        startSimulatedScan()
+    }
+    
+    @MainActor
+    private func startRealARKitScanning() async {
+        let session = ARKitSession()
+        let planeProvider = PlaneDetectionProvider(alignments: [.horizontal])
+        self.session = session
+        self.planeProvider = planeProvider
+        
+        do {
+            try await session.run([planeProvider])
+            
+            Task { [weak self] in
+                guard let self = self else { return }
+                for await update in planeProvider.anchorUpdates {
+                    let anchor = update.anchor
+                    let center = SIMD3(
+                        anchor.originFromAnchorTransform.columns.3.x,
+                        anchor.originFromAnchorTransform.columns.3.y,
+                        anchor.originFromAnchorTransform.columns.3.z
+                    )
+                    let extent = SIMD2(anchor.geometry.extent.width, anchor.geometry.extent.height)
+                    
+                    let classification: SurfaceType
+                    switch anchor.classification {
+                    case .table:
+                        classification = .table
+                    default:
+                        classification = .desk
+                    }
+                    
+                    let surface = DetectedSurface(
+                        anchor: anchor.id,
+                        center: center,
+                        extent: extent,
+                        normal: SIMD3(0, 1, 0),
+                        classification: classification,
+                        confidence: 0.95
+                    )
+                    
+                    await MainActor.run {
+                        if update.event == .removed {
+                            self.detectedSurfaces.removeAll { $0.anchor == anchor.id }
+                        } else {
+                            if let idx = self.detectedSurfaces.firstIndex(where: { $0.anchor == anchor.id }) {
+                                self.detectedSurfaces[idx] = surface
+                            } else {
+                                self.detectedSurfaces.append(surface)
+                            }
+                        }
+                        
+                        self.primaryDesk = self.detectedSurfaces.max(by: { 
+                            ($0.extent.x * $0.extent.y) < ($1.extent.x * $1.extent.y) 
+                        })
+                        self.isScanning = false
+                        self.lastScanDate = Date()
+                    }
+                }
+            }
+            
+        } catch {
+            HoloDeskLogger.spatial.error("ARKit plane session failed: \(error.localizedDescription)")
+            startSimulatedScan()
+        }
+    }
+    
+    @MainActor
+    private func startSimulatedScan() {
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) { [weak self] in
-            self?.detectedSurfaces = [
-                DetectedSurface(anchor: UUID(), center: SIMD3(0, 0.75, -0.6), extent: SIMD2(1.2, 0.7), normal: SIMD3(0, 1, 0), classification: .desk, confidence: 0.95),
+            guard let self = self else { return }
+            self.detectedSurfaces = [
+                DetectedSurface(
+                    anchor: UUID(),
+                    center: SIMD3(0, 0.75, -0.6),
+                    extent: SIMD2(1.2, 0.7),
+                    normal: SIMD3(0, 1, 0),
+                    classification: .desk,
+                    confidence: 0.95
+                )
             ]
-            self?.primaryDesk = self?.detectedSurfaces.first
-            self?.isScanning = false
-            self?.lastScanDate = Date()
+            self.primaryDesk = self.detectedSurfaces.first
+            self.isScanning = false
+            self.lastScanDate = Date()
             HapticManager.shared.success()
         }
     }
