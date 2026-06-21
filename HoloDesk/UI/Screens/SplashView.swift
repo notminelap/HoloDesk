@@ -29,6 +29,16 @@ struct SplashView: View {
     @State private var showBootSequence = false
     @State private var bootComplete = false
     
+    // Typewriter state
+    @State private var linesTyped: [String] = []
+    @State private var currentLineText: String = ""
+    @State private var cursorBlink = false
+    @State private var activeTimer: Timer? = nil
+    
+    private var loadProgress: Double {
+        Double(linesTyped.count) / Double(max(bootLines.count, 1))
+    }
+    
     /// The cinematic boot lines — each appears with a typewriter effect.
     private let bootLines: [(status: String, text: String)] = [
         ("OK",  "Swift Runtime 6.0 .............. loaded"),
@@ -82,6 +92,27 @@ struct SplashView: View {
                             .scaleEffect(ringScale)
                             .opacity(ringOpacity)
                     }
+                    
+                    // Progressive loading track
+                    Circle()
+                        .stroke(Color.white.opacity(0.08), lineWidth: 3)
+                        .frame(width: 145, height: 145)
+                        .opacity(ringOpacity)
+                    
+                    // Progressive loading ring
+                    Circle()
+                        .trim(from: 0.0, to: CGFloat(loadProgress))
+                        .stroke(
+                            LinearGradient(
+                                colors: [.cyan, .holoPrimary, .purple],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            ),
+                            style: StrokeStyle(lineWidth: 3.5, lineCap: .round)
+                        )
+                        .frame(width: 145, height: 145)
+                        .rotationEffect(.degrees(rotationAngle * 0.4))
+                        .opacity(ringOpacity)
                     
                     // Particle orbit
                     ForEach(0..<12, id: \.self) { i in
@@ -137,6 +168,23 @@ struct SplashView: View {
                         .tracking(2)
                         .foregroundStyle(.cyan.opacity(0.5))
                         .opacity(subtitleOpacity)
+                    
+                    // Progressive loading bar
+                    if showBootSequence {
+                        HStack(spacing: 8) {
+                            ProgressView(value: loadProgress, total: 1.0)
+                                .progressViewStyle(.linear)
+                                .tint(.cyan)
+                                .frame(width: 160)
+                            
+                            Text("\(Int(loadProgress * 100))%")
+                                .font(.system(size: 10, weight: .bold, design: .monospaced))
+                                .foregroundStyle(.cyan)
+                        }
+                        .transition(.opacity)
+                        .opacity(subtitleOpacity)
+                        .padding(.top, 4)
+                    }
                 }
                 
                 // Boot Sequence Terminal
@@ -169,6 +217,8 @@ struct SplashView: View {
             }
         }
         .onAppear { startAnimation() }
+        .onDisappear { activeTimer?.invalidate() }
+        .onTapGesture { skipBoot() }
     }
     
     // MARK: - Starfield
@@ -307,31 +357,65 @@ struct SplashView: View {
     // MARK: - Boot Sequence
     
     private func startBootSequence() {
-        // Each line appears with ~0.25s delay
-        for i in 0..<bootLines.count {
-            DispatchQueue.main.asyncAfter(deadline: .now() + Double(i) * 0.25) {
-                withAnimation(.easeOut(duration: 0.15)) {
-                    bootLineIndex = i
-                }
-                HapticManager.shared.lightTap()
-            }
-        }
-        
-        // "ALL SYSTEMS NOMINAL" after all lines
-        let allLinesTime = Double(bootLines.count) * 0.25 + 0.3
-        DispatchQueue.main.asyncAfter(deadline: .now() + allLinesTime) {
+        typeNextLine(index: 0)
+    }
+    
+    private func typeNextLine(index: Int) {
+        guard index < bootLines.count else {
+            // All lines typed!
             withAnimation(.easeOut(duration: 0.3)) {
                 bootComplete = true
             }
             HapticManager.shared.success()
+            
+            // Transition out after a brief moment
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.2) {
+                withAnimation(.easeInOut(duration: 0.8)) {
+                    backgroundOpacity = 0
+                    isComplete = true
+                }
+            }
+            return
         }
         
-        // Transition out
-        DispatchQueue.main.asyncAfter(deadline: .now() + allLinesTime + 1.2) {
-            withAnimation(.easeInOut(duration: 0.8)) {
-                backgroundOpacity = 0
-                isComplete = true
+        bootLineIndex = index
+        let line = bootLines[index]
+        let fullText = "[\(line.status)] \(line.text)"
+        currentLineText = ""
+        
+        var charIndex = 0
+        activeTimer = Timer.scheduledTimer(withTimeInterval: 0.006, repeats: true) { timer in
+            guard charIndex < fullText.count else {
+                timer.invalidate()
+                linesTyped.append(fullText)
+                currentLineText = ""
+                typeNextLine(index: index + 1)
+                return
             }
+            
+            let indexStart = fullText.startIndex
+            let indexEnd = fullText.index(indexStart, offsetBy: charIndex + 1)
+            currentLineText = String(fullText[indexStart..<indexEnd])
+            charIndex += 1
+            
+            if charIndex % 4 == 0 {
+                HapticManager.shared.lightTap()
+            }
+        }
+    }
+    
+    private func skipBoot() {
+        guard !bootComplete else { return }
+        activeTimer?.invalidate()
+        linesTyped = bootLines.map { "[\($0.status)] \($0.text)" }
+        currentLineText = ""
+        bootLineIndex = bootLines.count
+        bootComplete = true
+        HapticManager.shared.success()
+        
+        withAnimation(.easeInOut(duration: 0.5)) {
+            backgroundOpacity = 0
+            isComplete = true
         }
     }
     
@@ -344,18 +428,27 @@ struct SplashView: View {
                 .font(.system(size: 7, weight: .regular, design: .monospaced))
                 .foregroundStyle(.green.opacity(0.3))
             
-            // Boot lines
-            ForEach(0...min(bootLineIndex, bootLines.count - 1), id: \.self) { i in
-                if i >= 0 && i < bootLines.count {
-                    HStack(spacing: 4) {
-                        Text("[\(bootLines[i].status)]")
-                            .foregroundStyle(.green)
-                        Text(bootLines[i].text)
-                            .foregroundStyle(.green.opacity(0.7))
-                    }
+            // Boot lines (already fully typed)
+            ForEach(linesTyped, id: \.self) { line in
+                Text(line)
                     .font(.system(size: 8, weight: .medium, design: .monospaced))
-                    .transition(.move(edge: .bottom).combined(with: .opacity))
+                    .foregroundStyle(.green.opacity(0.7))
+            }
+            
+            // Currently typing line with a pulsing cursor
+            if !currentLineText.isEmpty {
+                HStack(spacing: 1) {
+                    Text(currentLineText)
+                    Text("█")
+                        .opacity(cursorBlink ? 1 : 0)
+                        .onAppear {
+                            withAnimation(.easeInOut(duration: 0.25).repeatForever()) {
+                                cursorBlink.toggle()
+                            }
+                        }
                 }
+                .font(.system(size: 8, weight: .medium, design: .monospaced))
+                .foregroundStyle(.green)
             }
             
             // Footer
@@ -372,6 +465,11 @@ struct SplashView: View {
                 Text("Welcome. Your workspace is ready.")
                     .font(.system(size: 9, weight: .medium, design: .monospaced))
                     .foregroundStyle(.cyan.opacity(0.8))
+                    .padding(.top, 1)
+                
+                Text("Double-tap / pinch anywhere to skip calibration")
+                    .font(.system(size: 7, weight: .regular, design: .monospaced))
+                    .foregroundStyle(.white.opacity(0.2))
                     .padding(.top, 1)
             }
         }
