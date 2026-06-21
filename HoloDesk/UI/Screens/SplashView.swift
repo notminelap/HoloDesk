@@ -162,12 +162,7 @@ struct SplashView: View {
                             )
                         )
                         .opacity(textOpacity)
-                    
-                    Text("SPATIAL OPERATING SYSTEM")
-                        .font(.system(size: 10, weight: .medium, design: .monospaced))
-                        .tracking(2)
-                        .foregroundStyle(.cyan.opacity(0.5))
-                        .opacity(subtitleOpacity)
+
                     
                     // Progressive loading bar
                     if showBootSequence {
