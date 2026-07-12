@@ -7,7 +7,7 @@ import Observation
 
 // MARK: - Hand Tracking Manager
 
-@Observable
+@MainActor @Observable
 final class HandTrackingManager {
     var isTracking = false
     var leftHandPosition: SIMD3<Float>?

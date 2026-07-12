@@ -65,7 +65,7 @@ struct FilesContent: View {
                 // Back button
                 Button {
                     if currentPath.count > 1 {
-                        withAnimation(.spring(response: 0.25)) { currentPath.removeLast() }
+                        withAnimation(.spring(response: 0.25)) { _ = currentPath.removeLast() }
                         selectedFile = nil
                     }
                 } label: {

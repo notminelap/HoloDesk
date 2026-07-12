@@ -3,6 +3,7 @@
 // See LICENSE file for details.
 
 import SwiftUI
+import Combine
 
 // MARK: - Widget System
 
@@ -52,7 +53,7 @@ enum WidgetType: String, CaseIterable, Identifiable {
 
 struct ClockWidgetView: View {
     @State private var currentTime = Date()
-    let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
+    private let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
     
     var body: some View {
         VStack(spacing: 6) {
@@ -95,12 +96,12 @@ struct ClockWidgetView: View {
                 
                 // Second hand
                 Rectangle()
-                    .fill(.holoPrimary)
+                    .fill(Color.holoPrimary)
                     .frame(width: 0.5, height: 32)
                     .offset(y: -16)
                     .rotationEffect(.degrees(secondAngle))
                 
-                Circle().fill(.holoPrimary).frame(width: 4, height: 4)
+                Circle().fill(Color.holoPrimary).frame(width: 4, height: 4)
             }
         }
         .padding(14)
@@ -174,7 +175,7 @@ struct CalculatorWidgetView: View {
         } label: {
             Text(label)
                 .font(.system(size: 16, weight: isOp ? .medium : .regular))
-                .foregroundStyle(isOp ? .holoPrimary : isFunc ? .white.opacity(0.6) : .white.opacity(0.85))
+                .foregroundStyle(isOp ? Color.holoPrimary : isFunc ? .white.opacity(0.6) : .white.opacity(0.85))
                 .frame(width: label == "0" ? 70 : 32, height: 32)
                 .innerGlass(cornerRadius: 8)
         }
@@ -317,14 +318,16 @@ struct StopwatchWidgetView: View {
                         isRunning = false
                     } else {
                         timer = Timer.scheduledTimer(withTimeInterval: 0.05, repeats: true) { _ in
-                            elapsed += 0.05
+                            Task { @MainActor in
+                                elapsed += 0.05
+                            }
                         }
                         isRunning = true
                     }
                 } label: {
                     Image(systemName: isRunning ? "pause.fill" : "play.fill")
                         .font(.system(size: 14))
-                        .foregroundStyle(isRunning ? .holoWarning : .holoSuccess)
+                        .foregroundStyle(isRunning ? Color.holoWarning : Color.holoSuccess)
                         .frame(width: 36, height: 28)
                         .innerGlass(cornerRadius: 8)
                 }
@@ -386,7 +389,7 @@ struct StopwatchWidgetView: View {
 
 struct WorldClockWidgetView: View {
     @State private var currentTime = Date()
-    let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
+    private let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
     
     private let zones: [(city: String, tz: String, emoji: String)] = [
         ("San Francisco", "America/Los_Angeles", "🌉"),

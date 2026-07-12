@@ -9,7 +9,7 @@ import Observation
 
 /// Controls immersive environment effects — rain, fireplace, northern lights, nature sounds.
 /// Transforms the mood of your workspace dramatically.
-@Observable
+@MainActor @Observable
 final class EnvironmentEffectsManager {
     
     var activeEffect: EnvironmentEffect = .none
@@ -141,7 +141,7 @@ struct EnvironmentEffectsView: View {
             HStack {
                 Image(systemName: "sparkles.rectangle.stack")
                     .font(.system(size: 16))
-                    .foregroundStyle(.holoTertiary)
+                    .foregroundStyle(Color.holoTertiary)
                 Text("Environment Effects")
                     .font(.system(size: 16, weight: .bold, design: .rounded))
                     .foregroundStyle(.white)

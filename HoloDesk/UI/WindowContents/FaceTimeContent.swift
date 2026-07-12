@@ -304,7 +304,9 @@ struct FaceTimeContent: View {
         callDuration = 0
         callTimer?.invalidate()
         callTimer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { _ in
-            callDuration += 1
+            Task { @MainActor in
+                callDuration += 1
+            }
         }
         HapticManager.shared.mediumTap()
     }

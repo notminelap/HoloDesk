@@ -10,12 +10,11 @@ import Observation
 /// Visualizes relationships between spatial windows as glowing light beams.
 /// When 3+ windows are open, thin pulsing lines connect semantically related apps,
 /// creating a living constellation map of the user's workspace.
-@Observable
+@MainActor @Observable
 final class WindowConstellations {
     
     var isEnabled = true
     var connections: [Constellation] = []
-    var pulsePhase: Double = 0
     
     // ────────────────────────────────────────
     // MARK: - Constellation Model

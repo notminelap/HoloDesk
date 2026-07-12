@@ -103,9 +103,9 @@ struct MindMapContent: View {
                         let newNode = MindNode(
                             text: "New Idea",
                             position: CGPoint(x: CGFloat.random(in: 60...340), y: CGFloat.random(in: 60...240)),
-                            color: [Color.pink, .cyan, .orange, .green, .purple, Color.holoPrimary].randomElement()!,
+                            color: [Color.pink, .cyan, .orange, .green, .purple, Color.holoPrimary].randomElement() ?? .pink,
                             connections: selectedNodeId != nil ? [selectedNodeId!] : [],
-                            emoji: ["💡", "🔑", "🎯", "📌", "🧩", "🌪️"].randomElement()!
+                            emoji: ["💡", "🔑", "🎯", "📌", "🧩", "🌪️"].randomElement() ?? "💡"
                         )
                         nodes.append(newNode)
                         audio.playSFX(.success)

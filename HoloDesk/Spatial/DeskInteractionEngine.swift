@@ -9,7 +9,7 @@ import simd
 // MARK: - Desk Interaction Engine
 
 /// Full desk interaction system — tap to spawn, throw to wall, stack, flick, snap.
-@Observable
+@MainActor @Observable
 final class DeskInteractionEngine {
     
     var magneticEdges = true

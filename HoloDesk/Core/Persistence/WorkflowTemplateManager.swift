@@ -8,7 +8,7 @@ import Observation
 // MARK: - Workflow Templates
 
 /// Pre-built workspace templates for common tasks with auto-window spawning.
-@Observable
+@MainActor @Observable
 final class WorkflowTemplateManager {
     
     struct WorkflowTemplate: Identifiable {

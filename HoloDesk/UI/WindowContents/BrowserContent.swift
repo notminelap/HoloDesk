@@ -90,7 +90,7 @@ struct BrowserContent: View {
             HStack(spacing: 4) {
                 Image(systemName: "globe")
                     .font(.system(size: 9))
-                    .foregroundStyle(activeTab == index ? .holoPrimary : .white.opacity(0.3))
+                    .foregroundStyle(activeTab == index ? Color.holoPrimary : Color.white.opacity(0.3))
                 
                 Text(title)
                     .font(.system(size: 10, weight: activeTab == index ? .semibold : .regular))

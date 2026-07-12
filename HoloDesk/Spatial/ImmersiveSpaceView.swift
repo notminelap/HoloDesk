@@ -10,6 +10,12 @@
 import SwiftUI
 import RealityKit
 import ARKit
+#if canImport(UIKit)
+import UIKit
+#elseif canImport(AppKit)
+import AppKit
+typealias UIColor = NSColor
+#endif
 
 // MARK: - Draggable & Dynamic Spatial Environment View
 
@@ -178,7 +184,7 @@ struct ImmersiveSpaceView: View {
                     let pulse = 0.5 + 0.48 * Float(sin(animationTime * pulseFrequency))
                     var visorMat = UnlitMaterial()
                     visorMat.color = .init(tint: visorColor.withAlphaComponent(CGFloat(pulse)))
-                    visor.components.set(ModelComponent(mesh: MeshResource.generateCapsule(height: 0.11, radius: 0.012), materials: [visorMat]))
+                    visor.components.set(ModelComponent(mesh: MeshResource(shape: ShapeResource.generateCapsule(height: 0.11, radius: 0.012)), materials: [visorMat]))
                 }
                 
                 // Update gyroscope chest ring rotations
@@ -187,7 +193,7 @@ struct ImmersiveSpaceView: View {
                 }
                 if let ring2 = buddy.findEntity(named: "BuddyChestRing2") {
                     // Opposite rotation + 15 degree X tilt
-                    let rotX = simd_quatf(angle: Float(15 * .pi / 180), axis: SIMD3(1, 0, 0))
+                    let rotX = simd_quatf(angle: 15.0 * Float.pi / 180.0, axis: SIMD3(1, 0, 0))
                     let rotY = simd_quatf(angle: Float(-animationTime * 1.8 * rotationSpeedMultiplier), axis: SIMD3(0, 1, 0))
                     ring2.transform.rotation = rotX * rotY
                 }
@@ -440,8 +446,8 @@ struct ImmersiveSpaceView: View {
         light.position = position
         
         // Standard point light component
-        var pointLight = PointLightComponent(
-            color: .init(color),
+        let pointLight = PointLightComponent(
+            color: color,
             intensity: intensity,
             attenuationRadius: attenuationRadius
         )
@@ -756,7 +762,7 @@ struct ImmersiveSpaceView: View {
         // ── 3. Glowing Neon Eyes Visor ──
         let visor = Entity()
         visor.name = "BuddyVisor"
-        let visorMesh = MeshResource.generateCapsule(height: 0.11, radius: 0.012)
+        let visorMesh = MeshResource(shape: ShapeResource.generateCapsule(height: 0.11, radius: 0.012))
         var visorMat = UnlitMaterial()
         visorMat.color = .init(tint: .init(red: 0.0, green: 1.0, blue: 1.0, alpha: 0.98))
         visor.components.set(ModelComponent(mesh: visorMesh, materials: [visorMat]))
@@ -768,7 +774,7 @@ struct ImmersiveSpaceView: View {
         // ── 4. Chrome Glass Torso ──
         let torso = Entity()
         torso.name = "BuddyTorso"
-        let torsoMesh = MeshResource.generateCapsule(height: 0.35, radius: 0.105)
+        let torsoMesh = MeshResource(shape: ShapeResource.generateCapsule(height: 0.35, radius: 0.105))
         let torsoMat = SimpleMaterial(color: .init(white: 0.8, alpha: 0.3), roughness: 0.05, isMetallic: true)
         torso.components.set(ModelComponent(mesh: torsoMesh, materials: [torsoMat]))
         torso.position = SIMD3(0.0, -0.28, 0.0)
@@ -870,7 +876,7 @@ struct ImmersiveSpaceView: View {
         for child in entity.children {
             recursivelyTeardownEntity(child)
         }
-        entity.components.clear()
+        entity.components.removeAll()
         entity.children.removeAll()
     }
         
@@ -1285,7 +1291,7 @@ struct ImmersiveSpaceView: View {
         beam.orientation = rotation
         
         beam.components.set(InputTargetComponent())
-        beam.components.set(CollisionComponent(shapes: [ShapeResource.generateCylinder(height: distance, radius: 0.04)]))
+        beam.components.set(CollisionComponent(shapes: [ShapeResource.generateCapsule(height: distance, radius: 0.04)]))
         
         return beam
     }

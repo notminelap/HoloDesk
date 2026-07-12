@@ -8,7 +8,7 @@ import Observation
 // MARK: - Productivity Dashboard
 
 /// Tracks and displays productivity metrics — focus time, mode usage, window stats.
-@Observable
+@MainActor @Observable
 final class ProductivityTracker {
     var sessions: [FocusSession] = []
     var modeUsage: [WorkspaceMode: TimeInterval] = [:]
@@ -59,7 +59,7 @@ struct ProductivityDashboardView: View {
             HStack {
                 Image(systemName: "chart.bar.fill")
                     .font(.system(size: 16))
-                    .foregroundStyle(.holoSuccess)
+                    .foregroundStyle(Color.holoSuccess)
                 Text("Productivity")
                     .font(.system(size: 16, weight: .bold, design: .rounded))
                     .foregroundStyle(.white)

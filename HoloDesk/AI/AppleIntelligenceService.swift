@@ -22,7 +22,7 @@ import SwiftUI
 ///
 /// On earlier visionOS versions, gracefully falls back to HoloDesk's built-in
 /// 38-intent NLP engine (see AIAssistantManager).
-@Observable
+@MainActor @Observable
 final class AppleIntelligenceService {
     
     static let shared = AppleIntelligenceService()

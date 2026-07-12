@@ -41,7 +41,7 @@ struct DailyBriefingView: View {
                 
                 // Quote
                 VStack(spacing: 4) {
-                    Text(""\(briefing.motivationalQuote)"")
+                    Text(briefing.motivationalQuote)
                         .font(.system(size: 11, weight: .medium, design: .serif))
                         .foregroundStyle(.white.opacity(0.6)).multilineTextAlignment(.center)
                 }.padding(10).innerGlass(cornerRadius: 10)
@@ -95,7 +95,7 @@ struct WeeklyInsightsView: View {
             
             if let insights = ai.weeklyInsights {
                 HStack(spacing: 12) {
-                    insightCard("⏱️", "\(insights.totalFocusHours, specifier: "%.1f")h", "Focus", .blue)
+                    insightCard("⏱️", String(format: "%.1fh", insights.totalFocusHours), "Focus", .blue)
                     insightCard("🏆", insights.mostProductiveDay, "Best Day", .yellow)
                     insightCard("🔥", "\(insights.streakDays)d", "Streak", .orange)
                 }

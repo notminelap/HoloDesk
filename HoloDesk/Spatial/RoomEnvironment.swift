@@ -80,6 +80,7 @@ struct RoomEnvironment {
     // MARK: - Apply to Entity
     
     /// Apply a lighting preset to a RealityKit root entity.
+    @MainActor
     static func applyLighting(_ preset: LightingPreset, to root: Entity) {
         // Remove existing lights
         let existingLights = root.children.filter { $0.name.hasPrefix("RoomLight_") }
@@ -125,6 +126,7 @@ struct RoomEnvironment {
     // MARK: - Atmosphere Particles
     
     /// Create mode-specific atmosphere particles.
+    @MainActor
     static func createAtmosphere(for mode: WorkspaceMode) -> Entity {
         let root = Entity()
         root.name = "RoomAtmosphere"

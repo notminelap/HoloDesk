@@ -8,7 +8,7 @@ import Observation
 // MARK: - Creative Toolkit Manager
 
 /// Infinite canvas, mood board, reference pinning, layer stack, asset import.
-@Observable
+@MainActor @Observable
 final class CreativeToolkit {
     
     // MARK: - Infinite Sketch Canvas
@@ -34,6 +34,7 @@ final class CreativeToolkit {
     }
     
     func undo() {
+        guard !canvasStrokes.isEmpty else { return }
         canvasStrokes.removeLast()
     }
     
@@ -172,7 +173,7 @@ extension Color {
 // MARK: - Power User Tools
 
 /// Multiple desk layouts, custom gestures, plugin architecture, keyboard shortcuts.
-@Observable
+@MainActor @Observable
 final class PowerUserTools {
     
     // MARK: - Multiple Desk Layouts

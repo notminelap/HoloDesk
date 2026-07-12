@@ -10,7 +10,7 @@ import Observation
 /// Makes HoloDesk feel alive by shifting the workspace atmosphere based on time of day.
 /// Glass tint, particle behavior, AI greeting, and ambient mood all evolve throughout the day.
 /// Transitions are smooth 30-minute cross-fades — the user never sees a hard cut.
-@Observable
+@MainActor @Observable
 final class TimeAwareAtmosphere {
     
     // ────────────────────────────────────────

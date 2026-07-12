@@ -9,11 +9,17 @@ import Observation
 // MARK: - Window Manager
 
 /// Manages the lifecycle of spatial windows: spawning, positioning, transitions, and demo mode.
-@Observable
+@MainActor @Observable
 final class WindowManager {
     
     /// Reference to the workspace store (set by environment)
     weak var store: WorkspaceStore?
+    
+    /// Reference to the timeline manager (set on app launch)
+    weak var timeline: WorkspaceTimelineManager?
+    
+    /// Workspace manager for advanced presets loading and transitions
+    private let workspaceManager = WorkspaceManager()
     
     /// The window currently being placed (used for initial positioning)
     var pendingWindow: SpatialWindow?
@@ -38,14 +44,19 @@ final class WindowManager {
     func spawnWindow(type: WindowType, in store: WorkspaceStore) {
         self.store = store
         store.addWindow(type: type)
+        timeline?.snapshot(mode: store.currentMode, windows: store.activeWindows, action: "Added \(type.displayName)")
     }
     
     /// Dismiss a window with animation.
     @MainActor
     func dismissWindow(id: UUID, in store: WorkspaceStore) {
         self.store = store
+        let type = store.window(for: id)?.type
         withAnimation(.spatialDismiss) {
             store.removeWindow(id: id)
+        }
+        if let type {
+            timeline?.snapshot(mode: store.currentMode, windows: store.activeWindows, action: "Closed \(type.displayName)")
         }
     }
     
@@ -60,27 +71,13 @@ final class WindowManager {
         isTransitioning = true
         transitionProgress = 0
         
-        // Stage 1: Fly out current windows
-        withAnimation(.spatialDismiss) {
-            store.clearAllWindows()
-        }
+        // Delegate to WorkspaceManager for staggered animations and presets
+        await workspaceManager.switchPreset(to: mode, store: store)
         
-        // Wait for dismissal animation
-        try? await Task.sleep(for: .milliseconds(400))
-        transitionProgress = 0.3
-        
-        // Stage 2: Load new preset
-        store.loadPreset(mode: mode)
-        
-        // Stage 3: Windows appear with staggered animation
-        // The windows are added but initially need to animate in
-        transitionProgress = 0.6
-        
-        try? await Task.sleep(for: .milliseconds(600))
         transitionProgress = 1.0
-        
-        try? await Task.sleep(for: .milliseconds(200))
         isTransitioning = false
+        
+        timeline?.snapshot(mode: store.currentMode, windows: store.activeWindows, action: "Switched to \(mode.displayName)")
     }
     
     // MARK: - Demo Mode
@@ -127,5 +124,6 @@ final class WindowManager {
                 store.activeWindows[i].position = SIMD3(x, y, z)
             }
         }
+        timeline?.snapshot(mode: store.currentMode, windows: store.activeWindows, action: "Rearranged windows")
     }
 }

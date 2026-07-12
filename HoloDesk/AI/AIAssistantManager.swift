@@ -17,7 +17,7 @@ import Observation
 /// On visionOS 27+, routes through Apple Foundation Models for on-device intelligence.
 /// Powered entirely by Apple Intelligence — no third-party APIs.
 /// WWDC-compliant: all core features work without network.
-@Observable
+@MainActor @Observable
 final class AIAssistantManager {
     
     var isActive = false
@@ -47,6 +47,9 @@ final class AIAssistantManager {
     
     /// Whether to use Apple Intelligence (on-device Foundation Models) on visionOS 27+
     var useAppleIntelligence = true  // Default ON — privacy-first, no network needed
+    
+    /// Whether to attempt Gemini API (disabled for WWDC submission, secure proxy config)
+    var useGeminiAPI = false  // Default OFF for offline-first
     
     /// Reference to the Apple Intelligence service
     private let appleIntelligence = AppleIntelligenceService.shared
@@ -149,6 +152,25 @@ final class AIAssistantManager {
                 }
                 isThinking = false
                 return
+            }
+            
+            // Step 2.8: Optional Gemini API (cloud backup)
+            if useGeminiAPI {
+                do {
+                    let context = GeminiService.buildContext(from: store)
+                    let response = try await GeminiService.shared.chat(message: text, workspaceContext: context)
+                    let (cleanMessage, action) = parseActionTags(from: response)
+                    updateMoodForResponse(cleanMessage, hasAction: action != nil)
+                    await addAssistantMessageStreamed(cleanMessage)
+                    if let action = action {
+                        suggestedAction = action
+                        executeAction(action, store: store, windowManager: windowManager)
+                    }
+                    isThinking = false
+                    return
+                } catch {
+                    // Fall back gracefully to local offline fallback
+                }
             }
             
             // Step 3: Smart fallback for unmatched queries
@@ -310,7 +332,7 @@ final class AIAssistantManager {
         
         // Thank you
         if input.contains("thank") || input.contains("awesome") || input.contains("great") || input.contains("nice") {
-            return ["You're welcome! 🧊", "Happy to help! Need anything else?", "Anytime! Your workspace is looking great. ✨"].randomElement()!
+            return ["You're welcome! 🧊", "Happy to help! Need anything else?", "Anytime! Your workspace is looking great. ✨"].randomElement() ?? "You're welcome! 🧊"
         }
         
         // About
@@ -361,10 +383,16 @@ final class AIAssistantManager {
         if let regex = try? NSRegularExpression(pattern: pattern),
            let match = regex.firstMatch(in: response, range: NSRange(response.startIndex..., in: response)) {
             
-            let actionType = String(response[Range(match.range(at: 1), in: response)!])
-            let param = match.range(at: 2).location != NSNotFound
-                ? String(response[Range(match.range(at: 2), in: response)!])
-                : nil
+            var actionType = ""
+            if let typeRange = Range(match.range(at: 1), in: response) {
+                actionType = String(response[typeRange])
+            }
+            
+            var param: String? = nil
+            if match.range(at: 2).location != NSNotFound,
+               let paramRange = Range(match.range(at: 2), in: response) {
+                param = String(response[paramRange])
+            }
             
             cleanMessage = regex.stringByReplacingMatches(
                 in: response,
@@ -470,5 +498,8 @@ final class AIAssistantManager {
     func clearHistory() {
         messageHistory.removeAll()
         conversationCount = 0
+        Task {
+            await GeminiService.shared.resetConversation()
+        }
     }
 }

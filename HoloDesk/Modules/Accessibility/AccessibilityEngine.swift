@@ -8,7 +8,7 @@ import Observation
 // MARK: - Accessibility Engine (Complete)
 
 /// Full voice control, eye-only navigation, one-hand mode, tremor stabilization.
-@Observable
+@MainActor @Observable
 final class AccessibilityEngine {
     
     // MARK: - Voice Control

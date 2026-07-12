@@ -1,12 +1,6 @@
-// ─────────────────────────────────────────────────────────────────────────────
-//                         L I Q U I D   G L A S S   S Y S T E M
-// ─────────────────────────────────────────────────────────────────────────────
-//   HoloDesk Premium Design Language - visionOS 2.0+ (Apple visionOS 27)
-//
-//   Copyright (c) 2027 Radhesh Ranvijay. All Rights Reserved.
-//   Designed and engineered by Radhesh Ranvijay for Apple Swift Student Challenge.
-// ─────────────────────────────────────────────────────────────────────────────
-
+// Copyright (c) 2026 Notminelap Industries. All Rights Reserved.
+// Licensed under the HoloDesk Source-Available License.
+// See LICENSE file for details.
 
 import SwiftUI
 
@@ -21,76 +15,70 @@ extension View {
         opacity: Double = 0.85,
         shadowRadius: CGFloat = 10
     ) -> some View {
-        self
-            .background(
-                ZStack {
-                    Color.clear.background(.ultraThinMaterial)
-                    LiquidGlassFluidCore(cornerRadius: cornerRadius)
-                },
-                in: RoundedRectangle(cornerRadius: cornerRadius)
+        let bg = ZStack {
+            Color.clear.background(.ultraThinMaterial)
+            LiquidGlassFluidCore(cornerRadius: cornerRadius)
+        }
+        
+        let noise = RoundedRectangle(cornerRadius: cornerRadius)
+            .fill(.white.opacity(0.012))
+            .blendMode(.overlay)
+            
+        let caustics = LiquidGlassCaustics(cornerRadius: cornerRadius)
+        
+        let primaryBorder = RoundedRectangle(cornerRadius: cornerRadius)
+            .strokeBorder(
+                LinearGradient(
+                    colors: [
+                        .white.opacity(0.55),
+                        .white.opacity(0.12),
+                        .clear,
+                        .white.opacity(0.06)
+                    ],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                ),
+                lineWidth: 0.5
             )
-            // Subtle noise grain for realism
-            .overlay(
-                RoundedRectangle(cornerRadius: cornerRadius)
-                    .fill(.white.opacity(0.012))
-                    .blendMode(.overlay)
+            
+        let secondaryBorder = RoundedRectangle(cornerRadius: cornerRadius)
+            .strokeBorder(
+                LinearGradient(
+                    colors: [
+                        Color.holoSecondary.opacity(0.18),
+                        .clear,
+                        Color.holoTertiary.opacity(0.15)
+                    ],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                ),
+                lineWidth: 1.5
             )
-            // Sweeping Liquid Glass caustics and highlights
-            .overlay(
-                LiquidGlassCaustics(cornerRadius: cornerRadius)
+            
+        let edgeDarkening = RoundedRectangle(cornerRadius: cornerRadius)
+            .strokeBorder(
+                LinearGradient(
+                    colors: [.black.opacity(0.15), .clear, .black.opacity(0.1)],
+                    startPoint: .top,
+                    endPoint: .bottom
+                ),
+                lineWidth: 1.5
             )
-            // Primary High-Refraction Crisp Border
-            .overlay(
-                RoundedRectangle(cornerRadius: cornerRadius)
-                    .strokeBorder(
-                        LinearGradient(
-                            colors: [
-                                .white.opacity(0.55),
-                                .white.opacity(0.12),
-                                .clear,
-                                .white.opacity(0.06)
-                            ],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        ),
-                        lineWidth: 0.5
-                    )
-            )
-            // Secondary Ambient Glow Border
-            .overlay(
-                RoundedRectangle(cornerRadius: cornerRadius)
-                    .strokeBorder(
-                        LinearGradient(
-                            colors: [
-                                Color.holoSecondary.opacity(0.18),
-                                .clear,
-                                Color.holoTertiary.opacity(0.15)
-                            ],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        ),
-                        lineWidth: 1.5
-                    )
-            )
-            // visionOS 27: Enhanced edge darkening for depth
-            .overlay(
-                RoundedRectangle(cornerRadius: cornerRadius)
-                    .strokeBorder(
-                        LinearGradient(
-                            colors: [.black.opacity(0.15), .clear, .black.opacity(0.1)],
-                            startPoint: .top,
-                            endPoint: .bottom
-                        ),
-                        lineWidth: 1.5
-                    )
-            )
-            // Primary shadow
+            
+        let viewWithBackground = self.background(bg)
+        let clippedView = viewWithBackground.clipShape(RoundedRectangle(cornerRadius: cornerRadius))
+        let viewWithNoise = clippedView.overlay(noise)
+        let viewWithCaustics = viewWithNoise.overlay(caustics)
+        let viewWithPrimaryBorder = viewWithCaustics.overlay(primaryBorder)
+        let viewWithSecondaryBorder = viewWithPrimaryBorder.overlay(secondaryBorder)
+        let viewWithEdgeDarkening = viewWithSecondaryBorder.overlay(edgeDarkening)
+        
+        return viewWithEdgeDarkening
             .shadow(color: .black.opacity(0.24), radius: shadowRadius, x: 0, y: 5)
-            // Ambient occlusion holographic glow projection shadow
             .shadow(color: Color.holoPrimary.opacity(0.04), radius: shadowRadius * 1.5, x: 0, y: 0)
     }
     
-    /// Inner glass — lighter variant for nested elements.
+    /// Inner glass - lighter variant for nested elements.
     /// Uses thinMaterial with subtle 2-stop border.
     func innerGlass(cornerRadius: CGFloat = 12) -> some View {
         self
@@ -108,7 +96,7 @@ extension View {
             )
     }
     
-    /// Deep frosted glass — heavier blur for modal/sheet backgrounds.
+    /// Deep frosted glass - heavier blur for modal/sheet backgrounds.
     func deepGlass(cornerRadius: CGFloat = 24) -> some View {
         self
             .background(.thickMaterial, in: RoundedRectangle(cornerRadius: cornerRadius))
@@ -145,12 +133,12 @@ extension View {
             .shadow(color: color.opacity(0.1), radius: 8, y: 2)
     }
     
-    /// Subtle hover illumination system — adds glow + lift on hover.
+    /// Subtle hover illumination system - adds glow + lift on hover.
     func hoverGlow() -> some View {
         self.modifier(HoverGlowModifier())
     }
     
-    /// Window spawn animation — scales from 0 with spring.
+    /// Window spawn animation - scales from 0 with spring.
     func spawnAnimation(isPresented: Bool, delay: Double = 0) -> some View {
         self
             .scaleEffect(isPresented ? 1 : 0.3)
@@ -162,7 +150,7 @@ extension View {
             )
     }
     
-    /// Spatial depth effect — subtle parallax on hover.
+    /// Spatial depth effect - subtle parallax on hover.
     func spatialDepth() -> some View {
         self.modifier(SpatialDepthModifier())
     }
@@ -216,7 +204,7 @@ struct SpatialDepthModifier: ViewModifier {
     }
 }
 
-// MARK: - Spatial Appear Modifier
+// MARK: - Spatial Bezel Reflection Modifier
 
 struct SpatialAppearModifier: ViewModifier {
     @State private var appeared = false
@@ -343,7 +331,7 @@ struct LiquidGlassCaustics: View {
 // MARK: - visionOS 27 Active Window Dimming
 
 extension View {
-    /// Dims content when the window is inactive — visionOS 27 `appearsActive` integration.
+    /// Dims content when the window is inactive - visionOS 27 `appearsActive` integration.
     /// Falls back to full opacity on earlier visionOS versions.
     func activeWindowAware() -> some View {
         self.modifier(ActiveWindowModifier())

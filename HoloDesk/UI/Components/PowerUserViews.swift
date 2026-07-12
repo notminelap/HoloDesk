@@ -7,7 +7,7 @@ import SwiftUI
 // MARK: - Power User Panel
 
 struct PowerUserPanel: View {
-    @State private var tools = PowerUserTools()
+    @Environment(PowerUserTools.self) private var tools
     @Binding var isPresented: Bool
     @State private var activeTab = 0
     
@@ -24,7 +24,7 @@ struct PowerUserPanel: View {
             // Tabs
             HStack(spacing: 0) {
                 ForEach(["Layouts", "Keys", "Plugins", "API"], id: \.self) { tab in
-                    let idx = ["Layouts", "Keys", "Plugins", "API"].firstIndex(of: tab)!
+                    let idx = ["Layouts", "Keys", "Plugins", "API"].firstIndex(of: tab) ?? 0
                     Button { activeTab = idx } label: {
                         Text(tab).font(.system(size: 10, weight: activeTab == idx ? .bold : .regular))
                             .foregroundStyle(activeTab == idx ? .white : .white.opacity(0.3))
@@ -144,7 +144,7 @@ struct PowerUserPanel: View {
 // MARK: - Automation Panel
 
 struct AutomationPanel: View {
-    @State private var engine = AutomationEngine()
+    @Environment(AutomationEngine.self) private var engine
     @Binding var isPresented: Bool
     @State private var activeSection = 0
     

@@ -22,7 +22,7 @@ struct MinimapView: View {
                 HStack(spacing: 6) {
                     Image(systemName: "map")
                         .font(.system(size: 12))
-                        .foregroundStyle(.holoSecondary)
+                        .foregroundStyle(Color.holoSecondary)
                     if isExpanded {
                         Text("Minimap")
                             .font(.system(size: 11, weight: .semibold))

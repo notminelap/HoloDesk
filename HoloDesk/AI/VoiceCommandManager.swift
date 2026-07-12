@@ -8,7 +8,7 @@ import Observation
 
 // MARK: - Voice Command Manager
 
-@Observable
+@MainActor @Observable
 final class VoiceCommandManager {
     var isAuthorized = false
     var isListening = false

@@ -138,7 +138,7 @@ struct SettingsView: View {
         HStack {
             Image(systemName: icon)
                 .font(.system(size: 13))
-                .foregroundStyle(.holoSecondary)
+                .foregroundStyle(Color.holoSecondary)
                 .frame(width: 24)
             
             Text(label)
@@ -159,7 +159,7 @@ struct SettingsView: View {
             HStack {
                 Image(systemName: icon)
                     .font(.system(size: 13))
-                    .foregroundStyle(.holoSecondary)
+                    .foregroundStyle(Color.holoSecondary)
                     .frame(width: 24)
                 
                 Text(label)

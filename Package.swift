@@ -1,4 +1,4 @@
-// swift-tools-version: 6.0
+// swift-tools-version: 6.2
 // ──────────────────────────────────────────────────────────────
 // HoloDesk — Spatial Workspace Platform for Apple Vision Pro
 // Swift Student Challenge 2027 — visionOS 27 Submission
@@ -7,36 +7,50 @@
 
 import PackageDescription
 
+#if canImport(AppleProductTypes) && !os(macOS)
+import AppleProductTypes
+
+let productsList: [Product] = [
+    .iOSApplication(
+        name: "HoloDesk",
+        targets: ["HoloDesk"],
+        bundleIdentifier: "com.notminelap.holodesk",
+        teamIdentifier: "",
+        displayVersion: "3.0.0",
+        bundleVersion: "1",
+        appIcon: .placeholder(icon: .cube),
+        accentColor: .presetColor(.cyan),
+        supportedDeviceFamilies: [
+            .vision
+        ],
+        supportedInterfaceOrientations: [
+            .portrait,
+            .landscapeRight,
+            .landscapeLeft
+        ],
+        capabilities: [
+            .camera(purposeString: "Spatial scanning and 3D object capture"),
+            .microphone(purposeString: "Voice commands and audio recording")
+        ],
+        appCategory: .productivity
+    )
+]
+#else
+let productsList: [Product] = [
+    .executable(
+        name: "HoloDesk",
+        targets: ["HoloDesk"]
+    )
+]
+#endif
+
 let package = Package(
     name: "HoloDesk",
     platforms: [
-        .visionOS(.v3)
+        .visionOS(.v2),
+        .macOS(.v15)
     ],
-    products: [
-        .iOSApplication(
-            name: "HoloDesk",
-            targets: ["HoloDesk"],
-            bundleIdentifier: "com.notminelap.holodesk",
-            teamIdentifier: "",
-            displayVersion: "3.0.0",
-            bundleVersion: "1",
-            appIcon: .placeholder(icon: .cube),
-            accentColor: .presetColor(.cyan),
-            supportedDeviceFamilies: [
-                .vision
-            ],
-            supportedInterfaceOrientations: [
-                .portrait,
-                .landscapeRight,
-                .landscapeLeft
-            ],
-            capabilities: [
-                .camera(purposeString: "Spatial scanning and 3D object capture"),
-                .microphone(purposeString: "Voice commands and audio recording")
-            ],
-            appCategory: .productivity
-        )
-    ],
+    products: productsList,
     dependencies: [],
     targets: [
         .executableTarget(
@@ -51,7 +65,8 @@ let package = Package(
         ),
         .target(
             name: "RealityKitContent",
-            path: "HoloDesk/RealityKitContent"
+            path: "HoloDesk/RealityKitContent",
+            exclude: ["Package.swift"]
         ),
     ]
 )

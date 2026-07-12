@@ -30,7 +30,7 @@ struct AppLauncherView: View {
             HStack {
                 Image(systemName: "square.grid.3x3")
                     .font(.system(size: 16))
-                    .foregroundStyle(.holoPrimary)
+                    .foregroundStyle(Color.holoPrimary)
                 Text("App Launcher")
                     .font(.system(size: 16, weight: .bold, design: .rounded))
                     .foregroundStyle(.white)
@@ -61,7 +61,7 @@ struct AppLauncherView: View {
     private func appButton(_ app: (name: String, icon: String, color: Color, bundle: String)) -> some View {
         Button {
             // Open app via URL scheme
-            if let url = URL(string: "\(app.bundle)://") {
+            if URL(string: "\(app.bundle)://") != nil {
                 // In production: UIApplication.shared.open(url)
                 HapticManager.shared.mediumTap()
             }

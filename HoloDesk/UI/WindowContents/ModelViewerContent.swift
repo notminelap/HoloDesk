@@ -46,7 +46,7 @@ struct ModelViewerContent: View {
                     } label: {
                         Image(systemName: model.systemImage)
                             .font(.system(size: 14))
-                            .foregroundStyle(selectedModel == model ? .holoPrimary : .white.opacity(0.3))
+                            .foregroundStyle(selectedModel == model ? Color.holoPrimary : Color.white.opacity(0.3))
                             .frame(width: 28, height: 28)
                             .innerGlass(cornerRadius: 6)
                     }
@@ -158,7 +158,7 @@ struct ModelViewerContent: View {
             Triangle()
                 .fill(LinearGradient(colors: [.purple.opacity(0.5), .indigo.opacity(0.3)], startPoint: .top, endPoint: .bottom))
                 .frame(width: 100, height: 120)
-                .overlay(Triangle().strokeBorder(.white.opacity(0.2), lineWidth: 0.5))
+                .overlay(Triangle().stroke(Color.white.opacity(0.2), lineWidth: 0.5))
         case .torus:
             Circle()
                 .strokeBorder(LinearGradient(colors: [.cyan.opacity(0.6), .teal.opacity(0.3)], startPoint: .top, endPoint: .bottom), lineWidth: 20)
@@ -210,9 +210,11 @@ struct ModelViewerContent: View {
     private func autoRotate() {
         rotationTimer?.invalidate()
         rotationTimer = Timer.scheduledTimer(withTimeInterval: 0.05, repeats: true) { _ in
-            guard isRotating else { return }
-            withAnimation(.linear(duration: 0.05)) {
-                rotation += 0.5
+            Task { @MainActor in
+                guard isRotating else { return }
+                withAnimation(.linear(duration: 0.05)) {
+                    rotation += 0.5
+                }
             }
         }
     }

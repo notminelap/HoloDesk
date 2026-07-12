@@ -7,7 +7,7 @@ import Observation
 
 // MARK: - Spatial Anchor Manager
 
-@Observable
+@MainActor @Observable
 final class SpatialAnchorManager {
     var anchors: [UUID: WorldAnchor] = [:]
     var isAvailable = false

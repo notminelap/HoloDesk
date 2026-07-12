@@ -179,7 +179,9 @@ struct VoiceMemosContent: View {
         animateWaveform()
         recordingTimer?.invalidate()
         recordingTimer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { _ in
-            recordingDuration += 1
+            Task { @MainActor in
+                recordingDuration += 1
+            }
         }
     }
     
@@ -202,14 +204,16 @@ struct VoiceMemosContent: View {
     private func animateWaveform() {
         waveformTimer?.invalidate()
         waveformTimer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { _ in
-            guard isRecording else {
-                waveformTimer?.invalidate()
-                waveformTimer = nil
-                return
-            }
-            withAnimation(.easeInOut(duration: 0.1)) {
-                for i in 0..<40 {
-                    waveformValues[i] = CGFloat.random(in: 0.05...0.95)
+            Task { @MainActor in
+                guard isRecording else {
+                    waveformTimer?.invalidate()
+                    waveformTimer = nil
+                    return
+                }
+                withAnimation(.easeInOut(duration: 0.1)) {
+                    for i in 0..<40 {
+                        waveformValues[i] = CGFloat.random(in: 0.05...0.95)
+                    }
                 }
             }
         }

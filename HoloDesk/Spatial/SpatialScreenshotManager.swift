@@ -8,7 +8,7 @@ import Observation
 // MARK: - Spatial Screenshot Manager
 
 /// Captures and manages screenshots of your spatial workspace layout.
-@Observable
+@MainActor @Observable
 final class SpatialScreenshotManager {
     var screenshots: [SpatialScreenshot] = []
     

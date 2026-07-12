@@ -19,7 +19,8 @@ final class HapticManager: @unchecked Sendable {
     
     /// Light tap — for button presses and selections
     func lightTap() {
-        #if canImport(UIKit)
+        #if os(iOS)
+        // UIImpactFeedbackGenerator not available on visionOS
         let generator = UIImpactFeedbackGenerator(style: .light)
         generator.prepare()
         generator.impactOccurred()
@@ -28,7 +29,8 @@ final class HapticManager: @unchecked Sendable {
     
     /// Medium tap — for window spawn and mode switch
     func mediumTap() {
-        #if canImport(UIKit)
+        #if os(iOS)
+        // UIImpactFeedbackGenerator not available on visionOS
         let generator = UIImpactFeedbackGenerator(style: .medium)
         generator.prepare()
         generator.impactOccurred()
@@ -37,7 +39,8 @@ final class HapticManager: @unchecked Sendable {
     
     /// Heavy tap — for significant actions (save, reset)
     func heavyTap() {
-        #if canImport(UIKit)
+        #if os(iOS)
+        // UIImpactFeedbackGenerator not available on visionOS
         let generator = UIImpactFeedbackGenerator(style: .heavy)
         generator.prepare()
         generator.impactOccurred()
@@ -46,7 +49,8 @@ final class HapticManager: @unchecked Sendable {
     
     /// Success — workspace saved, mode loaded
     func success() {
-        #if canImport(UIKit)
+        #if os(iOS)
+        // UINotificationFeedbackGenerator not available on visionOS
         let generator = UINotificationFeedbackGenerator()
         generator.prepare()
         generator.notificationOccurred(.success)
@@ -55,7 +59,8 @@ final class HapticManager: @unchecked Sendable {
     
     /// Warning — about to delete or reset
     func warning() {
-        #if canImport(UIKit)
+        #if os(iOS)
+        // UINotificationFeedbackGenerator not available on visionOS
         let generator = UINotificationFeedbackGenerator()
         generator.prepare()
         generator.notificationOccurred(.warning)
@@ -64,7 +69,8 @@ final class HapticManager: @unchecked Sendable {
     
     /// Selection changed — for scrolling through modes/rooms
     func selectionChanged() {
-        #if canImport(UIKit)
+        #if os(iOS)
+        // UISelectionFeedbackGenerator not available on visionOS
         let generator = UISelectionFeedbackGenerator()
         generator.prepare()
         generator.selectionChanged()
@@ -88,3 +94,4 @@ final class HapticManager: @unchecked Sendable {
         }
     }
 }
+

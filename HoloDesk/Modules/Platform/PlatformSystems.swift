@@ -8,7 +8,7 @@ import Observation
 // MARK: - Wellness Manager
 
 /// Break reminders, posture awareness, breathing, eye rest, hydration.
-@Observable
+@MainActor @Observable
 final class WellnessManager {
     
     var isBreakDue = false
@@ -71,7 +71,7 @@ final class WellnessManager {
 // MARK: - Smart Home Hub
 
 /// Smart home control — lights, climate, cameras, scenes.
-@Observable
+@MainActor @Observable
 final class SmartHomeHub {
     
     var devices: [SmartDevice] = SmartDevice.defaults
@@ -157,7 +157,7 @@ extension SmartHomeHub.HomeScene {
 // MARK: - Achievement System
 
 /// Gamification — badges, milestones, streaks, daily goals.
-@Observable
+@MainActor @Observable
 final class AchievementSystem {
     
     var achievements: [Achievement] = Achievement.defaults
@@ -211,7 +211,7 @@ extension AchievementSystem.Achievement {
 // MARK: - Performance Guardian
 
 /// 120fps guarantee, thermal management, crash recovery.
-@Observable
+@MainActor @Observable
 final class PerformanceGuardian {
     
     var currentFPS: Int = 90

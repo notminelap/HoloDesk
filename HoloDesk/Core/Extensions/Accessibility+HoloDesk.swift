@@ -92,9 +92,11 @@ extension View {
     /// Apply reduced motion preference.
     func respectReducedMotion() -> some View {
         self.transaction { transaction in
+            #if canImport(UIKit)
             if UIAccessibility.isReduceMotionEnabled {
                 transaction.animation = nil
             }
+            #endif
         }
     }
 }

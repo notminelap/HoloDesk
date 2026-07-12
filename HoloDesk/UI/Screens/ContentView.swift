@@ -21,8 +21,10 @@ struct ContentView: View {
     @Environment(WindowConstellations.self) private var constellations
     @Environment(TimeAwareAtmosphere.self) private var atmosphere
     @Environment(\.openWindow) private var openWindow
+    #if os(visionOS)
     @Environment(\.openImmersiveSpace) private var openImmersiveSpace
     @Environment(\.dismissImmersiveSpace) private var dismissImmersiveSpace
+    #endif
     
     @State private var aiAssistant = AIAssistantManager()
     @State private var showWindowPicker = false
@@ -289,7 +291,7 @@ struct ContentView: View {
                 
                 Text("\(store.activeWindows.count)")
                     .font(.system(size: 10, weight: .bold, design: .monospaced))
-                    .foregroundStyle(.holoPrimary)
+                    .foregroundStyle(Color.holoPrimary)
             }
             .padding(.horizontal, 4)
             
@@ -435,6 +437,7 @@ struct ContentView: View {
     
     private func toggleImmersive() {
         Task {
+            #if os(visionOS)
             if store.isImmersiveSpaceOpen {
                 audio.playSFX(.windowClose)
                 audio.stopAmbientDrone()
@@ -454,6 +457,16 @@ struct ContentView: View {
                     store.isLidarScanning = false
                 }
             }
+            #else
+            store.isImmersiveSpaceOpen.toggle()
+            if store.isImmersiveSpaceOpen {
+                audio.playSFX(.cosmicSweep)
+                audio.startAmbientDrone()
+            } else {
+                audio.playSFX(.windowClose)
+                audio.stopAmbientDrone()
+            }
+            #endif
         }
     }
     

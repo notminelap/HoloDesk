@@ -9,7 +9,7 @@ import Observation
 // MARK: - SharePlay Manager
 
 /// SharePlay integration — share your spatial workspace with others.
-@Observable
+@MainActor @Observable
 final class SharePlayManager {
     var isSharing = false
     var participants: [Participant] = []

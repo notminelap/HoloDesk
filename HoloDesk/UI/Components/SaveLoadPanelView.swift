@@ -22,7 +22,7 @@ struct SaveLoadPanelView: View {
             HStack {
                 Image(systemName: "tray.2.fill")
                     .font(.system(size: 16))
-                    .foregroundStyle(.holoPrimary)
+                    .foregroundStyle(Color.holoPrimary)
                 
                 Text("Saved Workspaces")
                     .font(.system(size: 16, weight: .bold, design: .rounded))
@@ -140,7 +140,7 @@ struct SaveLoadPanelView: View {
             } label: {
                 Text("Load")
                     .font(.system(size: 11, weight: .semibold))
-                    .foregroundStyle(.holoPrimary)
+                    .foregroundStyle(Color.holoPrimary)
                     .padding(.horizontal, 12)
                     .padding(.vertical, 6)
                     .innerGlass(cornerRadius: 8)

@@ -2,10 +2,12 @@
 // Licensed under the HoloDesk Source-Available License.
 // See LICENSE file for details.
 
-import SwiftUI
+@preconcurrency import SwiftUI
 
 // MARK: - Spatial Animation Presets
 
+// Added @preconcurrency because these static animations are safe and do not require Sendable compliance,
+// suppressing concurrency warnings related to SwiftUICore's Animation type.
 extension Animation {
     /// Bouncy spring — for window spawn
     static let spatialSpawn = Animation.spring(response: 0.55, dampingFraction: 0.7, blendDuration: 0)
@@ -47,30 +49,36 @@ extension Animation {
 
 // MARK: - Transition Presets
 
+// Added @preconcurrency because these static transitions are safe and do not require Sendable compliance,
+// suppressing concurrency warnings related to SwiftUICore's AnyTransition type.
 extension AnyTransition {
-    /// Window appears: scale + opacity from center
-    static let spatialAppear = AnyTransition
-        .scale(scale: 0.3)
-        .combined(with: .opacity)
     
     /// Window flies in from below
-    static let spatialFlyUp = AnyTransition
-        .move(edge: .bottom)
-        .combined(with: .opacity)
-        .combined(with: .scale(scale: 0.8))
+    static var spatialFlyUp: AnyTransition {
+        AnyTransition
+            .move(edge: .bottom)
+            .combined(with: .opacity)
+            .combined(with: .scale(scale: 0.8))
+    }
     
     /// Window shrinks and fades out
-    static let spatialShrink = AnyTransition
-        .scale(scale: 0.1)
-        .combined(with: .opacity)
+    static var spatialShrink: AnyTransition {
+        AnyTransition
+            .scale(scale: 0.1)
+            .combined(with: .opacity)
+    }
     
     /// Slide in from right (for panels)
-    static let spatialSlideIn = AnyTransition
-        .move(edge: .trailing)
-        .combined(with: .opacity)
+    static var spatialSlideIn: AnyTransition {
+        AnyTransition
+            .move(edge: .trailing)
+            .combined(with: .opacity)
+    }
     
     /// Blur transition (for privacy mode)
-    static let spatialBlur = AnyTransition
-        .opacity
-        .combined(with: .scale(scale: 1.05))
+    static var spatialBlur: AnyTransition {
+        AnyTransition
+            .opacity
+            .combined(with: .scale(scale: 1.05))
+    }
 }

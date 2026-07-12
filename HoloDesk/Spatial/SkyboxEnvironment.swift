@@ -78,6 +78,7 @@ struct SkyboxEnvironment {
     }
     
     /// Generate RealityKit entities for the skybox environment.
+    @MainActor
     static func createEnvironment(for skybox: Skybox) -> Entity {
         let root = Entity()
         root.name = "Skybox_\(skybox.rawValue)"

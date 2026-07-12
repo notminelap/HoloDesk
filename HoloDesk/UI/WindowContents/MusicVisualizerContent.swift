@@ -66,12 +66,14 @@ struct MusicVisualizerContent: View {
             isAnimating = true
             animationTimer?.invalidate()
             animationTimer = Timer.scheduledTimer(withTimeInterval: 0.12, repeats: true) { _ in
-                guard isAnimating else { return }
-                withAnimation(.easeInOut(duration: 0.15)) {
-                    for i in 0..<32 {
-                        barHeights[i] = CGFloat.random(in: 0.05...0.95)
+                Task { @MainActor in
+                    guard isAnimating else { return }
+                    withAnimation(.easeInOut(duration: 0.15)) {
+                        for i in 0..<32 {
+                            barHeights[i] = CGFloat.random(in: 0.05...0.95)
+                        }
+                        hueOffset += 0.005
                     }
-                    hueOffset += 0.005
                 }
             }
         }
@@ -123,7 +125,7 @@ struct MusicVisualizerContent: View {
                 
                 context.stroke(path, with: .linearGradient(
                     Gradient(colors: [.cyan, .purple, .pink]),
-                    startPoint: .leading, endPoint: .trailing
+                    startPoint: CGPoint(x: 0, y: 0), endPoint: CGPoint(x: size.width, y: 0)
                 ), style: StrokeStyle(lineWidth: 2.5, lineCap: .round, lineJoin: .round))
                 
                 // Mirror

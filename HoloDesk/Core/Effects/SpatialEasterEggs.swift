@@ -9,7 +9,7 @@ import Observation
 
 /// Hidden delighters that reward curious judges and users.
 /// These create memorable "wait, did you see that?!" moments.
-@Observable
+@MainActor @Observable
 final class SpatialEasterEggs {
     
     // ────────────────────────────────────────
@@ -60,7 +60,7 @@ final class SpatialEasterEggs {
             let emojis = ["🎉", "✨", "🌟", "💎", "🧊", "🎊", "⭐", "💫", "🔮", "🪩"]
             return (0..<count).map { _ in
                 ConfettiParticle(
-                    emoji: emojis.randomElement()!,
+                    emoji: emojis.randomElement() ?? "✨",
                     x: CGFloat.random(in: -200...200),
                     y: CGFloat.random(in: -400 ... -50),
                     rotation: Double.random(in: 0...360),

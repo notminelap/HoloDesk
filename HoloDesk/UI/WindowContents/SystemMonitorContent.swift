@@ -9,7 +9,7 @@ import Observation
 
 /// Manages real-time background diagnostics for HoloDesk.
 /// Decouples UI rendering from thread polling using visionOS 2.0+ standard Observation.
-@Observable
+@MainActor @Observable
 final class PerformanceDiagnostics {
     var cpuUsage: Double = 0.34
     var memoryUsage: Double = 0.62
@@ -18,32 +18,51 @@ final class PerformanceDiagnostics {
     var cpuHistory: [Double] = (0..<30).map { _ in Double.random(in: 0.15...0.6) }
     
     private var isAnimating = false
-    private var usageTimer: Timer?
+    private var monitorTask: Task<Void, Never>?
     
     func startMonitoring() {
         guard !isAnimating else { return }
         isAnimating = true
-        usageTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] _ in
-            guard let self = self, self.isAnimating else { return }
-            withAnimation(.easeInOut(duration: 1.0)) {
-                self.cpuUsage = Double.random(in: 0.15...0.65)
-                self.memoryUsage = Double.random(in: 0.55...0.75)
-                self.cpuHistory.removeFirst()
-                self.cpuHistory.append(self.cpuUsage)
+        monitorTask = Task { [weak self] in
+            while !Task.isCancelled {
+                do {
+                    try await Task.sleep(nanoseconds: 1_000_000_000)
+                } catch {
+                    break
+                }
+                guard let self = self, self.isAnimating else { break }
+                withAnimation(.easeInOut(duration: 1.0)) {
+                    self.cpuUsage = Double.random(in: 0.15...0.65)
+                    self.memoryUsage = Double.random(in: 0.55...0.75)
+                    if !self.cpuHistory.isEmpty {
+                        self.cpuHistory.removeFirst()
+                    }
+                    self.cpuHistory.append(self.cpuUsage)
+                }
             }
         }
     }
     
     func stopMonitoring() {
         isAnimating = false
-        usageTimer?.invalidate()
-        usageTimer = nil
+        monitorTask?.cancel()
+        monitorTask = nil
     }
     
     deinit {
-        stopMonitoring()
+        // Task automatically stops when self is deallocated due to weak self reference.
     }
 }
+
+// MARK: - Safe Timer Wrapper for Non-isolated deinit
+fileprivate final class TimerBox: @unchecked Sendable {
+    var timer: Timer?
+    func invalidate() {
+        timer?.invalidate()
+        timer = nil
+    }
+}
+
 
 // MARK: - System Monitor Content
 

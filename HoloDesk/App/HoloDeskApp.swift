@@ -90,12 +90,14 @@ struct HoloDeskApp: App {
     @State private var accessibilityEngine = AccessibilityEngine()
     
     // ────────────────────────────────────────
+    // ────────────────────────────────────────
     // MARK: - Tracking & AI
     // ────────────────────────────────────────
     @State private var eyeTracking = EyeTrackingManager()
     @State private var screenTime = ScreenTimeTracker()
     @State private var aiIntelligence = AIWorkspaceIntelligence()
     @State private var automation = AutomationEngine()
+    @State private var timelineManager = WorkspaceTimelineManager()
     
     // ────────────────────────────────────────
     // MARK: - Collaboration & Ecosystem
@@ -146,7 +148,7 @@ struct HoloDeskApp: App {
     // MARK: - Scene Declarations
     // ═══════════════════════════════════════
     
-    var body: some Scene {
+    var body: some SwiftUI.Scene {
         
         // ── Main Control Window ──────────────
         WindowGroup("HoloDesk", id: "main") {
@@ -179,7 +181,15 @@ struct HoloDeskApp: App {
                 .environment(holoPet)
                 .environment(constellations)
                 .environment(atmosphere)
+                .environment(comfortSystem)
+                .environment(deskInteraction)
+                .environment(timelineManager)
+                .environment(workflowTemplates)
+                .environment(automation)
+                .environment(spotlightSearch)
+                .environment(powerTools)
                 .onAppear {
+                    windowManager.timeline = timelineManager
                     initializeApp()
                 }
         }
@@ -188,16 +198,16 @@ struct HoloDeskApp: App {
         
         // ── Individual Spatial Windows ───────
         WindowGroup("Spatial Window", id: "spatial-window", for: UUID.self) { $windowId in
-            if let id = windowId,
-               let window = store.window(for: id) {
-                SpatialWindowView(window: window)
-                    .environment(store)
-                    .environment(windowManager)
-                    .environment(voiceManager)
-                    .environment(roomManager)
-                    .environment(audio)
-                    .environment(accessibilityEngine)
-            }
+            SpatialWindowContainer(windowId: windowId)
+                .environment(store)
+                .environment(windowManager)
+                .environment(voiceManager)
+                .environment(roomManager)
+                .environment(audio)
+                .environment(accessibilityEngine)
+                .environment(comfortSystem)
+                .environment(deskInteraction)
+                .environment(timelineManager)
         }
         .windowStyle(.plain)
         .defaultSize(width: 450, height: 400)
@@ -217,6 +227,7 @@ struct HoloDeskApp: App {
         }
         .immersionStyle(selection: .constant(.mixed), in: .mixed, .progressive, .full)
         
+        #if os(visionOS)
         // ── Volumetric Window (3D Viewer) ────
         WindowGroup("3D Viewer", id: "volumetric") {
             ModelViewerContent()
@@ -224,6 +235,7 @@ struct HoloDeskApp: App {
         }
         .windowStyle(.volumetric)
         .defaultSize(width: 0.5, height: 0.5, depth: 0.5, in: .meters)
+        #endif
     }
     
     // ═══════════════════════════════════════

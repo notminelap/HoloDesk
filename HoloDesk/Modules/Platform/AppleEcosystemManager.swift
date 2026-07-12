@@ -8,7 +8,7 @@ import Observation
 // MARK: - Apple Ecosystem Integration Manager
 
 /// Mac Virtual Display, Universal Clipboard, AirDrop, Handoff, iCloud sync.
-@Observable
+@MainActor @Observable
 final class AppleEcosystemManager {
     
     // MARK: - Mac Virtual Display
@@ -137,7 +137,7 @@ final class AppleEcosystemManager {
 // MARK: - Spotlight Spatial Search
 
 /// Spotlight-style search across all windows, files, and workspaces.
-@Observable
+@MainActor @Observable
 final class SpotlightSpatialSearch {
     
     var isActive = false

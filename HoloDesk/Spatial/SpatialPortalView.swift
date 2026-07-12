@@ -134,7 +134,7 @@ struct PortalGalleryView: View {
             HStack {
                 Image(systemName: "door.left.hand.open")
                     .font(.system(size: 16))
-                    .foregroundStyle(.holoTertiary)
+                    .foregroundStyle(Color.holoTertiary)
                 Text("Workspace Portals")
                     .font(.system(size: 16, weight: .bold, design: .rounded))
                     .foregroundStyle(.white)

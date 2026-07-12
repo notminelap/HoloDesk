@@ -208,7 +208,7 @@ struct NotesContent: View {
     }
     
     private func addNote() {
-        let new = Note(title: "Untitled", body: "", color: [.orange, .blue, .purple, .green, .pink].randomElement()!, isPinned: false)
+        let new = Note(title: "Untitled", body: "", color: [.orange, .blue, .purple, .green, .pink].randomElement() ?? .orange, isPinned: false)
         notes.insert(new, at: 0)
         selectedNote = 0
         HapticManager.shared.lightTap()

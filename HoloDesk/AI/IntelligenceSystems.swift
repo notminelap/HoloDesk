@@ -8,7 +8,7 @@ import Observation
 // MARK: - AI Workspace Intelligence
 
 /// Context-aware layouts, time-of-day adaptation, predictive workspace prep.
-@Observable
+@MainActor @Observable
 final class AIWorkspaceIntelligence {
     
     var currentContext: WorkContext = .general
@@ -121,7 +121,7 @@ final class AIWorkspaceIntelligence {
 // MARK: - Collaboration Engine
 
 /// Shared desk sessions, multi-user editing, privacy bubbles.
-@Observable
+@MainActor @Observable
 final class CollaborationEngine {
     
     var isSessionActive = false
@@ -150,7 +150,7 @@ final class CollaborationEngine {
     }
     
     func inviteParticipant(name: String, avatar: String) {
-        let p = Participant(name: name, avatar: avatar, color: [Color.green, .orange, .purple, .pink].randomElement()!, isOnline: true, pointerPosition: nil, isInPrivacyBubble: false)
+        let p = Participant(name: name, avatar: avatar, color: [Color.green, .orange, .purple, .pink].randomElement() ?? .green, isOnline: true, pointerPosition: nil, isInPrivacyBubble: false)
         participants.append(p)
     }
     
@@ -183,7 +183,7 @@ final class CollaborationEngine {
 // MARK: - Automation Script Engine
 
 /// User-defined automation scripts and custom gesture creation.
-@Observable
+@MainActor @Observable
 final class AutomationEngine {
     
     var scripts: [AutoScript] = AutoScript.defaults

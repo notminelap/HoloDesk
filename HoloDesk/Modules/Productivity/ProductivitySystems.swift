@@ -8,7 +8,7 @@ import Observation
 // MARK: - Handwriting Recognition Engine
 
 /// Converts hand-drawn strokes to text using on-device ML.
-@Observable
+@MainActor @Observable
 final class HandwritingEngine {
     
     var recognizedText = ""
@@ -29,7 +29,7 @@ final class HandwritingEngine {
 // MARK: - Document Scanner
 
 /// Scan paper → digital document using camera.
-@Observable
+@MainActor @Observable
 final class DocumentScanner {
     
     var scannedDocuments: [ScannedDocument] = []
@@ -65,7 +65,7 @@ final class DocumentScanner {
 // MARK: - Object Scanner (3D)
 
 /// Scan physical object → 3D asset using LiDAR.
-@Observable
+@MainActor @Observable
 final class ObjectScanner {
     
     var scannedObjects: [Scanned3DObject] = []
@@ -83,16 +83,15 @@ final class ObjectScanner {
     func startScan(name: String) {
         isScanning = true
         scanProgress = 0
-        Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { [weak self] timer in
-            guard let self = self else { timer.invalidate(); return }
-            self.scanProgress += 0.02
-            if self.scanProgress >= 1.0 {
-                timer.invalidate()
-                let obj = Scanned3DObject(name: name, vertexCount: Int.random(in: 5000...50000), date: Date(), fileSize: "\(Int.random(in: 5...30)) MB")
-                self.scannedObjects.insert(obj, at: 0)
-                self.isScanning = false
-                HapticManager.shared.success()
+        Task {
+            while scanProgress < 1.0 {
+                try? await Task.sleep(for: .milliseconds(100))
+                scanProgress = min(1.0, scanProgress + 0.02)
             }
+            let obj = Scanned3DObject(name: name, vertexCount: Int.random(in: 5000...50000), date: Date(), fileSize: "\(Int.random(in: 5...30)) MB")
+            scannedObjects.insert(obj, at: 0)
+            isScanning = false
+            HapticManager.shared.success()
         }
     }
 }
@@ -100,7 +99,7 @@ final class ObjectScanner {
 // MARK: - Workspace Sharing
 
 /// Share workspaces as cards with links.
-@Observable
+@MainActor @Observable
 final class WorkspaceSharingManager {
     
     var sharedCards: [WorkspaceCard] = []
@@ -133,7 +132,7 @@ final class WorkspaceSharingManager {
 // MARK: - Favorite Layouts Manager
 
 /// Save and restore favorite window arrangements.
-@Observable
+@MainActor @Observable
 final class FavoriteLayoutsManager {
     
     var favorites: [FavoriteLayout] = []
@@ -169,7 +168,7 @@ final class FavoriteLayoutsManager {
 // MARK: - Sticky Notes Layer
 
 /// Infinite floating sticky notes that persist across sessions.
-@Observable
+@MainActor @Observable
 final class StickyNotesLayer {
     
     var notes: [StickyNote] = StickyNote.defaults
@@ -213,7 +212,7 @@ extension StickyNotesLayer.StickyNote {
 // MARK: - Quick Capture Inbox
 
 /// Quick capture tray for fast idea/link/note capture.
-@Observable
+@MainActor @Observable
 final class QuickCaptureInbox {
     
     var items: [CaptureItem] = []
@@ -251,7 +250,7 @@ final class QuickCaptureInbox {
 // MARK: - Version History Timeline
 
 /// Scrub through past versions of workspace arrangements.
-@Observable
+@MainActor @Observable
 final class VersionHistoryManager {
     
     var history: [VersionSnapshot] = []
@@ -290,7 +289,7 @@ final class VersionHistoryManager {
 // MARK: - Smart Tagging System
 
 /// Auto-tag windows and workspaces for organization.
-@Observable
+@MainActor @Observable
 final class SmartTaggingSystem {
     
     var tags: [Tag] = Tag.defaults

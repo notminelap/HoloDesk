@@ -37,6 +37,11 @@ struct DockView: View {
     @State private var showCreative = false
     @State private var showPowerUser = false
     @State private var showAutomation = false
+    @State private var showTemplates = false
+    
+    // Environment managers
+    @Environment(WorkspaceTimelineManager.self) private var timelineManager
+    @Environment(WorkflowTemplateManager.self) private var templateManager
     
     // Managers (created locally for now — in production, inject via environment)
     @State private var envManager = EnvironmentEffectsManager()
@@ -46,7 +51,6 @@ struct DockView: View {
     @State private var notificationManager = NotificationManager()
     @State private var screenshotManager = SpatialScreenshotManager()
     @State private var themeManager = ThemeManager()
-    @State private var timelineManager = WorkspaceTimelineManager()
     @State private var wellnessManager = WellnessManager()
     @State private var smartHomeHub = SmartHomeHub()
     @State private var achievementSystem = AchievementSystem()
@@ -113,6 +117,7 @@ struct DockView: View {
                 miniDockButton(icon: "clock.arrow.circlepath", label: "History") { showTimeline = true }
                 miniDockButton(icon: "person.2", label: "Share") { showSharePlay = true }
                 miniDockButton(icon: "square.grid.3x3", label: "Apps") { showApps = true }
+                miniDockButton(icon: "doc.text.grid.cols", label: "Templates") { showTemplates = true }
                 miniDockButton(icon: "hand.raised.fingers.spread", label: "Gestures") { showGestures = true }
                 miniDockButton(icon: "camera.viewfinder", label: "Capture") { showScreenshots = true }
                 miniDockButton(icon: "door.left.hand.open", label: "Portals") { showPortals = true }
@@ -159,6 +164,10 @@ struct DockView: View {
         }
         .sheet(isPresented: $showTimeline) {
             WorkspaceTimelineView(timeline: timelineManager, isPresented: $showTimeline)
+                .environment(store)
+        }
+        .sheet(isPresented: $showTemplates) {
+            WorkflowTemplatePickerView(manager: templateManager, isPresented: $showTemplates)
                 .environment(store)
         }
         .sheet(isPresented: $showProductivity) {

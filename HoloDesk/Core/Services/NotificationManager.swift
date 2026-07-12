@@ -8,7 +8,7 @@ import Observation
 // MARK: - Notification Center
 
 /// Spatial notification system — toasts and notification history.
-@Observable
+@MainActor @Observable
 final class NotificationManager {
     
     var notifications: [SpatialNotification] = []
@@ -113,7 +113,7 @@ struct NotificationCenterView: View {
             HStack {
                 Image(systemName: "bell.fill")
                     .font(.system(size: 16))
-                    .foregroundStyle(.holoWarning)
+                    .foregroundStyle(Color.holoWarning)
                 
                 Text("Notifications")
                     .font(.system(size: 16, weight: .bold, design: .rounded))
@@ -135,7 +135,7 @@ struct NotificationCenterView: View {
                 } label: {
                     Text("Read All")
                         .font(.system(size: 10, weight: .medium))
-                        .foregroundStyle(.holoPrimary)
+                        .foregroundStyle(Color.holoPrimary)
                 }
                 .buttonStyle(.plain)
                 

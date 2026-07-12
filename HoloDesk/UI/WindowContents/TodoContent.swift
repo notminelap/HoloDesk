@@ -243,7 +243,7 @@ struct TodoContent: View {
                                     Button {
                                         audio.playSFX(.bubblePop)
                                         withAnimation(.spring(response: 0.3)) {
-                                            items.remove(at: index)
+                                            _ = items.remove(at: index)
                                         }
                                     } label: {
                                         Image(systemName: "xmark")

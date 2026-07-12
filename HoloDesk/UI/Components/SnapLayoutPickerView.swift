@@ -165,7 +165,7 @@ struct SnapLayoutPickerView: View {
             HStack {
                 Image(systemName: "rectangle.3.group")
                     .font(.system(size: 16))
-                    .foregroundStyle(.holoPrimary)
+                    .foregroundStyle(Color.holoPrimary)
                 Text("Window Layout")
                     .font(.system(size: 16, weight: .bold, design: .rounded))
                     .foregroundStyle(.white)
@@ -214,7 +214,7 @@ struct SnapLayoutPickerView: View {
             VStack(spacing: 4) {
                 Image(systemName: layout.iconName)
                     .font(.system(size: 18))
-                    .foregroundStyle(isActive ? .holoPrimary : .white.opacity(0.5))
+                    .foregroundStyle(isActive ? Color.holoPrimary : .white.opacity(0.5))
                 Text(layout.displayName)
                     .font(.system(size: 9, weight: .medium))
                     .foregroundStyle(.white.opacity(isActive ? 1 : 0.5))

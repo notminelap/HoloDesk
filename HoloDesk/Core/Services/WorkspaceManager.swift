@@ -9,7 +9,7 @@ import Observation
 
 /// Orchestrates save/load/switch of workspace presets.
 /// Separate from WorkspaceStore to handle transition logic and preset bundling.
-@Observable
+@MainActor @Observable
 final class WorkspaceManager {
     
     private let presetFileNames: [WorkspaceMode: String] = [
@@ -45,7 +45,6 @@ final class WorkspaceManager {
     @MainActor
     func switchPreset(to mode: WorkspaceMode, store: WorkspaceStore) async {
         // 1. Animate out current windows
-        let previousMode = store.currentMode
         store.currentMode = mode
         
         // 2. Clear existing windows with stagger

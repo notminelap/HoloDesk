@@ -8,7 +8,7 @@ import Observation
 // MARK: - Gesture Shortcut Manager
 
 /// Maps custom hand gestures to workspace actions.
-@Observable
+@MainActor @Observable
 final class GestureShortcutManager {
     var shortcuts: [GestureShortcut] = GestureShortcut.defaults
     var isCustomizing = false

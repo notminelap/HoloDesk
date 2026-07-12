@@ -1,10 +1,5 @@
 {
   "images" : [
-    {
-      "idiom" : "reality",
-      "platform" : "xros",
-      "size" : "1024x1024"
-    }
   ],
   "info" : {
     "author" : "xcode",

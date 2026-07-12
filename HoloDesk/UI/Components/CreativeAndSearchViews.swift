@@ -23,7 +23,7 @@ struct CreativeStudioPanel: View {
             
             HStack(spacing: 0) {
                 ForEach(["Layers", "Assets", "Tracks", "Board"], id: \.self) { tab in
-                    let idx = ["Layers", "Assets", "Tracks", "Board"].firstIndex(of: tab)!
+                    let idx = ["Layers", "Assets", "Tracks", "Board"].firstIndex(of: tab) ?? 0
                     Button { activeTab = idx } label: {
                         Text(tab).font(.system(size: 10, weight: activeTab == idx ? .bold : .regular))
                             .foregroundStyle(activeTab == idx ? .white : .white.opacity(0.3))
@@ -147,7 +147,7 @@ struct CreativeStudioPanel: View {
 // MARK: - Spotlight Search View
 
 struct SpotlightSearchView: View {
-    @State private var search = SpotlightSpatialSearch()
+    @Environment(SpotlightSpatialSearch.self) private var search
     @Environment(WorkspaceStore.self) private var store
     @Binding var isPresented: Bool
     

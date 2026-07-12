@@ -9,7 +9,7 @@ import Observation
 
 /// Multi-room memory — different workspace setups per physical room.
 /// "Bedroom workspace, Study workspace, Living room cinema."
-@Observable
+@MainActor @Observable
 final class RoomManager {
     
     var rooms: [Room] = []
@@ -110,7 +110,7 @@ final class RoomManager {
     // MARK: - Persistence
     
     private var saveURL: URL {
-        let docs = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
+        let docs = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first ?? URL(fileURLWithPath: NSHomeDirectory())
         return docs.appendingPathComponent("holodesk_rooms.json")
     }
     

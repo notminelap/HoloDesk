@@ -11,7 +11,7 @@ import Observation
 /// Lives on the nearest LiDAR-detected surface. Evolves as you use HoloDesk.
 ///
 /// No 3D models — entirely rendered via SwiftUI + canvas for zero bundle impact.
-@Observable
+@MainActor @Observable
 final class HoloPet {
     
     // ────────────────────────────────────────
@@ -261,7 +261,7 @@ struct HoloPetView: View {
                 petBody
                 
                 // Eyes (stage 2+)
-                if pet.stage.rawValue >= EvolutionStage.creature.rawValue {
+                if pet.stage.rawValue >= HoloPet.EvolutionStage.creature.rawValue {
                     petEyes
                 }
                 

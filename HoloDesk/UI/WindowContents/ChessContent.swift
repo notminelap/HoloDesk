@@ -249,7 +249,12 @@ struct ChessContent: View {
     private func squareView(row: Int, col: Int) -> some View {
         let isLight = (row + col) % 2 == 0
         let isSelected = selectedSquare?.row == row && selectedSquare?.col == col
-        let isTargetHighlight = selectedSquare != nil && (selectedSquare?.row != row || selectedSquare?.col != col)
+        let isTargetHighlight: Bool = {
+            if let sel = selectedSquare, let piece = board[sel.row][sel.col] {
+                return isValidMove(from: (sel.row, sel.col), to: (row, col), piece: piece)
+            }
+            return false
+        }()
         
         return Button {
             handleTap(row: row, col: col)
@@ -316,6 +321,20 @@ struct ChessContent: View {
                 selectedSquare = nil
                 audio.playSFX(.softTick)
             } else if let movingPiece = board[sel.row][sel.col] {
+                // If user clicks another piece of their own color, switch selection
+                if let tappedPiece = board[row][col], tappedPiece.isWhite == movingPiece.isWhite {
+                    selectedSquare = (row, col)
+                    audio.playSFX(.softTick)
+                    return
+                }
+                
+                // Validate if move conforms to chess rules
+                guard isValidMove(from: (sel.row, sel.col), to: (row, col), piece: movingPiece) else {
+                    audio.playSFX(.error)
+                    selectedSquare = nil
+                    return
+                }
+                
                 let targetPiece = board[row][col]
                 
                 // Record captured piece
@@ -363,7 +382,8 @@ struct ChessContent: View {
             } else {
                 selectedSquare = nil
             }
-        } else if board[row][col] != nil {
+        } else if let piece = board[row][col], piece.isWhite == isWhiteTurn {
+            // Can only select pieces of the current player's turn
             selectedSquare = (row, col)
             audio.playSFX(.softTick)
         }
@@ -396,5 +416,82 @@ struct ChessContent: View {
         } else {
             return "\(pChar)\(endFile)\(endRank)"
         }
+    }
+    
+    // MARK: - Chess Move Validation Engine
+    
+    private func isValidMove(from: (row: Int, col: Int), to: (row: Int, col: Int), piece: ChessPiece) -> Bool {
+        // 1. Cannot move to the exact same square
+        if from.row == to.row && from.col == to.col { return false }
+        
+        // 2. Cannot capture own color
+        if let target = board[to.row][to.col], target.isWhite == piece.isWhite {
+            return false
+        }
+        
+        let dRow = to.row - from.row
+        let dCol = to.col - from.col
+        let absDRow = abs(dRow)
+        let absDCol = abs(dCol)
+        
+        switch piece.type {
+        case .pawn:
+            let direction = piece.isWhite ? -1 : 1
+            let startRow = piece.isWhite ? 6 : 1
+            
+            // Standard single step forward
+            if dCol == 0 && dRow == direction && board[to.row][to.col] == nil {
+                return true
+            }
+            // Double step forward from starting rank
+            if dCol == 0 && from.row == startRow && dRow == 2 * direction {
+                let intermediateRow = from.row + direction
+                if board[to.row][to.col] == nil && board[intermediateRow][from.col] == nil {
+                    return true
+                }
+            }
+            // Diagonal capture
+            if absDCol == 1 && dRow == direction {
+                if let target = board[to.row][to.col], target.isWhite != piece.isWhite {
+                    return true
+                }
+            }
+            return false
+            
+        case .knight:
+            return (absDRow == 2 && absDCol == 1) || (absDRow == 1 && absDCol == 2)
+            
+        case .bishop:
+            if absDRow != absDCol { return false }
+            return isPathClear(from: from, to: to)
+            
+        case .rook:
+            if dRow != 0 && dCol != 0 { return false }
+            return isPathClear(from: from, to: to)
+            
+        case .queen:
+            if absDRow != absDCol && dRow != 0 && dCol != 0 { return false }
+            return isPathClear(from: from, to: to)
+            
+        case .king:
+            return absDRow <= 1 && absDCol <= 1
+        }
+    }
+    
+    private func isPathClear(from: (row: Int, col: Int), to: (row: Int, col: Int)) -> Bool {
+        let stepRow = (to.row - from.row) == 0 ? 0 : ((to.row - from.row) > 0 ? 1 : -1)
+        let stepCol = (to.col - from.col) == 0 ? 0 : ((to.col - from.col) > 0 ? 1 : -1)
+        
+        var currRow = from.row + stepRow
+        var currCol = from.col + stepCol
+        
+        while currRow != to.row || currCol != to.col {
+            if board[currRow][currCol] != nil {
+                return false
+            }
+            currRow += stepRow
+            currCol += stepCol
+        }
+        return true
     }
 }

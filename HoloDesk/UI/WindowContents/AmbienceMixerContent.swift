@@ -145,8 +145,8 @@ struct AmbienceMixerContent: View {
                                     audio.playSFX(.softTick)
                                 } label: {
                                     Text(wave.rawValue)
-                                        .font(.system(size: 7, weight: waveType == wave ? .bold : .regular))
-                                        .foregroundStyle(waveType == wave ? .white : .white.opacity(0.4))
+                                        .font(.system(size: 7, weight: waveType == wave ? Font.Weight.bold : Font.Weight.regular))
+                                        .foregroundStyle(waveType == wave ? Color.white : Color.white.opacity(0.4))
                                         .padding(.horizontal, 6)
                                         .padding(.vertical, 3)
                                         .background(
@@ -172,7 +172,7 @@ struct AmbienceMixerContent: View {
                                     Spacer()
                                     Text(key.note)
                                         .font(.system(size: 7, weight: .bold))
-                                        .foregroundStyle(key.isBlack ? .white.opacity(0.4) : .black.opacity(0.6))
+                                        .foregroundStyle(key.isBlack ? Color.white.opacity(0.4) : Color.black.opacity(0.6))
                                         .padding(.bottom, 4)
                                 }
                                 .frame(height: 44)
@@ -254,119 +254,118 @@ struct AmbienceMixerContent: View {
                 }
                 .padding(.top, 4)
             } else {
-                // ── 3D Soundboard Panel ──
-                VStack(spacing: 10) {
-                    // Coordinate Map
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text("3D SPATIAL SOUNDBOARD (X-Z GRID)")
-                            .font(.system(size: 8, weight: .bold))
-                            .foregroundStyle(.white.opacity(0.4))
-                            .tracking(1.0)
-                        
-                        GeometryReader { geo in
-                            Canvas { context, size in
-                                let w = size.width
-                                let h = size.height
-                                
-                                // Draw grid lines
-                                for col in 0...4 {
-                                    let x = CGFloat(col) * w / 4
-                                    context.stroke(Path { p in
-                                        p.move(to: CGPoint(x: x, y: 0))
-                                        p.addLine(to: CGPoint(x: x, y: h))
-                                    }, with: .color(.white.opacity(0.05)), lineWidth: 0.5)
-                                }
-                                for row in 0...4 {
-                                    let y = CGFloat(row) * h / 4
-                                    context.stroke(Path { p in
-                                        p.move(to: CGPoint(x: 0, y: y))
-                                        p.addLine(to: CGPoint(x: w, y: y))
-                                    }, with: .color(.white.opacity(0.05)), lineWidth: 0.5)
-                                }
-                                
-                                // Draw center crosshairs
-                                context.stroke(Path { p in
-                                    p.move(to: CGPoint(x: w/2, y: 0))
-                                    p.addLine(to: CGPoint(x: w/2, y: h))
-                                    p.move(to: CGPoint(x: 0, y: h/2))
-                                    p.addLine(to: CGPoint(x: w, y: h/2))
-                                }, with: .color(.white.opacity(0.12)), lineWidth: 1.0)
-                                
-                                // Map X [-1.5, 1.5] and Z [-2.5, -0.5]
-                                let normX = (posX + 1.5) / 3.0
-                                let normZ = (posZ + 2.5) / 2.0
-                                
-                                let dotX = CGFloat(normX) * w
-                                let dotZ = CGFloat(normZ) * h
-                                
-                                // Outer glow
-                                context.fill(
-                                    Path(arcCenter: CGPoint(x: dotX, y: dotZ), radius: 10, startAngle: .zero, endAngle: .degrees(360), clockwise: true),
-                                    with: .radialGradient(
-                                        Gradient(colors: [Color.green.opacity(0.35), .clear]),
-                                        center: CGPoint(x: dotX, y: dotZ),
-                                        startRadius: 0,
-                                        endRadius: 10
-                                    )
-                                )
-                                
-                                // Inner dot
-                                context.fill(
-                                    Path(arcCenter: CGPoint(x: dotX, y: dotZ), radius: 4, startAngle: .zero, endAngle: .degrees(360), clockwise: true),
-                                    with: .color(.green)
-                                )
-                            }
-                            .background(Color.white.opacity(0.02))
-                            .cornerRadius(8)
-                            .gesture(
-                                DragGesture(minimumDistance: 0)
-                                    .onChanged { value in
-                                        let w = geo.size.width
-                                        let h = geo.size.height
-                                        
-                                        let tappedX = max(0, min(w, value.location.x))
-                                        let tappedZ = max(0, min(h, value.location.y))
-                                        
-                                        posX = Float((tappedX / w) * 3.0 - 1.5)
-                                        posZ = Float((tappedZ / h) * 2.0 - 2.5)
-                                        HapticManager.shared.lightTap()
-                                    }
-                            )
-                        }
-                        .frame(height: 100)
-                    }
-                    .padding(6)
-                    .background(.white.opacity(0.02), in: RoundedRectangle(cornerRadius: 10))
-                    .overlay(RoundedRectangle(cornerRadius: 10).stroke(Color.white.opacity(0.06), lineWidth: 1))
-                    
-                    // Precise Sliders
-                    VStack(spacing: 3) {
-                        coordinateSlider(label: "X (Left/Right)", value: $posX, range: -1.5...1.5, format: "%.1f m")
-                        coordinateSlider(label: "Y (Up/Down)", value: $posY, range: 0.5...2.0, format: "%.1f m")
-                        coordinateSlider(label: "Z (Far/Near)", value: $posZ, range: -2.5...-0.5, format: "%.1f m")
-                    }
-                    .padding(6)
-                    .background(.white.opacity(0.01), in: RoundedRectangle(cornerRadius: 8))
-                    
-                    // Buttons grid
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text("TRIGGER SPATIAL SOUND EFFECTS")
-                            .font(.system(size: 8, weight: .bold))
-                            .foregroundStyle(.white.opacity(0.4))
-                            .tracking(1.0)
-                        
-                        LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 4) {
-                            soundTriggerButton("Bubble Pop", effect: .bubblePop)
-                            soundTriggerButton("Sonar Ping", effect: .sonarPing)
-                            soundTriggerButton("Chime", effect: .chime)
-                            soundTriggerButton("Cosmic Sweep", effect: .cosmicSweep)
-                        }
-                    }
-                }
-                .padding(.top, 2)
+                spatialSoundboardPanel
             }
         }
         .padding(14)
+    }
+    
+    private var spatialSoundboardPanel: some View {
+        VStack(spacing: 10) {
+            VStack(alignment: .leading, spacing: 4) {
+                Text("3D SPATIAL SOUNDBOARD (X-Z GRID)")
+                    .font(.system(size: 8, weight: .bold))
+                    .foregroundStyle(.white.opacity(0.4))
+                    .tracking(1.0)
+                
+                GeometryReader { geo in
+                    soundboardCanvas
+                        .background(Color.white.opacity(0.02))
+                        .cornerRadius(8)
+                        .gesture(
+                            DragGesture(minimumDistance: 0)
+                                .onChanged { value in
+                                    updateSoundboardPosition(value.location, in: geo.size)
+                                }
+                        )
+                }
+                .frame(height: 100)
+            }
+            .padding(6)
+            .background(.white.opacity(0.02), in: RoundedRectangle(cornerRadius: 10))
+            .overlay(RoundedRectangle(cornerRadius: 10).stroke(Color.white.opacity(0.06), lineWidth: 1))
+            
+            VStack(spacing: 3) {
+                coordinateSlider(label: "X (Left/Right)", value: $posX, range: -1.5 ... 1.5, format: "%.1f m")
+                coordinateSlider(label: "Y (Up/Down)", value: $posY, range: 0.5 ... 2.0, format: "%.1f m")
+                coordinateSlider(label: "Z (Far/Near)", value: $posZ, range: -2.5 ... -0.5, format: "%.1f m")
+            }
+            .padding(6)
+            .background(.white.opacity(0.01), in: RoundedRectangle(cornerRadius: 8))
+            
+            VStack(alignment: .leading, spacing: 4) {
+                Text("TRIGGER SPATIAL SOUND EFFECTS")
+                    .font(.system(size: 8, weight: .bold))
+                    .foregroundStyle(.white.opacity(0.4))
+                    .tracking(1.0)
+                
+                LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 4) {
+                    soundTriggerButton("Bubble Pop", effect: .bubblePop)
+                    soundTriggerButton("Sonar Ping", effect: .sonarPing)
+                    soundTriggerButton("Chime", effect: .chime)
+                    soundTriggerButton("Cosmic Sweep", effect: .cosmicSweep)
+                }
+            }
+        }
+        .padding(.top, 2)
+    }
+    
+    private var soundboardCanvas: some View {
+        Canvas { context, size in
+            let w = size.width
+            let h = size.height
+            
+            for col in 0...4 {
+                let x = CGFloat(col) * w / 4
+                context.stroke(Path { path in
+                    path.move(to: CGPoint(x: x, y: 0))
+                    path.addLine(to: CGPoint(x: x, y: h))
+                }, with: .color(.white.opacity(0.05)), lineWidth: 0.5)
+            }
+            
+            for row in 0...4 {
+                let y = CGFloat(row) * h / 4
+                context.stroke(Path { path in
+                    path.move(to: CGPoint(x: 0, y: y))
+                    path.addLine(to: CGPoint(x: w, y: y))
+                }, with: .color(.white.opacity(0.05)), lineWidth: 0.5)
+            }
+            
+            context.stroke(Path { path in
+                path.move(to: CGPoint(x: w / 2, y: 0))
+                path.addLine(to: CGPoint(x: w / 2, y: h))
+                path.move(to: CGPoint(x: 0, y: h / 2))
+                path.addLine(to: CGPoint(x: w, y: h / 2))
+            }, with: .color(.white.opacity(0.12)), lineWidth: 1.0)
+            
+            let dotX = CGFloat((posX + 1.5) / 3.0) * w
+            let dotZ = CGFloat((posZ + 2.5) / 2.0) * h
+            let dotCenter = CGPoint(x: dotX, y: dotZ)
+            
+            context.fill(
+                Path(ellipseIn: CGRect(x: dotX - 10, y: dotZ - 10, width: 20, height: 20)),
+                with: .radialGradient(
+                    Gradient(colors: [Color.green.opacity(0.35), .clear]),
+                    center: dotCenter,
+                    startRadius: 0,
+                    endRadius: 10
+                )
+            )
+            
+            context.fill(
+                Path(ellipseIn: CGRect(x: dotX - 4, y: dotZ - 4, width: 8, height: 8)),
+                with: .color(.green)
+            )
+        }
+    }
+    
+    private func updateSoundboardPosition(_ location: CGPoint, in size: CGSize) {
+        let tappedX = max(0, min(size.width, location.x))
+        let tappedZ = max(0, min(size.height, location.y))
+        
+        posX = Float((tappedX / size.width) * 3.0 - 1.5)
+        posZ = Float((tappedZ / size.height) * 2.0 - 2.5)
+        HapticManager.shared.lightTap()
     }
     
     private func channelRow(_ channel: AmbienceChannel, index: Int) -> some View {
@@ -472,101 +471,102 @@ struct GenerativeSoundscapeOrb: View {
     var isPlaying: Bool
     
     var body: some View {
-        TimelineView(.periodic(from: .now, by: 1.0/30.0)) { timeline in
-            let time = timeline.date.timeIntervalSinceReferenceDate
+        TimelineView(.periodic(from: Date.now, by: 1.0 / 30.0)) { timeline in
+            orbCanvas(time: timeline.date.timeIntervalSinceReferenceDate)
+                .blendMode(.screen)
+        }
+    }
+    
+    private func orbCanvas(time: TimeInterval) -> some View {
+        Canvas { context, size in
+            let center = CGPoint(x: size.width / 2, y: size.height / 2)
+            let baseRadius = min(size.width, size.height) * 0.36
+            let activeChannels = channels.filter { $0.isActive && $0.volume > 0 }
             
-            Canvas { context, size in
-                let center = CGPoint(x: size.width / 2, y: size.height / 2)
-                let baseRadius = min(size.width, size.height) * 0.36
-                
-                // If not playing, draw a calm, breathing circular core
-                if !isPlaying {
-                    let breathe = baseRadius + sin(time * 2.0) * 1.5
-                    context.stroke(
-                        Path(arcCenter: center, radius: breathe, startAngle: .zero, endAngle: .degrees(360), clockwise: true),
-                        with: .color(.white.opacity(0.15)),
-                        lineWidth: 1.5
-                    )
-                    context.fill(
-                        Path(arcCenter: center, radius: breathe - 1, startAngle: .zero, endAngle: .degrees(360), clockwise: true),
-                        with: .radialGradient(
-                            Gradient(colors: [.white.opacity(0.08), .clear]),
-                            center: center, startRadius: 0, endRadius: breathe
-                        )
-                    )
-                    return
-                }
-                
-                // Get active channels with non-zero volumes
-                let activeChannels = channels.filter { $0.isActive && $0.volume > 0 }
-                
-                if activeChannels.isEmpty {
-                    // Peaceful idle circle
-                    let breathe = baseRadius + sin(time * 1.5) * 1.0
-                    context.stroke(
-                        Path(arcCenter: center, radius: breathe, startAngle: .zero, endAngle: .degrees(360), clockwise: true),
-                        with: .color(.white.opacity(0.2)),
-                        lineWidth: 1.0
-                    )
-                    return
-                }
-                
-                // Overlay multiple dynamic deformed wave rings (one per active channel layer, up to 4)
-                for (layerIdx, channel) in activeChannels.prefix(4).enumerated() {
-                    let volume = channel.volume
-                    let color = channel.color
-                    
-                    var path = Path()
-                    let pointCount = 90
-                    let angleStep = 360.0 / Double(pointCount)
-                    
-                    // Specific frequencies and offsets for each channel type
-                    let waveFreq: Double
-                    switch channel.name {
-                    case "Rain": waveFreq = 4.0
-                    case "Fire": waveFreq = 9.0 // high flicker frequency
-                    case "Birds": waveFreq = 6.0
-                    case "Waves": waveFreq = 2.5 // slow swelling waves
-                    case "Wind": waveFreq = 3.0
-                    default: waveFreq = Double(layerIdx + 3)
-                    }
-                    
-                    let phaseSpeed = 3.0 + Double(layerIdx) * 1.2
-                    
-                    for i in 0...pointCount {
-                        let angle = Double(i) * angleStep
-                        let rad = angle * .pi / 180.0
-                        
-                        // Deform radius sinusoidally based on time, angle and volume
-                        let s1 = sin(angle * waveFreq * .pi / 180.0 + time * phaseSpeed)
-                        let s2 = cos(angle * waveFreq * 2.1 * .pi / 180.0 - time * phaseSpeed * 1.4) * 0.3
-                        let displacement = (s1 + s2) * 5.0 * CGFloat(volume)
-                        
-                        let currentRadius = baseRadius + displacement
-                        let x = center.x + CGFloat(cos(rad)) * currentRadius
-                        let y = center.y + CGFloat(sin(rad)) * currentRadius
-                        
-                        if i == 0 {
-                            path.move(to: CGPoint(x: x, y: y))
-                        } else {
-                            path.addLine(to: CGPoint(x: x, y: y))
-                        }
-                    }
-                    path.closeSubpath()
-                    
-                    // Draw blending screen outlines and soft transparent fills
-                    context.stroke(
-                        path,
-                        with: .color(color.opacity(0.55)),
-                        style: StrokeStyle(lineWidth: 1.5)
-                    )
-                    context.fill(
-                        path,
-                        with: .color(color.opacity(0.04))
-                    )
-                }
+            if !isPlaying {
+                drawIdleOrb(in: &context, center: center, radius: baseRadius + sin(time * 2.0) * 1.5, filled: true)
+                return
             }
-            .blendMode(.screen)
+            
+            if activeChannels.isEmpty {
+                drawIdleOrb(in: &context, center: center, radius: baseRadius + sin(time * 1.5) * 1.0, filled: false)
+                return
+            }
+            
+            for (layerIndex, channel) in activeChannels.prefix(4).enumerated() {
+                let path = wavePath(
+                    center: center,
+                    baseRadius: baseRadius,
+                    time: time,
+                    layerIndex: layerIndex,
+                    channel: channel
+                )
+                context.stroke(path, with: .color(channel.color.opacity(0.55)), style: StrokeStyle(lineWidth: 1.5))
+                context.fill(path, with: .color(channel.color.opacity(0.04)))
+            }
+        }
+    }
+    
+    private func drawIdleOrb(in context: inout GraphicsContext, center: CGPoint, radius: CGFloat, filled: Bool) {
+        let rect = CGRect(x: center.x - radius, y: center.y - radius, width: radius * 2, height: radius * 2)
+        context.stroke(Path(ellipseIn: rect), with: .color(.white.opacity(filled ? 0.15 : 0.2)), lineWidth: filled ? 1.5 : 1.0)
+        
+        guard filled else { return }
+        context.fill(
+            Path(ellipseIn: rect.insetBy(dx: 1, dy: 1)),
+            with: .radialGradient(
+                Gradient(colors: [.white.opacity(0.08), .clear]),
+                center: center,
+                startRadius: 0,
+                endRadius: radius
+            )
+        )
+    }
+    
+    private func wavePath(
+        center: CGPoint,
+        baseRadius: CGFloat,
+        time: TimeInterval,
+        layerIndex: Int,
+        channel: AmbienceMixerContent.AmbienceChannel
+    ) -> Path {
+        var path = Path()
+        let pointCount = 90
+        let angleStep = 360.0 / Double(pointCount)
+        let waveFrequency = frequency(for: channel.name, layerIndex: layerIndex)
+        let phaseSpeed = 3.0 + Double(layerIndex) * 1.2
+        
+        for i in 0...pointCount {
+            let angle = Double(i) * angleStep
+            let radians = angle * Double.pi / 180.0
+            let s1 = sin(angle * waveFrequency * Double.pi / 180.0 + time * phaseSpeed)
+            let s2 = cos(angle * waveFrequency * 2.1 * Double.pi / 180.0 - time * phaseSpeed * 1.4) * 0.3
+            let displacement = CGFloat((s1 + s2) * 5.0 * channel.volume)
+            let currentRadius = baseRadius + displacement
+            let point = CGPoint(
+                x: center.x + CGFloat(cos(radians)) * currentRadius,
+                y: center.y + CGFloat(sin(radians)) * currentRadius
+            )
+            
+            if i == 0 {
+                path.move(to: point)
+            } else {
+                path.addLine(to: point)
+            }
+        }
+        
+        path.closeSubpath()
+        return path
+    }
+    
+    private func frequency(for channelName: String, layerIndex: Int) -> Double {
+        switch channelName {
+        case "Rain": return 4.0
+        case "Fire": return 9.0
+        case "Birds": return 6.0
+        case "Waves": return 2.5
+        case "Wind": return 3.0
+        default: return Double(layerIndex + 3)
         }
     }
 }

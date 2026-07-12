@@ -22,7 +22,17 @@ struct AIBuddyView: View {
     @State private var orbPhase: Double = 0
     @State private var isBouncing = false
     @State private var particlePhase: Double = 0
-    @State private var moodColor: Color = .holoPrimary
+    
+    private var moodColor: Color {
+        switch mood {
+        case .idle:      return .holoPrimary
+        case .listening: return .green
+        case .thinking:  return .purple
+        case .happy:     return .yellow
+        case .excited:   return .pink
+        }
+    }
+    
     @State private var showChat = false
     @State private var userInput = ""
     
@@ -411,19 +421,6 @@ struct AIBuddyView: View {
         // Particle orbit
         withAnimation(.linear(duration: 8).repeatForever(autoreverses: false)) {
             particlePhase = .pi * 2
-        }
-        
-        // Mood color update
-        updateMoodColor()
-    }
-    
-    private func updateMoodColor() {
-        switch mood {
-        case .idle:      moodColor = .holoPrimary
-        case .listening: moodColor = .green
-        case .thinking:  moodColor = .purple
-        case .happy:     moodColor = .yellow
-        case .excited:   moodColor = .pink
         }
     }
 }

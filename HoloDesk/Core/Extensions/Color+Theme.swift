@@ -134,3 +134,14 @@ extension LinearGradient {
         )
     }
 }
+
+// MARK: - Custom ShapeStyle Extensions
+
+extension ShapeStyle where Self == Color {
+    static var holoPrimary: Color { Color.holoPrimary }
+    static var holoSecondary: Color { Color.holoSecondary }
+    static var holoTertiary: Color { Color.holoTertiary }
+    static var holoSuccess: Color { Color.holoSuccess }
+    static var holoWarning: Color { Color.holoWarning }
+}
+

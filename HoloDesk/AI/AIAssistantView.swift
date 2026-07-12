@@ -96,7 +96,7 @@ struct AIAssistantView: View {
                     } label: {
                         Image(systemName: "arrow.up.circle.fill")
                             .font(.system(size: 24))
-                            .foregroundStyle(.holoPrimary)
+                            .foregroundStyle(Color.holoPrimary)
                     }
                     .buttonStyle(.plain)
                 }

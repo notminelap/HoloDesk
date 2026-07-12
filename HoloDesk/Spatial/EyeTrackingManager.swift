@@ -10,7 +10,7 @@ import Observation
 
 /// Tracks where the user is looking and highlights the closest spatial window.
 /// Uses ARKit's eye tracking to create a natural "focus follows gaze" experience.
-@Observable
+@MainActor @Observable
 final class EyeTrackingManager {
     
     var gazeTarget: UUID?          // Currently gazed window

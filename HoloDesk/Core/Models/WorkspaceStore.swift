@@ -8,7 +8,7 @@ import Observation
 // MARK: - Workspace Store
 
 /// Central observable store managing all workspace state: active windows, saved presets, and current mode.
-@Observable
+@MainActor @Observable
 final class WorkspaceStore {
     
     // MARK: - Active State
@@ -146,7 +146,7 @@ final class WorkspaceStore {
     // MARK: - Persistence
     
     private var saveURL: URL {
-        let documents = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
+        let documents = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first ?? URL(fileURLWithPath: NSHomeDirectory())
         return documents.appendingPathComponent("holodesk_workspaces.json")
     }
     

@@ -430,12 +430,14 @@ struct MeditationContent: View {
         // Schedule next phase
         breathTimer?.invalidate()
         breathTimer = Timer.scheduledTimer(withTimeInterval: breathPhase.duration, repeats: false) { _ in
-            guard isActive else { return }
-            if breathPhase == .rest {
-                completedBreaths += 1
+            Task { @MainActor in
+                guard isActive else { return }
+                if breathPhase == .rest {
+                    completedBreaths += 1
+                }
+                breathPhase = breathPhase.next
+                animateBreath()
             }
-            breathPhase = breathPhase.next
-            animateBreath()
         }
     }
     
@@ -455,15 +457,18 @@ struct MeditationContent: View {
     
     private func startTimer() {
         sessionTimer?.invalidate()
-        sessionTimer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { timer in
-            guard isActive else {
-                timer.invalidate()
-                return
-            }
-            if remainingSeconds > 0 {
-                remainingSeconds -= 1
-            } else {
-                completeSession()
+        sessionTimer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { _ in
+            Task { @MainActor in
+                guard isActive else {
+                    sessionTimer?.invalidate()
+                    return
+                }
+                if remainingSeconds > 0 {
+                    remainingSeconds -= 1
+                } else {
+                    sessionTimer?.invalidate()
+                    completeSession()
+                }
             }
         }
     }

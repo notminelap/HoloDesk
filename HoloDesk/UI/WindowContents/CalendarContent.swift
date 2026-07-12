@@ -108,7 +108,7 @@ struct CalendarContent: View {
             } label: {
                 Text("Today")
                     .font(.system(size: 10, weight: .medium))
-                    .foregroundStyle(.holoPrimary)
+                    .foregroundStyle(Color.holoPrimary)
             }
             .buttonStyle(.plain)
         }
@@ -127,12 +127,12 @@ struct CalendarContent: View {
             VStack(spacing: 1) {
                 Text("\(date)")
                     .font(.system(size: 11, weight: isToday ? .bold : .regular))
-                    .foregroundStyle(isToday ? .white : isSelected ? .holoPrimary : .white.opacity(0.7))
+                    .foregroundStyle(isToday ? Color.white : isSelected ? Color.holoPrimary : Color.white.opacity(0.7))
                 
                 // Event dot
                 if hasEvents {
                     Circle()
-                        .fill(events[date]!.first!.color)
+                        .fill(events[date]?.first?.color ?? .blue)
                         .frame(width: 3, height: 3)
                 } else {
                     Color.clear.frame(width: 3, height: 3)
@@ -170,7 +170,7 @@ struct CalendarContent: View {
                         .font(.system(size: 9, weight: .bold))
                         .foregroundStyle(.white)
                         .frame(width: 16, height: 16)
-                        .background(.holoPrimary.opacity(0.4), in: Circle())
+                        .background(Color.holoPrimary.opacity(0.4), in: Circle())
                 }
             }
             .padding(.horizontal, 10)

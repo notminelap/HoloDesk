@@ -11,7 +11,7 @@ import Observation
 
 /// Real-time desk surface detection with adaptive edge glow,
 /// automatic re-scanning, and depth-aware UI occlusion.
-@Observable
+@MainActor @Observable
 final class DeskDetectionEngine {
     
     var detectedSurfaces: [DetectedSurface] = []
@@ -21,8 +21,10 @@ final class DeskDetectionEngine {
     var edgeGlowIntensity: Float = 0.4
     var environmentColorTemp: Float = 6500 // Kelvin
     
+    #if os(visionOS)
     private var session: ARKitSession?
     private var planeProvider: PlaneDetectionProvider?
+    #endif
     
     struct DetectedSurface: Identifiable {
         let id = UUID()
@@ -47,7 +49,7 @@ final class DeskDetectionEngine {
     func startScanning() {
         isScanning = true
         
-        #if !targetEnvironment(simulator)
+        #if os(visionOS) && !targetEnvironment(simulator)
         if PlaneDetectionProvider.isSupported {
             Task {
                 await startRealARKitScanning()
@@ -61,6 +63,7 @@ final class DeskDetectionEngine {
     
     @MainActor
     private func startRealARKitScanning() async {
+        #if os(visionOS)
         let session = ARKitSession()
         let planeProvider = PlaneDetectionProvider(alignments: [.horizontal])
         self.session = session
@@ -121,6 +124,9 @@ final class DeskDetectionEngine {
             HoloDeskLogger.spatial.error("ARKit plane session failed: \(error.localizedDescription)")
             startSimulatedScan()
         }
+        #else
+        startSimulatedScan()
+        #endif
     }
     
     @MainActor
@@ -145,6 +151,7 @@ final class DeskDetectionEngine {
     }
     
     /// Re-scan when environment changes
+    @MainActor
     func rescan() {
         startScanning()
     }
@@ -171,7 +178,7 @@ final class DeskDetectionEngine {
 // MARK: - Comfort Animation System
 
 /// Comfort-first animation timing — adapts to user fatigue and preferences.
-@Observable
+@MainActor @Observable
 final class ComfortAnimationSystem {
     
     var motionIntensity: Float = 1.0   // 0 = no motion, 1 = full
@@ -205,7 +212,7 @@ final class ComfortAnimationSystem {
 // MARK: - Posture Adaptive Engine
 
 /// Adjusts UI distance and layout based on user posture (seated vs standing).
-@Observable
+@MainActor @Observable
 final class PostureEngine {
     
     enum Posture: String {
@@ -271,7 +278,7 @@ final class PostureEngine {
 // MARK: - Privacy Shield System
 
 /// Full on-device privacy architecture with instant conceal and proximity blur.
-@Observable
+@MainActor @Observable
 final class PrivacyShieldSystem {
     
     var isPrivacyModeActive = false

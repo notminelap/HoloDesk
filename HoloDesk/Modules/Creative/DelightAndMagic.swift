@@ -8,7 +8,7 @@ import Observation
 // MARK: - Desk Plant System
 
 /// Growing virtual desk plants that evolve with your productivity.
-@Observable
+@MainActor @Observable
 final class DeskPlantSystem {
     
     var plants: [DeskPlant] = DeskPlant.defaults
@@ -114,7 +114,7 @@ struct DailyQuoteEngine {
 // MARK: - Spatial Magic Features
 
 /// Digital twin, workspace memory replay, infinite desk, teleport.
-@Observable
+@MainActor @Observable
 final class SpatialMagicEngine {
     
     var isInfiniteDesk = false
@@ -176,7 +176,7 @@ extension SpatialMagicEngine.PortalDestination {
 // MARK: - Delight System
 
 /// Celebration animations, milestone memories, daily greeting.
-@Observable
+@MainActor @Observable
 final class DelightSystem {
     
     var showCelebration = false

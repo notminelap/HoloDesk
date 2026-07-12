@@ -9,7 +9,7 @@ import Observation
 
 /// Pomodoro focus timer built into your spatial workspace.
 /// Visual countdown that integrates with workspace modes.
-@Observable
+@MainActor @Observable
 final class FocusTimerManager {
     
     var isRunning = false
@@ -19,11 +19,10 @@ final class FocusTimerManager {
     var completedPomodoros: Int = 0
     var totalFocusMinutesToday: Int = 0
     
-    private var timer: Timer?
+    private nonisolated let timerBox = TimerBox()
     
     deinit {
-        timer?.invalidate()
-        timer = nil
+        timerBox.invalidate()
     }
     
     enum FocusPhase: String {
@@ -78,7 +77,7 @@ final class FocusTimerManager {
     @MainActor
     func pause() {
         isPaused = true
-        timer?.invalidate()
+        timerBox.invalidate()
         HapticManager.shared.lightTap()
     }
     
@@ -93,21 +92,21 @@ final class FocusTimerManager {
     func stop() {
         isRunning = false
         isPaused = false
-        timer?.invalidate()
+        timerBox.invalidate()
         remainingSeconds = currentPhase.duration
         HapticManager.shared.lightTap()
     }
     
     @MainActor
     func skip() {
-        timer?.invalidate()
+        timerBox.invalidate()
         advancePhase()
         HapticManager.shared.mediumTap()
     }
     
     @MainActor
     private func startTimer() {
-        timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { [weak self] _ in
+        timerBox.timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { [weak self] _ in
             Task { @MainActor in
                 guard let self, !self.isPaused else { return }
                 if self.remainingSeconds > 0 {
@@ -127,7 +126,7 @@ final class FocusTimerManager {
     
     @MainActor
     private func advancePhase() {
-        timer?.invalidate()
+        timerBox.invalidate()
         HapticManager.shared.success()
         
         switch currentPhase {
@@ -265,5 +264,14 @@ struct FocusTimerView: View {
             .innerGlass(cornerRadius: 10)
         }
         .buttonStyle(.plain)
+    }
+}
+
+// MARK: - Safe Timer Wrapper for Non-isolated deinit
+fileprivate final class TimerBox: @unchecked Sendable {
+    var timer: Timer?
+    func invalidate() {
+        timer?.invalidate()
+        timer = nil
     }
 }

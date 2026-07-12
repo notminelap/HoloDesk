@@ -89,6 +89,7 @@ struct SpatialFile: Identifiable, Codable {
 // MARK: - Entity Builder
 
 /// Creates RealityKit entities for each spatial file type.
+@MainActor
 struct SpatialFileEntityBuilder {
     
     static func buildEntity(for file: SpatialFile) -> Entity {

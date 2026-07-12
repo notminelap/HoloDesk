@@ -8,7 +8,7 @@ import Observation
 // MARK: - Workspace Timeline Manager
 
 /// Tracks workspace history — undo/redo and session timeline.
-@Observable
+@MainActor @Observable
 final class WorkspaceTimelineManager {
     var history: [WorkspaceSnapshot] = []
     var currentIndex: Int = -1
@@ -32,12 +32,25 @@ final class WorkspaceTimelineManager {
             history = Array(history.prefix(currentIndex + 1))
         }
         
+        // Deep copy the windows to prevent state mutation in snapshots
+        let clonedWindows = windows.map { window in
+            SpatialWindow(
+                id: window.id,
+                type: window.type,
+                position: window.position,
+                rotation: window.rotation,
+                size: window.size,
+                isVisible: window.isVisible,
+                zIndex: window.zIndex
+            )
+        }
+        
         let snap = WorkspaceSnapshot(
             timestamp: Date(),
             mode: mode,
             windowCount: windows.count,
             action: action,
-            windows: windows
+            windows: clonedWindows
         )
         history.append(snap)
         
@@ -75,7 +88,7 @@ struct WorkspaceTimelineView: View {
             HStack {
                 Image(systemName: "clock.arrow.circlepath")
                     .font(.system(size: 16))
-                    .foregroundStyle(.holoSecondary)
+                    .foregroundStyle(Color.holoSecondary)
                 Text("Timeline")
                     .font(.system(size: 16, weight: .bold, design: .rounded))
                     .foregroundStyle(.white)
@@ -86,7 +99,17 @@ struct WorkspaceTimelineView: View {
                 HStack(spacing: 6) {
                     Button {
                         if let snap = timeline.undo() {
-                            store.activeWindows = snap.windows
+                            store.activeWindows = snap.windows.map { window in
+                                SpatialWindow(
+                                    id: window.id,
+                                    type: window.type,
+                                    position: window.position,
+                                    rotation: window.rotation,
+                                    size: window.size,
+                                    isVisible: window.isVisible,
+                                    zIndex: window.zIndex
+                                )
+                            }
                             store.currentMode = snap.mode
                         }
                     } label: {
@@ -99,7 +122,17 @@ struct WorkspaceTimelineView: View {
                     
                     Button {
                         if let snap = timeline.redo() {
-                            store.activeWindows = snap.windows
+                            store.activeWindows = snap.windows.map { window in
+                                SpatialWindow(
+                                    id: window.id,
+                                    type: window.type,
+                                    position: window.position,
+                                    rotation: window.rotation,
+                                    size: window.size,
+                                    isVisible: window.isVisible,
+                                    zIndex: window.zIndex
+                                )
+                            }
                             store.currentMode = snap.mode
                         }
                     } label: {
@@ -187,13 +220,23 @@ struct WorkspaceTimelineView: View {
             if !isCurrent {
                 Button {
                     timeline.currentIndex = index
-                    store.activeWindows = snap.windows
+                    store.activeWindows = snap.windows.map { window in
+                        SpatialWindow(
+                            id: window.id,
+                            type: window.type,
+                            position: window.position,
+                            rotation: window.rotation,
+                            size: window.size,
+                            isVisible: window.isVisible,
+                            zIndex: window.zIndex
+                        )
+                    }
                     store.currentMode = snap.mode
                     HapticManager.shared.mediumTap()
                 } label: {
                     Image(systemName: "arrow.counterclockwise")
                         .font(.system(size: 10))
-                        .foregroundStyle(.holoPrimary)
+                        .foregroundStyle(Color.holoPrimary)
                 }
                 .buttonStyle(.plain)
             }

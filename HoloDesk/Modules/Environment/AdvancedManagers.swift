@@ -8,7 +8,7 @@ import Observation
 // MARK: - Window Group Manager
 
 /// Allows users to group windows into tabs or collections.
-@Observable
+@MainActor @Observable
 final class WindowGroupManager {
     
     var groups: [WindowGroup] = []
@@ -49,7 +49,7 @@ final class WindowGroupManager {
 // MARK: - Focus Lock Manager
 
 /// Locks workspace to prevent accidental changes during focus sessions.
-@Observable
+@MainActor @Observable
 final class FocusLockManager {
     var isLocked = false
     var lockReason: String?
@@ -77,7 +77,7 @@ final class FocusLockManager {
 // MARK: - Handoff Manager
 
 /// Manages Apple Handoff — continue workspace on Mac/iPad.
-@Observable
+@MainActor @Observable
 final class HandoffManager {
     var isHandoffAvailable = true
     var connectedDevices: [ConnectedDevice] = [
@@ -113,7 +113,7 @@ final class HandoffManager {
 // MARK: - Quick Actions Manager
 
 /// Spotlight-style quick action search — Cmd+K for any workspace action.
-@Observable
+@MainActor @Observable
 final class QuickActionsManager {
     
     var isPresented = false

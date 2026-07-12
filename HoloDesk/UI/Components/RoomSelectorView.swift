@@ -20,7 +20,7 @@ struct RoomSelectorView: View {
             HStack {
                 Image(systemName: "building.2")
                     .font(.system(size: 14))
-                    .foregroundStyle(.holoSecondary)
+                    .foregroundStyle(Color.holoSecondary)
                 
                 Text("Rooms")
                     .font(.system(size: 14, weight: .bold))
@@ -33,7 +33,7 @@ struct RoomSelectorView: View {
                 } label: {
                     Image(systemName: "plus.circle.fill")
                         .font(.system(size: 16))
-                        .foregroundStyle(.holoPrimary)
+                        .foregroundStyle(Color.holoPrimary)
                 }
                 .buttonStyle(.plain)
             }

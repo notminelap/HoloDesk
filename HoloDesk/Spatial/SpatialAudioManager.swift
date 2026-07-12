@@ -33,7 +33,7 @@ public enum SoundEffect: Sendable {
 
 /// Manages positional audio for spatial windows and environment effects.
 /// Replaces traditional static audio assets with real-time mathematical sound synthesis.
-@Observable
+@MainActor @Observable
 final class SpatialAudioManager {
     
     /// Shared singleton for views that can't use @Environment injection
@@ -93,7 +93,8 @@ final class SpatialAudioManager {
         let player = AVAudioPlayerNode()
         player.position = AVAudio3DPoint(x: position.x, y: position.y, z: position.z)
         player.reverbBlend = 0.3
-        player.renderingAlgorithm = .HRTFHQ
+        // Fixed: Replace hrtfHQ with .auto as .hrtfHQ may not be available on all platforms
+        player.renderingAlgorithm = .auto
         
         engine.attach(player)
         engine.connect(player, to: environment, format: nil)
@@ -120,7 +121,8 @@ final class SpatialAudioManager {
         }
         
         let player = AVAudioPlayerNode()
-        player.renderingAlgorithm = .HRTFHQ
+        // Fixed: Replace .hrtfHQ with .auto for compatibility
+        player.renderingAlgorithm = .auto
         player.reverbBlend = 0.25
         player.position = AVAudio3DPoint(x: position.x, y: position.y, z: position.z)
         
@@ -187,8 +189,14 @@ final class SpatialAudioManager {
                 let osc3 = sin(phase3)
                 
                 // Combined warm chord: F2 minor-seventh/sus4 hybrid (F-C-F)
-                let mix = (osc1 * 0.5 + osc2 * 0.35 + osc3 * 0.15 * lfoVal) * 0.10 * self.masterVolume
+                let part1 = osc1 * 0.5
+                let part2 = osc2 * 0.35
+                let part3 = osc3 * 0.15 * lfoVal
+                // Fixed: Cast self.masterVolume (Float) to Double for multiplication with Doubles
+                let mixSum = part1 + part2 + part3
+                let mix = mixSum * 0.10 * Double(self.masterVolume) // Cast for type consistency
                 
+                // Fixed: cast Double to Float for data assignment
                 data?[frame] = Float(mix)
             }
             
@@ -204,7 +212,8 @@ final class SpatialAudioManager {
         // Position drone above the workspace
         sourceNode.position = AVAudio3DPoint(x: 0, y: 2.5, z: -1.0)
         sourceNode.reverbBlend = 0.85 // High reverb blend for atmospheric space
-        sourceNode.renderingAlgorithm = .HRTFHQ
+        // Fixed: replace .hrtfHQ with .auto for compatibility
+        sourceNode.renderingAlgorithm = .auto
         
         self.ambientSourceNode = sourceNode
         isAmbientPlaying = true
@@ -216,7 +225,7 @@ final class SpatialAudioManager {
     func stopAmbientDrone() {
         guard isDroneActive, let engine = audioEngine, let node = ambientSourceNode else { return }
         isDroneActive = false
-        node.stop()
+        // Fixed: AVAudioSourceNode has no stop method, so remove node.stop() call
         engine.detach(node)
         self.ambientSourceNode = nil
         isAmbientPlaying = false
@@ -274,7 +283,8 @@ final class SpatialAudioManager {
         }
         
         let player = AVAudioPlayerNode()
-        player.renderingAlgorithm = .HRTFHQ
+        // Fixed: replace .hrtfHQ with .auto for compatibility
+        player.renderingAlgorithm = .auto
         player.reverbBlend = 0.25
         player.position = AVAudio3DPoint(x: position.x, y: position.y, z: position.z)
         

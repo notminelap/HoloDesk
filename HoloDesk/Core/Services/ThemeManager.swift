@@ -8,7 +8,7 @@ import Observation
 // MARK: - Theme Manager
 
 /// Multiple visual themes for HoloDesk.
-@Observable
+@MainActor @Observable
 final class ThemeManager {
     
     var activeTheme: HoloDeskTheme = .midnight

@@ -8,7 +8,7 @@ import Observation
 // MARK: - Screen Time Tracker
 
 /// Tracks how long each window is open, most used times, and generates reports.
-@Observable
+@MainActor @Observable
 final class ScreenTimeTracker {
     var windowUsage: [WindowType: TimeInterval] = [:]
     var dailyTotal: TimeInterval = 0

@@ -363,18 +363,20 @@ struct GuidedDemoView: View {
         let duration = Double(steps[currentStep].duration)
         let tickInterval = 0.1
         
-        autoTimer = Timer.scheduledTimer(withTimeInterval: tickInterval, repeats: true) { timer in
-            stepProgress += tickInterval / duration
-            
-            if stepProgress >= 1.0 {
-                timer.invalidate()
-                if currentStep < steps.count - 1 {
-                    withAnimation { currentStep += 1 }
-                    executeStep()
-                    resetAutoPlayTimer()
-                } else {
-                    // Tour complete
-                    stepProgress = 1.0
+        autoTimer = Timer.scheduledTimer(withTimeInterval: tickInterval, repeats: true) { _ in
+            Task { @MainActor in
+                stepProgress += tickInterval / duration
+                
+                if stepProgress >= 1.0 {
+                    autoTimer?.invalidate()
+                    if currentStep < steps.count - 1 {
+                        withAnimation { currentStep += 1 }
+                        executeStep()
+                        resetAutoPlayTimer()
+                    } else {
+                        // Tour complete
+                        stepProgress = 1.0
+                    }
                 }
             }
         }

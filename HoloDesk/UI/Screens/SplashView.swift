@@ -33,7 +33,8 @@ struct SplashView: View {
     @State private var linesTyped: [String] = []
     @State private var currentLineText: String = ""
     @State private var cursorBlink = false
-    @State private var activeTimer: Timer? = nil
+    @State private var bootTask: Task<Void, Never>? = nil
+    @State private var isBootCancelled = false
     
     private var loadProgress: Double {
         Double(linesTyped.count) / Double(max(bootLines.count, 1))
@@ -212,7 +213,7 @@ struct SplashView: View {
             }
         }
         .onAppear { startAnimation() }
-        .onDisappear { activeTimer?.invalidate() }
+        .onDisappear { isBootCancelled = true; bootTask?.cancel() }
         .onTapGesture { skipBoot() }
     }
     
@@ -238,7 +239,7 @@ struct SplashView: View {
                 ])
                 context.fill(
                     Path(CGRect(origin: .zero, size: size)),
-                    with: .shading(.radialGradient(cyanGradient, center: cyanCenter, startRadius: 0, endRadius: cyanRadius))
+                    with: .radialGradient(cyanGradient, center: cyanCenter, startRadius: 0, endRadius: cyanRadius)
                 )
                 
                 // 2. Draw secondary Purple/Magenta cosmic dust cloud
@@ -255,7 +256,7 @@ struct SplashView: View {
                 ])
                 context.fill(
                     Path(CGRect(origin: .zero, size: size)),
-                    with: .shading(.radialGradient(purpleGradient, center: purpleCenter, startRadius: 0, endRadius: purpleRadius))
+                    with: .radialGradient(purpleGradient, center: purpleCenter, startRadius: 0, endRadius: purpleRadius)
                 )
                 
                 // 3. Draw 80 dynamically twinkling and organically drifting stars
@@ -291,7 +292,7 @@ struct SplashView: View {
                         let glowGradient = Gradient(colors: [Color.white.opacity(twinkle * 0.25), .clear])
                         context.fill(
                             Path(ellipseIn: glowRect),
-                            with: .shading(.radialGradient(glowGradient, center: CGPoint(x: boundedX, y: boundedY), startRadius: 0, endRadius: sizeSeed * 2.0))
+                            with: .radialGradient(glowGradient, center: CGPoint(x: boundedX, y: boundedY), startRadius: 0, endRadius: sizeSeed * 2.0)
                         )
                     }
                     
@@ -356,6 +357,7 @@ struct SplashView: View {
     }
     
     private func typeNextLine(index: Int) {
+        guard !isBootCancelled else { return }
         guard index < bootLines.count else {
             // All lines typed!
             withAnimation(.easeOut(duration: 0.3)) {
@@ -378,30 +380,31 @@ struct SplashView: View {
         let fullText = "[\(line.status)] \(line.text)"
         currentLineText = ""
         
-        var charIndex = 0
-        activeTimer = Timer.scheduledTimer(withTimeInterval: 0.006, repeats: true) { timer in
-            guard charIndex < fullText.count else {
-                timer.invalidate()
-                linesTyped.append(fullText)
-                currentLineText = ""
-                typeNextLine(index: index + 1)
-                return
+        bootTask?.cancel()
+        bootTask = Task { @MainActor in
+            for charCount in 1...fullText.count {
+                if Task.isCancelled { return }
+                try? await Task.sleep(for: .microseconds(6000))
+                if Task.isCancelled { return }
+                
+                let indexStart = fullText.startIndex
+                let indexEnd = fullText.index(indexStart, offsetBy: charCount)
+                currentLineText = String(fullText[indexStart..<indexEnd])
+                
+                if charCount % 4 == 0 {
+                    HapticManager.shared.lightTap()
+                }
             }
-            
-            let indexStart = fullText.startIndex
-            let indexEnd = fullText.index(indexStart, offsetBy: charIndex + 1)
-            currentLineText = String(fullText[indexStart..<indexEnd])
-            charIndex += 1
-            
-            if charIndex % 4 == 0 {
-                HapticManager.shared.lightTap()
-            }
+            if Task.isCancelled { return }
+            linesTyped.append(fullText)
+            currentLineText = ""
+            typeNextLine(index: index + 1)
         }
     }
     
     private func skipBoot() {
         guard !bootComplete else { return }
-        activeTimer?.invalidate()
+        bootTask?.cancel()
         linesTyped = bootLines.map { "[\($0.status)] \($0.text)" }
         currentLineText = ""
         bootLineIndex = bootLines.count
@@ -481,3 +484,4 @@ struct SplashView: View {
         )
     }
 }
+

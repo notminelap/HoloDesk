@@ -1,0 +1,32 @@
+name: Build
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  visionos-simulator:
+    name: visionOS Simulator build
+    runs-on: macos-26
+    timeout-minutes: 60
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Show Xcode version
+        run: xcodebuild -version
+
+      - name: Install visionOS simulator platform
+        run: sudo xcodebuild -downloadPlatform visionOS -quiet
+
+      - name: Build (visionOS Simulator)
+        run: |
+          set -o pipefail
+          xcodebuild build \
+            -scheme HoloDesk \
+            -destination 'generic/platform=visionOS Simulator' \
+            -derivedDataPath .build/ci \
+            CODE_SIGNING_ALLOWED=NO
