@@ -58,6 +58,7 @@ final class SpatialAudioManager {
     
     init() {
         setupAudioEngine()
+        observeAudioNotifications()
     }
     
     // MARK: - Setup
@@ -81,6 +82,53 @@ final class SpatialAudioManager {
         self.audioEngine = engine
         self.environmentNode = environment
     }
+
+    // MARK: - Engine Resilience
+
+    /// Core Audio stops the engine on route/configuration changes (headphones
+    /// connect, AirPods switch) and interruptions, leaving it ready-but-stopped.
+    /// Without observing these, every sound in the app silently dies.
+    private func observeAudioNotifications() {
+        NotificationCenter.default.addObserver(
+            forName: .AVAudioEngineConfigurationChange,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            Task { @MainActor [weak self] in
+                self?.recoverEngineIfNeeded()
+            }
+        }
+
+        #if os(visionOS) || os(iOS)
+        NotificationCenter.default.addObserver(
+            forName: AVAudioSession.interruptionNotification,
+            object: nil,
+            queue: .main
+        ) { [weak self] note in
+            // Extract Sendable values before hopping to the main actor.
+            let typeValue = note.userInfo?[AVAudioSessionInterruptionTypeKey] as? UInt ?? 0
+            let optionsValue = note.userInfo?[AVAudioSessionInterruptionOptionKey] as? UInt ?? 0
+            Task { @MainActor [weak self] in
+                self?.handleInterruption(typeValue: typeValue, optionsValue: optionsValue)
+            }
+        }
+        #endif
+    }
+
+    private func recoverEngineIfNeeded() {
+        guard let engine = audioEngine, !engine.isRunning, !isMuted else { return }
+        startEngine()
+    }
+
+    #if os(visionOS) || os(iOS)
+    private func handleInterruption(typeValue: UInt, optionsValue: UInt) {
+        guard AVAudioSession.InterruptionType(rawValue: typeValue) == .ended else { return }
+        let options = AVAudioSession.InterruptionOptions(rawValue: optionsValue)
+        if options.contains(.shouldResume) {
+            recoverEngineIfNeeded()
+        }
+    }
+    #endif
     
     // MARK: - Window Audio Position
     

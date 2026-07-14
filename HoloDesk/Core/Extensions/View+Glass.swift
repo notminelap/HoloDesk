@@ -172,11 +172,28 @@ extension AnyTransition {
     }
 }
 
+// MARK: - Gaze Hover Support
+
+extension View {
+    /// Gaze-visible hover feedback. `onHover` only fires for pointer input;
+    /// on visionOS the system renders eye-gaze hover outside the app process
+    /// for privacy, so views must opt in with `hoverEffect` to give any
+    /// feedback when the user looks at them.
+    @ViewBuilder
+    func gazeHoverEffect() -> some View {
+        #if os(visionOS)
+        self.hoverEffect(.lift)
+        #else
+        self
+        #endif
+    }
+}
+
 // MARK: - Hover Glow Modifier
 
 struct HoverGlowModifier: ViewModifier {
     @State private var isHovered = false
-    
+
     func body(content: Content) -> some View {
         content
             .overlay(
@@ -187,6 +204,7 @@ struct HoverGlowModifier: ViewModifier {
             .shadow(color: .white.opacity(isHovered ? 0.05 : 0), radius: 12)
             .animation(.spring(response: 0.25, dampingFraction: 0.8), value: isHovered)
             .onHover { isHovered = $0 }
+            .gazeHoverEffect()
     }
 }
 
@@ -201,6 +219,7 @@ struct SpatialDepthModifier: ViewModifier {
             .scaleEffect(isHovered ? 1.008 : 1.0)
             .animation(.spring(response: 0.3, dampingFraction: 0.8), value: isHovered)
             .onHover { isHovered = $0 }
+            .gazeHoverEffect()
     }
 }
 
