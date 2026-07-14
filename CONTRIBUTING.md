@@ -44,7 +44,7 @@ HoloDesk is published under a **Source-Available License**. While the code is pu
 
 ## 🔍 Before Submitting
 
-- [ ] Code compiles without warnings on visionOS 2.0 target
+- [ ] Code compiles without warnings on visionOS 27 target (CI verifies every push)
 - [ ] No third-party imports added
 - [ ] Existing tests still pass
 - [ ] Copyright headers preserved

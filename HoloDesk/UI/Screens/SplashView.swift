@@ -51,8 +51,8 @@ struct SplashView: View {
         ("OK",  "Hand Tracking (22 joints) ...... active"),
         ("OK",  "HoloPet Companion .............. awakening"),
         ("OK",  "32 Spatial Applications ........ loaded"),
-        ("OK",  "104 Swift Source Files ......... verified"),
-        ("OK",  "24,673 Lines of Code .......... clean"),
+        ("OK",  "111 Swift Source Files ......... verified"),
+        ("OK",  "27,500+ Lines of Code ......... clean"),
     ]
     
     enum SplashPhase {

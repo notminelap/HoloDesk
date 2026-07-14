@@ -389,7 +389,7 @@ HoloDesk/
 ## 💻 Getting Started
 
 > [!IMPORTANT]
-> **Host Requirement:** Your Mac must be running **macOS Tahoe 26.4+** with **Xcode 16+** and the **visionOS 2.0 Simulator** runtime.
+> **Host Requirement:** Your Mac must be running **macOS Tahoe 26.4+** with **Xcode 26+** and the **visionOS 27 Simulator** runtime. (Every commit is compile-verified in CI on Xcode 26.5 with the visionOS 26.5 SDK.)
 
 ```bash
 # Clone the repository
@@ -408,8 +408,8 @@ open Package.swift
 
 | Requirement | Specification |
 |------------|---------------|
-| **Host OS** | macOS 27+ |
-| **IDE** | Xcode 27+ |
+| **Host OS** | macOS Tahoe 26.4+ |
+| **IDE** | Xcode 26+ (Xcode 27 beta recommended) |
 | **Target SDK** | visionOS 3.0 (visionOS 27) |
 | **Playgrounds** | Swift Playgrounds 5.0+ |
 | **Hardware** | Apple Vision Pro (optional — Simulator works) |
@@ -428,8 +428,8 @@ The codebase has passed a comprehensive automated audit:
 ═══════════════════════════════════════════════
   HOLODESK DEEP visionOS 27 AUDIT REPORT
 ═══════════════════════════════════════════════
-  Swift files scanned:  105
-  Total lines of code:  25,000+
+  Swift files scanned:  111
+  Total lines of code:  27,500+
   Compilation ERRORS:   0
   Runtime WARNINGS:     0 (all resolved)
   Deprecated APIs:      0
