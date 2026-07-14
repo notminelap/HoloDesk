@@ -59,6 +59,22 @@ struct ImmersiveSpaceView: View {
         SpatialFile(type: .whiteboard, name: "Brainstorm", position: SIMD3(-0.5, 1.6, -2.2)),
     ]
     
+    #if os(visionOS)
+    /// Transforms the REAL room by dimming/tinting the passthrough itself.
+    /// This is the one sanctioned way to relight physical surroundings on
+    /// visionOS: Cinema gets full theater dimming, Study warms the room like
+    /// lamplight, Gaming cools it toward arcade violet, Work stays true.
+    private var surroundingsEffect: SurroundingsEffect? {
+        switch store.currentMode {
+        case .work:   return nil
+        case .study:  return .colorMultiply(Color(red: 1.0, green: 0.93, blue: 0.82))
+        case .cinema: return .systemDark
+        case .gaming: return .colorMultiply(Color(red: 0.80, green: 0.74, blue: 1.0))
+        case .custom: return nil
+        }
+    }
+    #endif
+
     var body: some View {
         RealityView { content, attachments in
             let root = Entity()
@@ -320,6 +336,10 @@ struct ImmersiveSpaceView: View {
             buddyAI.activate()
             holoPet.onImmersiveSpaceOpened()
         }
+        #if os(visionOS)
+        // Real-room transformation: the passthrough itself dims/tints per mode
+        .preferredSurroundingsEffect(surroundingsEffect)
+        #endif
         // Continuous 60 FPS animation ticker
         .task {
             while !Task.isCancelled {

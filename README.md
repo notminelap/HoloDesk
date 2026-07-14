@@ -273,6 +273,17 @@ A living, breathing spatial humanoid placed directly in your room:
 | 🎮 **Gaming** | Floating arcade cabinets, spinning gold coins, neon spotlights |
 | 📚 **Study** | Brick fireplace, orange fireside glow, rising fire sparks, vintage books |
 
+### 🌗 Real-Room Transformation (SurroundingsEffect)
+
+HoloDesk doesn't just add virtual content — it transforms your **actual room** through visionOS passthrough effects, the same API Apple TV uses for theater dimming:
+
+| Mode | Your Physical Room Becomes |
+|------|---------------------------|
+| 🎬 **Cinema** | Fully dimmed, movie-theater dark |
+| 📚 **Study** | Warmed like evening lamplight |
+| 🎮 **Gaming** | Cooled toward arcade violet |
+| 🧑‍💻 **Work** | True passthrough — reality, unfiltered |
+
 <br/>
 
 ---
