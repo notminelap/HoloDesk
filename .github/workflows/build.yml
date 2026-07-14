@@ -20,7 +20,17 @@ jobs:
         run: xcodebuild -version
 
       - name: Install visionOS simulator platform
-        run: sudo xcodebuild -downloadPlatform visionOS -quiet
+        run: |
+          if xcodebuild -showsdks 2>/dev/null | grep -q xrsimulator; then
+            echo "visionOS SDK already installed"
+            exit 0
+          fi
+          for attempt in 1 2 3; do
+            xcodebuild -downloadPlatform visionOS && exit 0
+            echo "downloadPlatform attempt $attempt failed; retrying in 30s"
+            sleep 30
+          done
+          sudo xcodebuild -downloadPlatform visionOS
 
       - name: Build (visionOS Simulator)
         run: |
