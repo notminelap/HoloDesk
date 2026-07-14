@@ -28,6 +28,7 @@ struct ContentView: View {
     
     @State private var aiAssistant = AIAssistantManager()
     @State private var showWindowPicker = false
+    @State private var showCommandPalette = false
     @State private var showSaveDialog = false
     @State private var showSettings = false
     @State private var customWorkspaceName = ""
@@ -126,9 +127,23 @@ struct ContentView: View {
             if easterEggs.secretMessage != nil {
                 SecretMessageOverlay(message: easterEggs.secretMessage)
             }
+
+            // Command Palette overlay (⌘K)
+            if showCommandPalette {
+                CommandPaletteView(
+                    isPresented: $showCommandPalette,
+                    onSave: { showSaveDialog = true },
+                    onToggleImmersive: { toggleImmersive() },
+                    onDemo: { showGuidedDemo = true },
+                    onSettings: { showSettings = true }
+                )
+                .transition(.spatialAppear)
+                .zIndex(10)
+            }
         }
         .glassBackground(cornerRadius: 32)
         .timeAwareTint(atmosphere)
+        .animation(.spring(response: 0.3, dampingFraction: 0.85), value: showCommandPalette)
         .frame(width: 620, height: 480)
         .spawnAnimation(isPresented: isAppeared)
         .onAppear {
@@ -229,6 +244,29 @@ struct ContentView: View {
             .padding(.vertical, 6)
             .innerGlass(cornerRadius: 16)
             
+            // Command palette (⌘K)
+            Button {
+                audio.playSFX(.tap)
+                showCommandPalette = true
+            } label: {
+                HStack(spacing: 5) {
+                    Image(systemName: "magnifyingglass")
+                        .font(.system(size: 12))
+                        .foregroundStyle(.white.opacity(0.5))
+                    Text("⌘K")
+                        .font(.system(size: 9, weight: .semibold, design: .monospaced))
+                        .foregroundStyle(.white.opacity(0.35))
+                }
+                .padding(.horizontal, 8)
+                .frame(height: 30)
+                .innerGlass(cornerRadius: 8)
+            }
+            .buttonStyle(.plain)
+            .hoverGlow()
+            .keyboardShortcut("k", modifiers: .command)
+            .accessibilityLabel("Command palette")
+            .accessibilityHint("Search and launch apps, modes, and actions.")
+
             // Settings button
             Button {
                 showSettings = true

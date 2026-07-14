@@ -298,6 +298,7 @@ struct DockView: View {
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
+        .hoverGlow()
         .accessibilityLabel(label)
         .accessibilityHint(badge > 0 ? "\(badge) notifications. Double tap to open." : "Double tap to open.")
     }
