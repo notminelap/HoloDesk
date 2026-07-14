@@ -18,6 +18,9 @@ struct SettingsView: View {
     @AppStorage("holodesk_auto_save") private var autoSave = true
     @AppStorage("holodesk_window_opacity") private var windowOpacity = 0.85
     @AppStorage("holodesk_animation_speed") private var animationSpeed = 1.0
+    @AppStorage("holodesk_custom_dimming") private var customRoomDimming = 0.4
+    @AppStorage("holodesk_custom_tint_on") private var customRoomTintEnabled = false
+    @AppStorage("holodesk_custom_hue") private var customRoomHue = 0.58
     
     var body: some View {
         NavigationStack {
@@ -35,6 +38,33 @@ struct SettingsView: View {
                     settingsSection("Appearance") {
                         sliderRow("Window opacity", icon: "circle.lefthalf.filled", value: $windowOpacity, range: 0.5...1.0)
                         sliderRow("Animation speed", icon: "hare", value: $animationSpeed, range: 0.5...2.0)
+                    }
+
+                    // Custom Room Ambience — how Custom mode treats the real room
+                    settingsSection("Custom Room Ambience") {
+                        sliderRow("Room dimming", icon: "moon.fill", value: $customRoomDimming, range: 0...1)
+                        toggleRow("Color wash", icon: "paintpalette", isOn: $customRoomTintEnabled)
+                        if customRoomTintEnabled {
+                            sliderRow("Wash hue", icon: "paintbrush.pointed", value: $customRoomHue, range: 0...1)
+                            HStack {
+                                Text("Preview")
+                                    .font(.system(size: 11))
+                                    .foregroundStyle(.white.opacity(0.4))
+                                Spacer()
+                                RoundedRectangle(cornerRadius: 6)
+                                    .fill(Color(hue: customRoomHue, saturation: 0.45, brightness: 0.9))
+                                    .frame(width: 56, height: 18)
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: 6)
+                                            .strokeBorder(.white.opacity(0.25), lineWidth: 0.5)
+                                    )
+                            }
+                            .padding(.vertical, 4)
+                        }
+                        Text("Applies in the immersive space while Custom mode is active.")
+                            .font(.system(size: 10))
+                            .foregroundStyle(.white.opacity(0.35))
+                            .padding(.vertical, 2)
                     }
                     
                     // Saved Workspaces

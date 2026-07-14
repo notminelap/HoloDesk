@@ -59,19 +59,45 @@ struct ImmersiveSpaceView: View {
         SpatialFile(type: .whiteboard, name: "Brainstorm", position: SIMD3(-0.5, 1.6, -2.2)),
     ]
     
+    // User-dialed ambience for Custom mode (shared with SettingsView)
+    @AppStorage("holodesk_custom_dimming") private var customRoomDimming = 0.4
+    @AppStorage("holodesk_custom_tint_on") private var customRoomTintEnabled = false
+    @AppStorage("holodesk_custom_hue") private var customRoomHue = 0.58
+
     #if os(visionOS)
     /// Transforms the REAL room by dimming/tinting the passthrough itself.
     /// This is the one sanctioned way to relight physical surroundings on
     /// visionOS: Cinema gets full theater dimming, Study warms the room like
-    /// lamplight, Gaming cools it toward arcade violet, Work stays true.
+    /// lamplight, Gaming cools it toward arcade violet, Work stays true, and
+    /// Custom hands the dimming and hue dials to the user (Settings panel).
     private var surroundingsEffect: SurroundingsEffect? {
         switch store.currentMode {
         case .work:   return nil
         case .study:  return .colorMultiply(Color(red: 1.0, green: 0.93, blue: 0.82))
         case .cinema: return .systemDark
         case .gaming: return .colorMultiply(Color(red: 0.80, green: 0.74, blue: 1.0))
-        case .custom: return nil
+        case .custom: return customRoomEffect
         }
+    }
+
+    /// Custom-mode ambience from the user's own dials: a hue wash whose
+    /// saturation deepens as dimming rises, or neutral dimming when the wash
+    /// is off — escalating to full theater dark at the top of the slider.
+    private var customRoomEffect: SurroundingsEffect? {
+        let dim = customRoomDimming
+        if customRoomTintEnabled {
+            let tint = Color(
+                hue: customRoomHue,
+                saturation: 0.30 + 0.25 * dim,
+                brightness: 1.0 - 0.55 * dim
+            )
+            return .colorMultiply(tint)
+        }
+        if dim >= 0.95 { return .systemDark }
+        if dim > 0.02 {
+            return .colorMultiply(Color(white: 1.0 - 0.8 * dim))
+        }
+        return nil
     }
     #endif
 

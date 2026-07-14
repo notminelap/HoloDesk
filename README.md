@@ -283,6 +283,7 @@ HoloDesk doesn't just add virtual content — it transforms your **actual room**
 | 📚 **Study** | Warmed like evening lamplight |
 | 🎮 **Gaming** | Cooled toward arcade violet |
 | 🧑‍💻 **Work** | True passthrough — reality, unfiltered |
+| ⚙️ **Custom** | Your dials — dimming slider + any hue wash, live from Settings |
 
 <br/>
 
