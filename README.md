@@ -129,7 +129,7 @@ The fastest way to drive a spatial workspace — a Spotlight-style liquid-glass 
 ## 🎨 Premium Design & Aesthetics
 
 <p align="center">
-  <img src="Docs/Images/holodesk_spatial_view.png" width="100%" alt="HoloDesk Workspace Interface" />
+  <img src="Docs/Images/holodesk_design_banner.svg" width="100%" alt="HoloDesk — Liquid Glass design system banner with prism mark and floating spatial windows" />
 </p>
 
 ### 💎 The Liquid Glass Material System (`View+Glass.swift`)
