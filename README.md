@@ -1,4 +1,8 @@
 <p align="center">
+  <img src="Docs/Images/holodesk_logo.svg" width="150" alt="HoloDesk — glass prism mark with orbital ring" />
+</p>
+
+<p align="center">
   <img src="https://img.shields.io/badge/Swift_Student_Challenge-2027-F05138?style=for-the-badge&logo=swift&logoColor=white" alt="Swift Student Challenge 2027" />
   <img src="https://img.shields.io/badge/visionOS-3.0_(visionOS_27)-007AFF?style=for-the-badge&logo=apple&logoColor=white" alt="visionOS 27" />
   <img src="https://img.shields.io/badge/Swift-6.0-F05138?style=for-the-badge&logo=swift&logoColor=white" alt="Swift 6.0" />
@@ -8,6 +12,7 @@
 </p>
 
 <p align="center">
+  <a href="https://github.com/notminelap/HoloDesk/actions/workflows/build.yml"><img src="https://github.com/notminelap/HoloDesk/actions/workflows/build.yml/badge.svg" alt="Build status" /></a>
   <img src="https://img.shields.io/badge/Dependencies-Zero-brightgreen?style=flat-square" alt="Zero Dependencies" />
   <img src="https://img.shields.io/badge/AI-100%25_Offline-blueviolet?style=flat-square" alt="100% Offline AI" />
   <img src="https://img.shields.io/badge/Audio-Procedural_DSP-00C7B7?style=flat-square" alt="Procedural Audio" />
@@ -28,7 +33,7 @@
 
 <p align="center">
   <em>Transforming your physical room into an infinite, glassmorphic desktop environment.</em><br/>
-  <em>105 Swift files · 25,000+ lines of hand-crafted code · Zero dependencies</em>
+  <em>111 Swift files · 27,500+ lines of hand-crafted code · Zero dependencies</em>
 </p>
 
 <p align="center">
@@ -62,12 +67,13 @@ A native spatial operating workspace built from scratch in pure **SwiftUI** and 
 
 | Metric | Value |
 |--------|-------|
-| **Source Files** | 105 Swift files |
-| **Lines of Code** | 25,000+ LOC |
+| **Source Files** | 111 Swift files |
+| **Lines of Code** | 27,500+ LOC |
 | **Bundle Size** | ~220 KB (0.88% of 25MB budget) |
 | **Dependencies** | **0** — Pure native |
 | **AI Engine** | Apple Intelligence + 38-intent offline NLP |
 | **Spatial Apps** | 32 interactive windows |
+| **Command Palette** | ⌘K — instant fuzzy launcher |
 | **Accessibility** | VoiceOver, Eye-Only, Tremor Stabilization |
 
 </td>
@@ -98,6 +104,21 @@ A native spatial operating workspace built from scratch in pure **SwiftUI** and 
     </td>
   </tr>
 </table>
+
+<br/>
+
+---
+
+<br/>
+
+## ⌘K Spatial Command Palette
+
+The fastest way to drive a spatial workspace — a Spotlight-style liquid-glass palette, summoned with **⌘K** or the header search pill, that fuzzy-searches everything in HoloDesk from one keyboard-first panel:
+
+- **32 spatial apps** — type `che` ↩ and Chess is floating in your room
+- **5 workspace modes** — `cinema` ↩ transitions the entire environment
+- **System actions** — save workspace, toggle immersive space, guided demo, settings
+- Prefix-ranked matching, gaze-responsive rows, full VoiceOver coverage, and a procedurally synthesized sound for every action
 
 <br/>
 

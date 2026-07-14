@@ -1,0 +1,72 @@
+<svg viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">HoloDesk</title>
+  <desc id="desc">Glassmorphic prism cube wrapped in a cyan-to-violet orbital ring — the HoloDesk mark.</desc>
+
+  <defs>
+    <!-- Brand hues: holoPrimary azure (hue .58), holoSecondary cyan (.52), holoTertiary violet (.75) -->
+    <linearGradient id="gradTop" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#7DEBF7"/>
+      <stop offset="1" stop-color="#38BDF8"/>
+    </linearGradient>
+    <linearGradient id="gradLeft" x1="0" y1="0" x2="0.4" y2="1">
+      <stop offset="0" stop-color="#0EA5E9"/>
+      <stop offset="1" stop-color="#4F46E5"/>
+    </linearGradient>
+    <linearGradient id="gradRight" x1="0" y1="0" x2="0.6" y2="1">
+      <stop offset="0" stop-color="#8B5CF6"/>
+      <stop offset="1" stop-color="#5B21B6"/>
+    </linearGradient>
+    <linearGradient id="gradRing" x1="0" y1="1" x2="1" y2="0">
+      <stop offset="0" stop-color="#22D3EE"/>
+      <stop offset="1" stop-color="#8B5CF6"/>
+    </linearGradient>
+    <radialGradient id="coreGlow" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#A5F3FC" stop-opacity="0.95"/>
+      <stop offset="0.55" stop-color="#67E8F9" stop-opacity="0.35"/>
+      <stop offset="1" stop-color="#67E8F9" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="ambient" cx="0.5" cy="0.45" r="0.5">
+      <stop offset="0" stop-color="#38BDF8" stop-opacity="0.14"/>
+      <stop offset="0.7" stop-color="#8B5CF6" stop-opacity="0.07"/>
+      <stop offset="1" stop-color="#8B5CF6" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <!-- Ambient halo (visible on dark, whisper on light) -->
+  <circle cx="128" cy="118" r="122" fill="url(#ambient)"/>
+
+  <!-- Orbital ring: back half sits behind the prism -->
+  <path d="M 20.4 142.9 A 112 36 -16 0 1 235.6 81.1"
+        fill="none" stroke="url(#gradRing)" stroke-width="4"
+        stroke-linecap="round" opacity="0.35"/>
+
+  <!-- Glass prism cube -->
+  <g stroke="#FFFFFF" stroke-opacity="0.35" stroke-width="1" stroke-linejoin="round">
+    <path d="M128 30 L198 66 L128 102 L58 66 Z"  fill="url(#gradTop)"  fill-opacity="0.92"/>
+    <path d="M58 66 L128 102 L128 194 L58 158 Z" fill="url(#gradLeft)" fill-opacity="0.90"/>
+    <path d="M198 66 L128 102 L128 194 L198 158 Z" fill="url(#gradRight)" fill-opacity="0.90"/>
+  </g>
+
+  <!-- Inner light core -->
+  <circle cx="128" cy="104" r="34" fill="url(#coreGlow)"/>
+
+  <!-- Specular edge highlights -->
+  <path d="M58 66 L128 30 L198 66" fill="none" stroke="#FFFFFF" stroke-opacity="0.65"
+        stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M128 102 L128 194" stroke="#FFFFFF" stroke-opacity="0.22" stroke-width="1.5"/>
+
+  <!-- Orbital ring: front half passes over the prism -->
+  <path d="M 20.4 142.9 A 112 36 -16 0 0 235.6 81.1"
+        fill="none" stroke="url(#gradRing)" stroke-width="4.5"
+        stroke-linecap="round" opacity="0.95"/>
+
+  <!-- Satellite on the ring -->
+  <circle cx="118" cy="146.5" r="7" fill="#22D3EE" opacity="0.35"/>
+  <circle cx="118" cy="146.5" r="4.5" fill="#22D3EE"/>
+  <circle cx="118" cy="146.5" r="1.8" fill="#FFFFFF"/>
+
+  <!-- Sparkles -->
+  <path d="M46 38 l2.2 5.8 5.8 2.2 -5.8 2.2 -2.2 5.8 -2.2 -5.8 -5.8 -2.2 5.8 -2.2 Z" fill="#A5F3FC" opacity="0.85"/>
+  <path d="M226 176 l1.8 4.7 4.7 1.8 -4.7 1.8 -1.8 4.7 -1.8 -4.7 -4.7 -1.8 4.7 -1.8 Z" fill="#C4B5FD" opacity="0.8"/>
+  <path d="M212 30 l1.4 3.6 3.6 1.4 -3.6 1.4 -1.4 3.6 -1.4 -3.6 -3.6 -1.4 3.6 -1.4 Z" fill="#A5F3FC" opacity="0.7"/>
+</svg>
