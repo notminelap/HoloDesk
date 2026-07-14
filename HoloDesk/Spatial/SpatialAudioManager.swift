@@ -47,6 +47,10 @@ final class SpatialAudioManager {
     private var audioEngine: AVAudioEngine?
     private var playerNodes: [UUID: AVAudioPlayerNode] = [:]
     private var environmentNode: AVAudioEnvironmentNode?
+
+    /// One-shot effect players awaiting completion cleanup, keyed by effect id.
+    /// Completion handlers pass back only the Sendable id, never the node itself.
+    private var activeEffectPlayers: [UUID: AVAudioPlayerNode] = [:]
     
     // Procedural ambient drone properties
     private var ambientSourceNode: AVAudioSourceNode?
@@ -134,16 +138,24 @@ final class SpatialAudioManager {
             return
         }
         
-        player.scheduleBuffer(buffer, at: nil, options: []) {
+        let effectId = UUID()
+        activeEffectPlayers[effectId] = player
+        player.scheduleBuffer(buffer, at: nil, options: []) { [weak self] in
             // Clean up player after completion to avoid memory and node leaks
             Task { @MainActor in
-                player.stop()
-                engine.detach(player)
+                self?.finishEffectPlayer(id: effectId)
             }
         }
         player.play()
     }
-    
+
+    /// Detaches a completed one-shot effect player on the main actor.
+    private func finishEffectPlayer(id: UUID) {
+        guard let player = activeEffectPlayers.removeValue(forKey: id) else { return }
+        player.stop()
+        audioEngine?.detach(player)
+    }
+
     // MARK: - Generative Ambient Drone
     
     /// Starts a real-time generative warm atmospheric synthesizer pad.
@@ -345,15 +357,16 @@ final class SpatialAudioManager {
             data[i] = Float(sample * amplitude)
         }
         
-        player.scheduleBuffer(buffer, at: nil, options: []) {
+        let effectId = UUID()
+        activeEffectPlayers[effectId] = player
+        player.scheduleBuffer(buffer, at: nil, options: []) { [weak self] in
             Task { @MainActor in
-                player.stop()
-                engine.detach(player)
+                self?.finishEffectPlayer(id: effectId)
             }
         }
         player.play()
     }
-    
+
     // MARK: - visionOS 27: Reverb Mesh (Geometric Acoustics)
     
     /// Room acoustic material profiles for geometric reverb simulation.
