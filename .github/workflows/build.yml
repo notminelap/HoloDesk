@@ -32,10 +32,11 @@ jobs:
           done
           sudo xcodebuild -downloadPlatform visionOS
 
-      - name: Build (visionOS Simulator)
+      - name: Build app (visionOS Simulator)
         run: |
           set -o pipefail
           xcodebuild build \
+            -project HoloDesk.xcodeproj \
             -scheme HoloDesk \
             -destination 'generic/platform=visionOS Simulator' \
             -derivedDataPath .build/ci \

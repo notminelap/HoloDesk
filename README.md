@@ -396,13 +396,18 @@ HoloDesk/
 git clone https://github.com/notminelap/HoloDesk.git
 cd HoloDesk
 
-# Open in Xcode (auto-resolves as SPM package)
-open Package.swift
+# Open the native visionOS app project
+open HoloDesk.xcodeproj
 ```
 
 1. Select **HoloDesk** as the build scheme
 2. Target **Apple Vision Pro Simulator** (or physical device)
 3. Press **⌘ + R** to build and run
+
+> [!NOTE]
+> `Package.swift` is the Swift Playgrounds (app playground) entry point — in
+> Xcode it only produces a non-launchable executable. To run the app in the
+> simulator, always open **HoloDesk.xcodeproj**.
 
 ### System Requirements
 

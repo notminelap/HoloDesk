@@ -7,11 +7,12 @@
 
 import PackageDescription
 
-// AppleProductTypes exists in Xcode and Swift Playgrounds — both must take the
-// app-product path or the simulator gets a UI-less command-line executable that
-// builds fine but never launches a window. os(macOS) here tests the manifest
-// HOST (always the Mac in Xcode), so it must NOT gate this branch.
-#if canImport(AppleProductTypes)
+// This branch is for Swift Playgrounds on iPad only (os(macOS) tests the
+// manifest HOST, so it is always false there and always true in Xcode).
+// Xcode users must open HoloDesk.xcodeproj — the native visionOS app target.
+// The executable product below builds under Xcode but can never install in
+// the simulator (no app bundle), which is why the xcodeproj exists.
+#if canImport(AppleProductTypes) && !os(macOS)
 import AppleProductTypes
 
 let productsList: [Product] = [
@@ -22,10 +23,13 @@ let productsList: [Product] = [
         teamIdentifier: "",
         displayVersion: "3.0.0",
         bundleVersion: "1",
-        appIcon: .placeholder(icon: .cube),
+        // .cube is not a valid PlaceholderIcon and AppleProductTypes has no
+        // .vision device family (both CI-verified) — the original values had
+        // never actually compiled. Native visionOS ships via HoloDesk.xcodeproj.
+        appIcon: .asset("AppIcon"),
         accentColor: .presetColor(.cyan),
         supportedDeviceFamilies: [
-            .vision
+            .pad
         ],
         supportedInterfaceOrientations: [
             .portrait,

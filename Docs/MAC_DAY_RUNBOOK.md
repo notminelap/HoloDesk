@@ -14,12 +14,18 @@
 mkdir -p ~/Developer && cd ~/Developer
 git clone https://github.com/notminelap/HoloDesk.git
 cd HoloDesk
-open Package.swift
+open HoloDesk.xcodeproj     # ⚠️ the XCODEPROJ — NOT Package.swift
 ```
 
-- [ ] Xcode opens the package, scheme **HoloDesk** appears
+> **Why not Package.swift?** That's what went wrong last time: the package's
+> Xcode fallback is a command-line executable — it builds successfully but has
+> no app bundle, so the simulator launches *nothing*. `HoloDesk.xcodeproj` is a
+> native visionOS **app** target; it installs and opens like a real app.
+
+- [ ] Xcode opens the project, scheme **HoloDesk** appears
 - [ ] Run destination: **Apple Vision Pro** simulator (if missing: Xcode ▸ Settings ▸ Components ▸ visionOS simulator runtime)
-- [ ] **⌘R** — it should build clean (CI has verified every commit; if it doesn't build, something is environmental, not the code)
+- [ ] **⌘R** — build, install, and this time: **windows appear**
+- [ ] Claude Code is installed on this Mac — open a terminal in the repo, run `claude`, and ask it to walk this runbook with you; it can read build errors and fix-push-rebuild live
 
 ---
 
