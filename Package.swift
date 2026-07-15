@@ -7,7 +7,11 @@
 
 import PackageDescription
 
-#if canImport(AppleProductTypes) && !os(macOS)
+// AppleProductTypes exists in Xcode and Swift Playgrounds — both must take the
+// app-product path or the simulator gets a UI-less command-line executable that
+// builds fine but never launches a window. os(macOS) here tests the manifest
+// HOST (always the Mac in Xcode), so it must NOT gate this branch.
+#if canImport(AppleProductTypes)
 import AppleProductTypes
 
 let productsList: [Product] = [
