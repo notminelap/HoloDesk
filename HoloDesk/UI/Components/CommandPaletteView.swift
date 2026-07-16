@@ -121,8 +121,16 @@ struct CommandPaletteView: View {
         .frame(width: 460)
         .frame(maxHeight: 400)
         .deepGlass(cornerRadius: 22)
-        .onAppear { searchFocused = true }
+        .onAppear {
+            // Focusing during the insertion transition races the animation and
+            // gets dropped; request focus just after the panel settles.
+            Task { @MainActor in
+                try? await Task.sleep(for: .milliseconds(80))
+                searchFocused = true
+            }
+        }
         .accessibilityElement(children: .contain)
+        .accessibilityAddTraits(.isModal)
         .accessibilityLabel("Command palette")
     }
 
@@ -315,6 +323,8 @@ struct CommandPaletteView: View {
     // MARK: - Execution
 
     private func runFirstEntry() {
+        // Return on an empty query must not fire the alphabetically-first app.
+        guard !trimmedQuery.isEmpty else { return }
         if let app = filteredApps.first {
             launchApp(app)
         } else if let mode = filteredModes.first {
@@ -327,15 +337,34 @@ struct CommandPaletteView: View {
     private func launchApp(_ type: WindowType) {
         audio.playSFX(.windowOpen)
         windowManager.spawnWindow(type: type, in: store)
-        openWindow(id: "spatial-window", value: store.activeWindows.last?.id)
+        // The scene is WindowGroup(for: UUID.self) — passing UUID? presents an
+        // Optional<UUID> value SwiftUI cannot match, and no window ever opens.
+        if let newWindowId = store.activeWindows.last?.id {
+            openWindow(id: "spatial-window", value: newWindowId)
+        }
         close()
     }
 
     private func switchMode(_ mode: WorkspaceMode) {
-        guard !windowManager.isTransitioning else { return }
+        // Re-running the active mode would wipe and reload the user's layout.
+        guard mode != store.currentMode else {
+            close()
+            return
+        }
+        guard !windowManager.isTransitioning else {
+            audio.playSFX(.error)
+            return
+        }
         audio.playSFX(.success)
-        Task {
-            await windowManager.transitionToMode(mode, in: store)
+        if mode == .custom {
+            // Custom means "your rules": keep every window exactly where it is
+            // and just activate the mode (room ambience, lighting). There is no
+            // bundled preset for it — a full transition would empty the room.
+            store.currentMode = .custom
+        } else {
+            Task {
+                await windowManager.transitionToMode(mode, in: store)
+            }
         }
         close()
     }

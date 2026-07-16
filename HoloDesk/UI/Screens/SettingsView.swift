@@ -45,7 +45,8 @@ struct SettingsView: View {
                         sliderRow("Room dimming", icon: "moon.fill", value: $customRoomDimming, range: 0...1)
                         toggleRow("Color wash", icon: "paintpalette", isOn: $customRoomTintEnabled)
                         if customRoomTintEnabled {
-                            sliderRow("Wash hue", icon: "paintbrush.pointed", value: $customRoomHue, range: 0...1)
+                            sliderRow("Wash hue", icon: "paintbrush.pointed", value: $customRoomHue, range: 0...1,
+                                      readout: { String(format: "%.0f°", $0 * 360) })
                             HStack {
                                 Text("Preview")
                                     .font(.system(size: 11))
@@ -184,7 +185,13 @@ struct SettingsView: View {
         .padding(.vertical, 4)
     }
     
-    private func sliderRow(_ label: String, icon: String, value: Binding<Double>, range: ClosedRange<Double>) -> some View {
+    private func sliderRow(
+        _ label: String,
+        icon: String,
+        value: Binding<Double>,
+        range: ClosedRange<Double>,
+        readout: @escaping (Double) -> String = { String(format: "%.0f%%", $0 * 100) }
+    ) -> some View {
         VStack(alignment: .leading, spacing: 6) {
             HStack {
                 Image(systemName: icon)
@@ -198,7 +205,7 @@ struct SettingsView: View {
                 
                 Spacer()
                 
-                Text(String(format: "%.0f%%", value.wrappedValue * 100))
+                Text(readout(value.wrappedValue))
                     .font(.system(size: 11, weight: .medium, design: .monospaced))
                     .foregroundStyle(.white.opacity(0.5))
             }

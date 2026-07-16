@@ -219,7 +219,9 @@ struct SpatialDepthModifier: ViewModifier {
             .scaleEffect(isHovered ? 1.008 : 1.0)
             .animation(.spring(response: 0.3, dampingFraction: 0.8), value: isHovered)
             .onHover { isHovered = $0 }
-            .gazeHoverEffect()
+            // No gazeHoverEffect here: every spatialDepth() call site also
+            // chains hoverGlow(), which already applies it — two .lift effects
+            // on one view compound into a doubled scale on gaze.
     }
 }
 

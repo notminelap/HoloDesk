@@ -244,10 +244,10 @@ struct ContentView: View {
             .padding(.vertical, 6)
             .innerGlass(cornerRadius: 16)
             
-            // Command palette (⌘K)
+            // Command palette (⌘K) — toggles, so ⌘K also dismisses
             Button {
                 audio.playSFX(.tap)
-                showCommandPalette = true
+                showCommandPalette.toggle()
             } label: {
                 HStack(spacing: 5) {
                     Image(systemName: "magnifyingglass")
@@ -427,7 +427,11 @@ struct ContentView: View {
                 ForEach(WindowType.allCases) { type in
                     Button {
                         windowManager.spawnWindow(type: type, in: store)
-                        openWindow(id: "spatial-window", value: store.activeWindows.last?.id)
+                        // WindowGroup is for UUID.self — a UUID? value never
+                        // matches the scene and no window would open.
+                        if let newWindowId = store.activeWindows.last?.id {
+                            openWindow(id: "spatial-window", value: newWindowId)
+                        }
                         showWindowPicker = false
                     } label: {
                         VStack(spacing: 8) {

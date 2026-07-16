@@ -171,6 +171,9 @@ final class SpatialAudioManager {
         if !engine.isRunning {
             startEngine()
         }
+        // engine.start() can fail (e.g. during an audio-session interruption);
+        // playing a node on a stopped engine raises an uncatchable NSException.
+        guard engine.isRunning else { return }
         
         let player = AVAudioPlayerNode()
         // Fixed: Replace .hrtfHQ with .auto for compatibility
@@ -214,6 +217,9 @@ final class SpatialAudioManager {
         if !engine.isRunning {
             startEngine()
         }
+        // engine.start() can fail (e.g. during an audio-session interruption);
+        // playing a node on a stopped engine raises an uncatchable NSException.
+        guard engine.isRunning else { return }
         
         isDroneActive = true
         
@@ -341,6 +347,9 @@ final class SpatialAudioManager {
         if !engine.isRunning {
             startEngine()
         }
+        // engine.start() can fail (e.g. during an audio-session interruption);
+        // playing a node on a stopped engine raises an uncatchable NSException.
+        guard engine.isRunning else { return }
         
         let player = AVAudioPlayerNode()
         // Fixed: replace .hrtfHQ with .auto for compatibility
