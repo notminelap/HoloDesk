@@ -181,14 +181,14 @@ final class SpatialAudioManager {
         player.reverbBlend = 0.25
         player.position = AVAudio3DPoint(x: position.x, y: position.y, z: position.z)
         
+        guard let buffer = SoundBufferGenerator.generate(for: effect) else { return }
+
         engine.attach(player)
-        engine.connect(player, to: environment, format: nil)
-        
-        guard let buffer = SoundBufferGenerator.generate(for: effect) else {
-            engine.detach(player)
-            return
-        }
-        
+        // Connect using the buffer's own format: a nil format adopts the hardware
+        // rate (48 kHz on some routes), and scheduling a 44.1 kHz buffer on that
+        // connection raises an uncatchable NSException.
+        engine.connect(player, to: environment, format: buffer.format)
+
         let effectId = UUID()
         activeEffectPlayers[effectId] = player
         player.scheduleBuffer(buffer, at: nil, options: []) { [weak self] in
@@ -357,11 +357,14 @@ final class SpatialAudioManager {
         player.reverbBlend = 0.25
         player.position = AVAudio3DPoint(x: position.x, y: position.y, z: position.z)
         
-        engine.attach(player)
-        engine.connect(player, to: environment, format: nil)
-        
         let sampleRate = 44100.0
         let format = AVAudioFormat(standardFormatWithSampleRate: sampleRate, channels: 1)!
+
+        engine.attach(player)
+        // Connect using the buffer's own format — see playSFX: a nil-format
+        // connection adopts the hardware rate and mismatched scheduling aborts.
+        engine.connect(player, to: environment, format: format)
+
         let frameCount = AVAudioFrameCount(duration * sampleRate)
         guard let buffer = AVAudioPCMBuffer(pcmFormat: format, frameCapacity: frameCount) else {
             engine.detach(player)

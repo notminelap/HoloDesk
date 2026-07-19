@@ -17,6 +17,30 @@ import AppKit
 typealias UIColor = NSColor
 #endif
 
+// MARK: - Mode Tag Component
+
+/// Tags an entity with the workspace mode its visuals were last built for, so
+/// per-frame updates can cheaply skip rebuilding until the mode actually changes.
+/// Lives in a custom component (not `accessibilityDescription`) so the mode key
+/// stays out of what VoiceOver announces for the entity.
+struct ModeTagComponent: Component {
+    var mode: String
+}
+
+private extension Entity {
+    /// The workspace mode key this entity was last configured for.
+    var modeTag: String? {
+        get { components[ModeTagComponent.self]?.mode }
+        set {
+            if let newValue {
+                components.set(ModeTagComponent(mode: newValue))
+            } else {
+                components.remove(ModeTagComponent.self)
+            }
+        }
+    }
+}
+
 // MARK: - Draggable & Dynamic Spatial Environment View
 
 /// Renders the 3D Mixed Reality workspace environment.
@@ -561,10 +585,10 @@ struct ImmersiveSpaceView: View {
             let particle = children[i]
             
             let modeKey = mode.rawValue
-            let needsMaterialUpdate = particle.accessibilityDescription != modeKey
-            
+            let needsMaterialUpdate = particle.modeTag != modeKey
+
             if needsMaterialUpdate {
-                particle.accessibilityDescription = modeKey
+                particle.modeTag = modeKey
                 var material = UnlitMaterial()
                 
                 switch mode {
@@ -600,7 +624,6 @@ struct ImmersiveSpaceView: View {
                 // Cyber neon-pink and cyan drifting data packets
                 let speed: Float = 0.5
                 let xOffset = sin(Float(time) * 1.5 + seed * 0.4) * 0.1
-                let zOffset = cos(Float(time) * 1.2 + seed * 0.4) * 0.1
                 particle.position.x += Float(sin(Float(time) * speed + seed)) * 0.008 + xOffset * 0.02
                 particle.position.y += Float(cos(Float(time) * 0.8 + seed)) * 0.003
                 
@@ -896,20 +919,20 @@ struct ImmersiveSpaceView: View {
         let container: Entity
         if let existing = root.findEntity(named: "RoomInteriorContainer") {
             container = existing
-            if container.accessibilityDescription != mode.rawValue {
+            if container.modeTag != mode.rawValue {
                 // Perform recursive bottom-up teardown to guarantee that nested components
                 // and child references are fully released back to the RealityKit graph.
                 for child in container.children {
                     recursivelyTeardownEntity(child)
                 }
                 container.children.removeAll()
-                container.accessibilityDescription = mode.rawValue
+                container.modeTag = mode.rawValue
                 spawnInteriorModels(into: container, for: mode)
             }
         } else {
             container = Entity()
             container.name = "RoomInteriorContainer"
-            container.accessibilityDescription = mode.rawValue
+            container.modeTag = mode.rawValue
             root.addChild(container)
             spawnInteriorModels(into: container, for: mode)
         }
@@ -1219,7 +1242,6 @@ struct ImmersiveSpaceView: View {
                 if let coin = container.findEntity(named: "SpinningCoin_\(i)") {
                     // Combine vertical float bobbing + spin around axis
                     let bob = Float(sin(animationTime * 3.0 + Double(i))) * 0.04
-                    let baseZ = -1.6 - abs(Float(i - 2) * 0.4) * 0.2
                     coin.position.y = 1.55 + sin(Float(i) * 0.5)*0.1 + bob
                     coin.orientation = simd_quatf(angle: Float(animationTime * 3.5), axis: SIMD3(0, 1, 0)) * simd_quatf(angle: .pi/2.0, axis: SIMD3(1, 0, 0))
                 }

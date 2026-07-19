@@ -29,7 +29,9 @@ final class VoiceCommandManager {
     }
     
     private func requestAuthorization() {
-        SFSpeechRecognizer.requestAuthorization { status in
+        // @Sendable: TCC invokes this on a background queue; without it the closure
+        // inherits @MainActor isolation and the Swift 6 runtime check traps off-main.
+        SFSpeechRecognizer.requestAuthorization { @Sendable status in
             Task { @MainActor in
                 self.isAuthorized = (status == .authorized)
             }
@@ -52,11 +54,14 @@ final class VoiceCommandManager {
         let inputNode = audioEngine.inputNode
         let recordingFormat = inputNode.outputFormat(forBus: 0)
         
-        inputNode.installTap(onBus: 0, bufferSize: 1024, format: recordingFormat) { buffer, _ in
-            request.append(buffer)
+        // The tap fires on the audio render thread; append is documented thread-safe,
+        // so opt the request out of the Sendable capture check.
+        nonisolated(unsafe) let tapRequest = request
+        inputNode.installTap(onBus: 0, bufferSize: 1024, format: recordingFormat) { @Sendable buffer, _ in
+            tapRequest.append(buffer)
         }
         
-        recognitionTask = recognizer?.recognitionTask(with: request) { [weak self] result, error in
+        recognitionTask = recognizer?.recognitionTask(with: request) { @Sendable [weak self] result, error in
             guard let self else { return }
             if let result {
                 let text = result.bestTranscription.formattedString.lowercased()

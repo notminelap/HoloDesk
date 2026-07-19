@@ -144,10 +144,15 @@ struct HoloDeskApp: App {
     @State private var constellations = WindowConstellations()
     @State private var atmosphere = TimeAwareAtmosphere()
     
+    init() {
+        // Custom RealityKit components must be registered before first use.
+        ModeTagComponent.registerComponent()
+    }
+
     // ═══════════════════════════════════════
     // MARK: - Scene Declarations
     // ═══════════════════════════════════════
-    
+
     var body: some SwiftUI.Scene {
         
         // ── Main Control Window ──────────────
