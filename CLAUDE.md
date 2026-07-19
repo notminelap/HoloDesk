@@ -66,6 +66,48 @@ app playgrounds have no `.vision` device family (CI-proven).
   guard `engine.isRunning` after a start attempt (play() on a stopped engine
   is an uncatchable NSException).
 
+## Mac Day results (July 19, 2026) — the app RAN
+
+Splash → onboarding verified live on the visionOS 27 beta simulator for the
+first time ever (first-light screenshots in `Docs/Images/visionos_splash_starfield.png`,
+`_onboarding_welcome.png`, `_home_view.png`). Three bugs found and fixed, each
+masking the next:
+
+1. **All 7 build warnings** (ImmersiveSpaceView): five were `accessibilityDescription`
+   abused as a mode-tag store on RealityKit entities (leaked mode keys to VoiceOver).
+   Replaced with `ModeTagComponent` + `entity.modeTag`, registered in `HoloDeskApp.init()`.
+   Two unused-value lines deleted.
+2. **Launch crash #1 (audio)**: SFX buffers are synthesized at 44.1 kHz but player
+   nodes were connected `format: nil`, adopting the hardware rate (48 kHz on the beta
+   sim). `scheduleBuffer` throws an uncatchable NSException → app died at the launch
+   chime, every launch. Fix in `playSFX`/`playTone`: connect players with the buffer's
+   own format. RULE: never connect an `AVAudioPlayerNode` with `format: nil` when
+   scheduling synthesized buffers.
+3. **Launch crash #2 (Swift 6, masked by #1)**: closures formed inside a `@MainActor`
+   type inherit MainActor isolation even when their body only hops via
+   `Task { @MainActor }` — the runtime executor check traps *before the body runs*
+   when a framework invokes the closure off-main (TCC's speech-auth callback did).
+   Fix: mark framework-invoked callbacks `@Sendable` (3 sites in VoiceCommandManager;
+   the audio tap also needs `nonisolated(unsafe)` for the request capture). RULE: any
+   completion handler a framework may call off-main must be `@Sendable`.
+
+### Borrowed-Mac simulator environment (macOS 27.0 beta, 8 GB M2)
+
+- Device Hub "Connection timed out" is an ENVIRONMENT failure, not the app:
+  `simdiskimaged` crashes on cold CoreSimulator starts → session boots without
+  `xrserverd`/`host_support` → Reality\* shell processes watchdog-loop (`0x8BADF00D`)
+  → app scenes never composite, live view can't attach. Working remedy:
+  `xcrun simctl shutdown all && killall -9 com.apple.CoreSimulator.CoreSimulatorService simdiskimaged`,
+  boot again, then WAIT — on 8 GB the shell takes several minutes to come up.
+- `xcrun simctl io booted screenshot x.png` always works — viewer-independent truth.
+- 8 GB RAM: quit Chrome/Teams/etc. before testing; the OS silently reaped a healthy
+  HoloDesk instance under memory pressure (no crash report = jetsam, not an app bug).
+  A reaped instance can linger as an orphan process — don't trust a bare `pgrep`.
+- Terminal builds need `DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer`
+  (xcode-select points at CommandLineTools).
+- Still unverified: ⌘K palette, mode transitions, immersive space + SurroundingsEffect,
+  custom ambience dials, the 32 apps, AirPods route change — runbook Phases 1–4.
+
 ## Known open items
 
 - Preflight review: 2 of 4 lenses never ran (state-logic, audio-lifecycle) —
