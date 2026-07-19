@@ -108,6 +108,24 @@ masking the next:
 - Still unverified: ⌘K palette, mode transitions, immersive space + SurroundingsEffect,
   custom ambience dials, the 32 apps, AirPods route change — runbook Phases 1–4.
 
+### Night session addendum (July 19, ~23:00)
+
+- Main deck rendered live for the first time (`Docs/Images/visionos_main_deck.png`).
+  Onboarding was bypassed via
+  `xcrun simctl spawn booted defaults write com.notminelap.holodesk holodesk_onboarding_complete -bool true`
+  — delete that key to re-test onboarding properly.
+- SUSPECTED NEW BUG: the main deck renders TWICE, slightly offset (two "HoloDesk"
+  headers in the screenshot). Possible double-open of the `main` WindowGroup on
+  scene restore. Investigate before SSC submission.
+- Gaze hover glow never appeared in the Device Hub viewer. Hover halos are drawn
+  out-of-process by the system compositor, which is unreliable on this beta —
+  verify on a healthier host before suspecting `hoverGlow()`.
+- Viewer clicks were never confirmed to reach the app (Device Hub camera modes vs
+  the tap tool + 8 GB freezes). Interactive input verification is fully pending.
+- The whole simulator was jetsam-killed once mid-evening. After any reboot the
+  shell needs ~5 minutes before app scenes composite. `simctl io booted screenshot`
+  remains the ground truth throughout.
+
 ## Known open items
 
 - Preflight review: 2 of 4 lenses never ran (state-logic, audio-lifecycle) —
